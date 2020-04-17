@@ -1,0 +1,19 @@
+{
+  "name": "structural-adts",
+  "version": "0.0.1",
+  "description": "Maybe, Result, and friends, using simple structural typing in TypeScript",
+  "main": "index.js",
+  "repository": "git@github.com:mulias/structural-adts.git",
+  "author": "Elias Mulhall <eli.mulhall@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "sideEffects": false,
+  "devDependencies": {
+    "prettier": "^2.0.4",
+    "typescript": "^3.8.3"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "trailingComma": "none"
+  }
+}
