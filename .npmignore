@@ -1,5 +1,4 @@
 .git/
 nix/
 node_modules/
-.gitignore
 tags
