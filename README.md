@@ -6,8 +6,8 @@ Maybe, Result, and friends, using simple structural typing in TypeScript.
 - [x] `Maybe`, `Result`, and `AsyncData`
 - [x] `NonEmptyArray` and `Pair`
 - [x] `ValidDate` and `DateString`
-- [/] Finish documentation
-- [/] Add type-level testing
-- [ ] Publish to NPM
+- [x] Finish documentation
+- [x] Publish to NPM
+- [ ] Add type-level testing
 - [ ] Add code-level testing
 - [ ] Update README
