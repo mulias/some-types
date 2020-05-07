@@ -1,6 +1,6 @@
 {
   "name": "structural-adts",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Maybe, Result, and friends, using simple structural typing in TypeScript",
   "main": "index.js",
   "types": "index.d.ts",
