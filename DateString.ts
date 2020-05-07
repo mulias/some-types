@@ -24,8 +24,13 @@ export {
 // Types
 //
 
-/** A string encoding of a Date, guaranteed to parse to a valid Date object. */
-type DateString = DateOnlyString | DateTimeString | DateMonthString;
+/**
+ * A string encoding of a Date, guaranteed to parse to a valid Date object. The
+ * three encodings provided store date information at different levels of
+ * specificity, but are not mutually exclusive. For example, a `DateOnlyString`
+ * is a valid `DateTimeString`, but with the time value zeroed out.
+ */
+type DateString = DateTimeString | DateOnlyString | DateMonthString;
 
 /** Alias for the `DateString` type */
 type T = DateString;
@@ -58,6 +63,9 @@ type DateMonthString = string & IsDateMonthString;
 enum IsDateMonthString {
   _ = "DATE_MONTH_STRING"
 }
+
+type AllDates<A extends Array<any>> = { [k in keyof A]: Date };
+type AllValidDates<A extends Array<any>> = { [k in keyof A]: ValidDate.T };
 
 //
 // Constructors
@@ -160,9 +168,51 @@ const toDate = (d: DateString): ValidDate.T => new Date(d) as ValidDate.T;
 //
 
 /**
- * Apply a `Date` object operation onto a `DateString`, and try to return the
- * result as a `DateTimeString`. If applying `fn` produces an invalid date,
- * then `Nothing` is returned.
+ * Apply a `Date` object operation onto one or more `DateString`s, returning a
+ * new `DateString`. If `fn` produces a `DateString`, return that value. If
+ * `fn` produces a `Date`, convert it to a `DateTimeString`. If `fn` produces
+ * an invalid `Date`, return `Maybe.Nothing`.
  */
-const map = (fn: (d: Date) => Date, ds: DateString): Maybe.T<DateTimeString> =>
-  DateTimeString(fn(toDate(ds)));
+function map<Args extends Array<DateString>, R extends DateString>(
+  fn: (...dates: AllDates<Args>) => R,
+  ...dateStringArgs: Args
+): R;
+function map<Args extends Array<DateString>>(
+  fn: (...dates: AllDates<Args>) => ValidDate.T,
+  ...dateStringArgs: Args
+): DateTimeString;
+function map<Args extends Array<DateString>>(
+  fn: (...dates: AllDates<Args>) => Date,
+  ...dateStringArgs: Args
+): Maybe.T<DateTimeString>;
+function map<Args extends Array<DateString>>(
+  fn: (...dates: AllDates<Args>) => Date | DateString,
+  ...dateStringArgs: Args
+) {
+  const r = fn(...(dateStringArgs.map(toDate) as any));
+  if (isDateString(r)) {
+    return r;
+  } else {
+    return DateTimeString(r);
+  }
+}
+
+/**
+ * Apply a `Date` operation to one or more `DateString`s. Unlike `map`, the
+ * result of applying `fn` might not be a new `DateString`.
+ */
+function applyAsDate<Args extends Array<DateString | ValidDate.T>, R>(
+  fn: (...dates: AllValidDates<Args>) => R,
+  ...dateStringArgs: Args
+): R;
+function applyAsDate<Args extends Array<DateString | Date>, R>(
+  fn: (...dates: AllDates<Args>) => R,
+  ...dateStringArgs: Args
+): R;
+function applyAsDate<Args extends Array<DateString | Date>>(
+  fn: (...dates: Args) => any,
+  ...dateStringArgs: Args
+) {
+  const dates = dateStringArgs.map((d) => (d instanceof Date ? d : toDate(d)));
+  return fn(...(dates as any));
+}

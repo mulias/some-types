@@ -1,5 +1,5 @@
 import * as Maybe from "./Maybe";
-import { DateString } from "./DateString";
+import * as DateString from "./DateString";
 
 export {
   // Types
@@ -20,50 +20,69 @@ export {
 // Types
 //
 
-/** TODO */
+/** A `Date` object which we know is not an `Invalid Date`. */
 type ValidDate = Date & IsValidDate;
 enum IsValidDate {
   _ = "VALID_DATE"
 }
 
-/** TODO */
+/** Alias for the `ValidDate` type */
 type T = ValidDate;
-
-// Functions that convert to a DateString return a `Maybe` if the input might be a Date, but
-// always succeed if the input is a different DateString.
-type ValidDateConversion<In> = In extends DateString | ValidDate ? ValidDate : Maybe.T<ValidDate>;
 
 //
 // Constructors
 //
 
-/** TODO */
+/** Get the current time, which we know is a `ValidDate`. */
 const now = (): ValidDate => new Date() as ValidDate;
 
 //
 // Typeguards
 //
 
-/** Typeguard for Date objects that are valid dates. */
+/** Typeguard for `Date` objects that are valid dates. */
 const isValidDate = (d: unknown): d is ValidDate => d instanceof Date && !isNaN(d.getTime());
 
 //
 // Conversion
 //
 
-/** TODO */
-const fromDate = (d: Date): Maybe.T<ValidDate> => (isValidDate(d) ? d : undefined);
+/**
+ * Return `d` as a `ValidDate` if it's valid, otherwise return
+ * `Maybe.Nothing`.
+ */
+function fromDate(d: ValidDate): ValidDate;
+function fromDate(d: Date): Maybe.T<ValidDate>;
+function fromDate(d: Date) {
+  return isValidDate(d) ? d : undefined;
+}
 
-/** TODO */
-const parse = <A extends number | string | DateString>(a: A): ValidDateConversion<A> =>
-  fromDate(new Date(a)) as ValidDateConversion<A>;
+/**
+ * Attempt to parse some value into a `Date` object. If the result is
+ * valid, return a `ValidDate`, otherwise return `Maybe.Nothing`.
+ */
+function parse<A extends DateString.T | ValidDate>(a: A): ValidDate;
+function parse<A extends Date | number | string>(a: A): Maybe.T<ValidDate>;
+function parse(a: any) {
+  return fromDate(new Date(a));
+}
 
 //
 // Operations
 //
 
-/** TODO */
-const map = <D extends Date | ValidDate>(
-  fn: (d: ValidDate) => Date,
-  d: ValidDate
-): Maybe.T<ValidDate> => fromDate(fn(d));
+/**
+ * Apply a `Date` object operation onto one or more `ValidDate`s. If `fn`
+ * produces an invalid `Date`, return `Maybe.Nothing`.
+ */
+function map<Args extends Array<ValidDate>>(
+  fn: (...args: Args) => ValidDate,
+  ...validDateArgs: Args
+): ValidDate;
+function map<Args extends Array<ValidDate>>(
+  fn: (...args: Args) => Date,
+  ...validDateArgs: Args
+): Maybe.T<ValidDate>;
+function map<Args extends Array<ValidDate>>(fn: (...args: Args) => any, ...validDateArgs: Args) {
+  return fromDate(fn(...validDateArgs));
+}
