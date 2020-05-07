@@ -17,5 +17,7 @@
     "printWidth": 100,
     "trailingComma": "none"
   },
-  "dependencies": {}
+  "dependencies": {
+    "tsd": "^0.11.0"
+  }
 }
