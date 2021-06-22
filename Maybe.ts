@@ -8,6 +8,7 @@ export {
   // Constructors
   Just,
   Nothing,
+  of,
   // Typeguards
   isJust,
   isNothing,
@@ -15,7 +16,6 @@ export {
   fromResult,
   fromAsyncData,
   fromNullable,
-  fromPromise,
   fromPredicate,
   fromFalsy,
   toNullable,
@@ -27,7 +27,8 @@ export {
   unwrap,
   caseOf,
   combine,
-  encase
+  encase,
+  encasePromise
 };
 
 //
@@ -38,23 +39,25 @@ export {
  * A `Maybe` is either a `Just` with data of type `A`, or a `Nothing`,
  * encoded as `undefined`.
  */
-type Maybe<A> = Just<A> | Nothing;
+type Maybe<A> = A | undefined;
 
 /** Alias for the `Maybe` type */
 type T<A> = Maybe<A>;
 
 /**
- * The `Just` variant of a `Maybe` is an alias for the data of type `A`.
- * Effectively a `Just` can be any value except `undefined`. Values of this
- * type can be constructed with the `Just` function.
+ * The `Just` variant of a `Maybe` is an alias for the data of type `A`. As a
+ * formality values of this type can be constructed with the `Just` function,
+ * but in practice any value of type `A` except `undefined` is already a
+ * `Just<A>`.
  */
-type Just<A> = A;
+type Just<A> = Exclude<A, undefined>;
 
 /**
  * The `Nothing` variant of a `Maybe` is `undefined`. This works best for
  * integrating with TypeScript fatures such as optional property notation,
  * since `propName?: Maybe<string>`, and `propName?: string` are equivalent
- * type. Values of this type can be constructed with the `Nothing` constant.
+ * type. Values of this type can be constructed with the `Nothing` constant, or
+ * by using `undefined` directly.
  */
 type Nothing = undefined;
 
@@ -69,11 +72,11 @@ type Falsy = false | undefined | null | "" | 0;
  */
 type CaseOfPattern<A, B> =
   | {
-      Just: (x: A) => B;
+      Just: (x: Just<A>) => B;
       Nothing: () => B;
     }
   | {
-      Just?: (x: A) => B;
+      Just?: (x: Just<A>) => B;
       Nothing?: () => B;
       default: () => B;
     };
@@ -83,10 +86,10 @@ type CaseOfPattern<A, B> =
 //
 
 /**
- * A constructor for the `Just` variant of `Maybe`, which is effectively the
- * identity function.
+ * A constructor for the `Just` variant of `Maybe`. It accepts any value `a`
+ * except for `undefined`.
  */
-const Just = <A>(a: A): A => a;
+const Just = <A>(a: Just<A>): Just<A> => a;
 
 /**
  * A constructor for the `Nothing` variant of `Maybe`, which is an alias
@@ -94,14 +97,17 @@ const Just = <A>(a: A): A => a;
  */
 const Nothing: Nothing = undefined;
 
+/** Alis for the `Just` constructor. */
+const of = Just;
+
 //
 // Typeguards
 //
 
-/** Typeguard for the `Just` variant of a `Maybe` */
-const isJust = <A>(x: Maybe<A>): x is A => x !== Nothing;
+/** Typeguard for the `Just` variant of a `Maybe`. */
+const isJust = <A>(x: Maybe<A>): x is Just<A> => x !== Nothing;
 
-/** Typeguard for the `Nothing` variant of a `Maybe` */
+/** Typeguard for the `Nothing` variant of a `Maybe`. */
 const isNothing = <A>(x: Maybe<A>): x is Nothing => x === Nothing;
 
 //
@@ -117,7 +123,7 @@ const isNothing = <A>(x: Maybe<A>): x is Nothing => x === Nothing;
 const fromResult = Result.toMaybe;
 
 /**
- * Create a `Maybe` from a `AsyncData` by mapping `Success` to
+ * Create a `Maybe` from an `AsyncData` by mapping `Success` to
  * `Just` and everything else to `Nothing`.
  *
  *     NotAsked   -> Nothing
@@ -130,25 +136,19 @@ const fromAsyncData = AsyncData.toMaybe;
 /**
  * Given a value which might be null, return a `Maybe`. In other words, substitute null
  * with undefined.
+ *
+ *     null      -> Nothing
+ *     undefined -> Nothing
+ *     A         -> Just<A>
  */
 const fromNullable = <A>(x: A): Maybe<Exclude<A, null>> =>
-  (x == null ? Nothing : x) as Maybe<Exclude<A, null>>;
+  x == null ? Nothing : (x as Just<Exclude<A, null>>);
 
-/**
- * Given a promise, return a promise which will always fulfill, catching
- * rejected values as a `Nothing`.
- *
- *    fulfilled Promise<D> -> Promise<Just<V>>
- *    rejected Promise<D>  -> Promise<Nothing>
- */
-const fromPromise = <A>(p: Promise<A>): Promise<Maybe<A>> => p.catch(() => Nothing);
-
-/** Keeps the value if `test` returns true, otherwise returns `Nothing`. */
+/** Keeps the value `a` if `test` returns true, otherwise returns `Nothing`. */
 const fromPredicate = <A>(test: (a: A) => boolean, a: A): Maybe<A> => (test(a) ? a : Nothing);
 
 /** Keep truthy values, return `Nothing` for falsy values such as `null`, `0` and `""`. */
-const fromFalsy = <A>(x: Maybe<A>): Maybe<Exclude<A, Falsy>> =>
-  !!x ? (x as Exclude<A, Falsy>) : Nothing;
+const fromFalsy = <A>(x: A | Falsy): Maybe<A> => (!!x ? x : Nothing);
 
 /**
  * Given a `Maybe`, return a value which might be null. In other words, replace
@@ -157,8 +157,7 @@ const fromFalsy = <A>(x: Maybe<A>): Maybe<Exclude<A, Falsy>> =>
  *     Just<A> -> A
  *     Nothing -> null
  */
-const toNullable = <A>(x: A): Exclude<A, undefined> | null =>
-  (isNothing(x) ? null : x) as Exclude<A, undefined> | null;
+const toNullable = <A>(x: Maybe<A>): Just<A> | null => (isJust(x) ? x : null);
 
 /**
  * Create a `Result` from a `Maybe` by providing the `Err` to use in place of a `Nothing`.
@@ -166,40 +165,44 @@ const toNullable = <A>(x: A): Exclude<A, undefined> | null =>
  *     Just<A> -> Ok<A>
  *     Nothing -> Err<E>
  */
-const toResult = <V, E>(e: Result.Err<E>, x: Maybe<V>): Result.T<V, E> => (isJust(x) ? x : e);
+const toResult = <V, E extends Error>(e: E, x: Maybe<V>): Result.T<Just<V>, E> =>
+  isJust(x) ? x : e;
 
 /**
- * Create a `AsyncData` from a `Maybe` by returning either a `NotAsked` or `Success`
+ * Create an `AsyncData` from a `Maybe` by returning either a `NotAsked` or `Success`
  *
  *     Just<A> -> Success<A>
  *     Nothing -> NotAsked
  */
-const toAsyncData = <V>(x: Maybe<V>): AsyncData.Success<V> | AsyncData.NotAsked =>
-  isNothing(x) ? AsyncData.NotAsked : (x as AsyncData.Success<V>);
+const toAsyncData = <V>(x: Maybe<V>): AsyncData.Success<Just<V>> | AsyncData.NotAsked =>
+  isNothing(x) ? AsyncData.NotAsked : (x as AsyncData.Success<Just<V>>);
 
 //
 // Operations
 //
 
-/** Apply `fn` if the `maybeArgs` are all `Just`s. Otherwise return `Nothing`. */
-const map = <Args extends Array<any>, R>(
-  fn: (...args: Args) => R,
-  ...maybeArgs: MaybeMapped<Args>
-): Maybe<R> => {
-  const justVals = maybeArgs.filter(isJust);
-  return justVals.length === maybeArgs.length ? fn(...(justVals as Args)) : Nothing;
-};
+/** Apply `fn` if `a` is a `Just`. Otherwise return `Nothing`. */
+function map<A, B>(fn: (a: A) => B, a: Nothing): Nothing;
+function map<A, B>(fn: (a: A) => B, a: Just<A>): B;
+function map<A, B>(fn: (a: A) => B, a: Maybe<A>): Maybe<B>;
+function map<A, B>(fn: (a: A) => B, a: Maybe<A>) {
+  return isJust(a) ? fn(a) : Nothing;
+}
 
-/**
- * Provide a default which is used if `x` is `Nothing`.
- */
-const withDefault = <A>(defaultVal: A, x: Maybe<A>): A => (isJust(x) ? x : defaultVal);
+/** Provide a default which is used if `x` is `Nothing`. */
+function withDefault<A>(defaultVal: undefined, x: Maybe<A>): Maybe<A>;
+function withDefault<A, B>(defaultVal: Just<B>, x: Just<A>): Just<A>;
+function withDefault<A, B>(defaultVal: Just<B>, x: Maybe<A>): Just<A | B>;
+function withDefault<A, B>(defaultVal: Maybe<B>, x: Maybe<A>): Maybe<A | B>;
+function withDefault(defaultVal: unknown, x: Maybe<any>) {
+  return isJust(x) ? x : defaultVal;
+}
 
 /**
  * Like a `case` in languages with pattern matching. Apply the `justFn` to a
  * `Just` value and execute `nothingFn` for a `Nothing`.
  */
-const unwrap = <A, B>(justFn: (a: A) => B, nothingFn: () => B, x: Maybe<A>): B =>
+const unwrap = <A, B>(justFn: (a: Just<A>) => B, nothingFn: () => B, x: Maybe<A>): B =>
   isJust(x) ? justFn(x) : nothingFn();
 
 /**
@@ -231,12 +234,21 @@ function combine(xs: any) {
  * Create a version of a function which returns a `Maybe` instead of throwing
  * an error.
  */
-const encase = <Args extends Array<any>, R>(
-  throws: (...args: Args) => R
-): ((...args: Args) => Maybe<R>) => (...args: Args) => {
-  try {
-    return throws(...args);
-  } catch {
-    return Nothing;
-  }
-};
+const encase =
+  <Args extends Array<any>, R>(fn: (...args: Args) => R): ((...args: Args) => Maybe<R>) =>
+  (...args: Args) => {
+    try {
+      return fn(...args);
+    } catch {
+      return Nothing;
+    }
+  };
+
+/**
+ * Given a promise, return a promise which will always fulfill, catching
+ * rejected values as a `Nothing`.
+ *
+ *    fulfilled Promise<D> -> Promise<Just<V>>
+ *    rejected Promise<D>  -> Promise<Nothing>
+ */
+const encasePromise = <A>(p: Promise<A>): Promise<Maybe<A>> => p.catch(() => Nothing);

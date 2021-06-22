@@ -2,16 +2,16 @@ import * as Maybe from "./Maybe";
 import * as DateString from "./DateString";
 
 export {
-  // Types
+  // Types (and constructor)
   ValidDate,
   T,
   // Constructors
   now,
+  of,
   // Typeguards
   isValidDate,
   // Conversions
   fromDate,
-  parse,
   // Operations
   map
 };
@@ -33,8 +33,21 @@ type T = ValidDate;
 // Constructors
 //
 
+/**
+ * Attempt to parse some value into a new `Date` object. If the result is
+ * valid, return a `ValidDate`, otherwise return `Maybe.Nothing`.
+ */
+function ValidDate<A extends DateString.T | ValidDate>(a: A): ValidDate;
+function ValidDate<A extends Date | number | string>(a: A): Maybe.T<ValidDate>;
+function ValidDate(a: any) {
+  return fromDate(new Date(a));
+}
+
 /** Get the current time, which we know is a `ValidDate`. */
 const now = (): ValidDate => new Date() as ValidDate;
+
+/** Alias for the `ValidDate` constructor. */
+const of = ValidDate;
 
 //
 // Typeguards
@@ -57,16 +70,6 @@ function fromDate(d: Date) {
   return isValidDate(d) ? d : undefined;
 }
 
-/**
- * Attempt to parse some value into a `Date` object. If the result is
- * valid, return a `ValidDate`, otherwise return `Maybe.Nothing`.
- */
-function parse<A extends DateString.T | ValidDate>(a: A): ValidDate;
-function parse<A extends Date | number | string>(a: A): Maybe.T<ValidDate>;
-function parse(a: any) {
-  return fromDate(new Date(a));
-}
-
 //
 // Operations
 //
@@ -75,14 +78,10 @@ function parse(a: any) {
  * Apply a `Date` object operation onto one or more `ValidDate`s. If `fn`
  * produces an invalid `Date`, return `Maybe.Nothing`.
  */
-function map<Args extends Array<ValidDate>>(
-  fn: (...args: Args) => ValidDate,
-  ...validDateArgs: Args
-): ValidDate;
-function map<Args extends Array<ValidDate>>(
-  fn: (...args: Args) => Date,
-  ...validDateArgs: Args
-): Maybe.T<ValidDate>;
-function map<Args extends Array<ValidDate>>(fn: (...args: Args) => any, ...validDateArgs: Args) {
-  return fromDate(fn(...validDateArgs));
+function map(fn: (d: Date) => ValidDate, validDate: ValidDate): ValidDate;
+function map(fn: (d: Date) => Date, validDate: ValidDate): ValidDate | undefined;
+function map(fn: (d: ValidDate) => ValidDate, validDate: ValidDate): ValidDate;
+function map(fn: (d: ValidDate) => Date, validDate: ValidDate): ValidDate | undefined;
+function map(fn: (d: any) => any, validDate: ValidDate): any {
+  return fromDate(fn(validDate));
 }

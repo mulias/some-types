@@ -9,15 +9,19 @@
   "license": "MIT",
   "private": false,
   "sideEffects": false,
-  "devDependencies": {
-    "prettier": "^2.0.4",
-    "typescript": "^3.8.3"
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "npm run build && tsd",
+    "format": "prettier --write ."
   },
   "prettier": {
     "printWidth": 100,
     "trailingComma": "none"
   },
-  "dependencies": {
-    "tsd": "^0.11.0"
+  "devDependencies": {
+    "prettier": "2.3.1",
+    "typescript": "4.3.4",
+    "tsd": "0.17.0"
   }
 }

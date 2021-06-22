@@ -3,8 +3,8 @@ export * as Maybe from "./Maybe";
 export * as Result from "./Result";
 export * as AsyncData from "./AsyncData";
 
-/** Error object used by Result and AsyncData */
-export * as ErrorValue from "./ErrorValue";
+/** Error object used to augment Result and AsyncData */
+export * as ErrorData from "./ErrorData";
 
 /** Precise date types */
 export * as ValidDate from "./ValidDate";
@@ -12,4 +12,4 @@ export * as DateString from "./DateString";
 
 /** Precise array types */
 export * as NonEmptyArray from "./NonEmptyArray";
-export * as Pair from "./Pair";
+export * as Tuple from "./Tuple";

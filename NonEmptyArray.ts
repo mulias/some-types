@@ -1,13 +1,14 @@
 import * as Maybe from "./Maybe";
 
 export {
-  // Types
+  // Types (and constructor)
   NonEmptyArray,
   T,
+  // Constructors
+  of,
   // Typeguards
   isNonEmptyArray,
   // Conversions
-  fromElements,
   fromArray,
   // Operations
   head,
@@ -32,18 +33,29 @@ type NonEmptyArray<A> = readonly [A, ...A[]];
 type T<A> = NonEmptyArray<A>;
 
 //
+// Constructors
+//
+
+/** Create a NonEmptyArray with a `first` value and an optional `rest` array. */
+const NonEmptyArray = <A>(first: A, rest: A[] = []): NonEmptyArray<A> => [first, ...rest];
+
+/** Alias for the `NonEmptyArray` constructor. */
+const of = NonEmptyArray;
+
+//
 // Typeguards
 //
 
-/** Typeguard to determine if an `Array` is a `NonEmptyArray`. */
-const isNonEmptyArray = <A>(a: ReadonlyArray<A>): a is NonEmptyArray<A> => a.length > 0;
+/** Typeguard for a `NonEmptyArray`. */
+function isNonEmptyArray<A>(a: ReadonlyArray<A>): a is NonEmptyArray<A>;
+function isNonEmptyArray(a: unknown): a is NonEmptyArray<unknown>;
+function isNonEmptyArray(a: unknown) {
+  return Array.isArray(a) && a.length > 0;
+}
 
 //
 // Conversions
 //
-
-/** Create a `NonEmptyArray` from the one or more provided arguments. */
-const fromElements = <Arr extends NonEmptyArray<any>>(...arr: Arr): Arr => arr;
 
 /**
  * Return `a` as a `NonEmptyArray` if it's non-empty, or return
@@ -66,7 +78,7 @@ const head = <A>([h]: NonEmptyArray<A>): A => h;
 const tail = <A>([h, ...t]: NonEmptyArray<A>): readonly A[] => t;
 
 /** Get the last element in a `NonEmptyArray`. */
-const last = <A>(a: NonEmptyArray<A>): A => a[a.length - 1];
+const last = <A>(a: NonEmptyArray<A>): A => a[a.length - 1] as A;
 
 /** Return a new, possibly empty, Array with all but the last element. */
 const front = <A>(a: NonEmptyArray<A>): readonly A[] => a.slice(0, a.length - 1);

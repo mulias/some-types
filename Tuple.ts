@@ -2,7 +2,7 @@ import * as Maybe from "./Maybe";
 import * as NonEmptyArray from "./NonEmptyArray";
 
 export {
-  // Types
+  // Types (and constructor)
   Tuple,
   T,
   // Constructors
@@ -10,13 +10,13 @@ export {
   Single,
   Pair,
   Triple,
+  of,
   // Typeguards
   isEmpty,
   isSingle,
   isPair,
   isTriple,
   // Conversions
-  fromElements,
   fromArray,
   // Operations
   first,
@@ -61,14 +61,21 @@ type Pair<A, B> = readonly [A, B];
 /** An array with three elements, also called a 3-tuple. */
 type Triple<A, B, C> = readonly [A, B, C];
 
-type MappedType<T, A> = { [k in keyof T]: A };
-
 //
 // Constructors
 //
 
+/** Create a `Tuple` from the zero to three provided arguments. */
+function Tuple(): Empty;
+function Tuple<A>(a: A): Single<A>;
+function Tuple<A, B>(a: A, b: B): Pair<A, B>;
+function Tuple<A, B, C>(a: A, b: B, c: C): Triple<A, B, C>;
+function Tuple<Args extends Tuple<any, any, any>>(...args: Args) {
+  return args;
+}
+
 /** A constructor for the `Empty` tuple, which has no elements. */
-const Empty = [] as const;
+const Empty: Empty = [] as const;
 
 /** A constructor for the `Single` tuple, which has one element. */
 const Single = <A>(a: A): Single<A> => [a];
@@ -79,6 +86,9 @@ const Pair = <A, B>(a: A, b: B): Pair<A, B> => [a, b];
 /** A constructor for the `Triple` tuple, which has three elements. */
 const Triple = <A, B, C>(a: A, b: B, c: C): Triple<A, B, C> => [a, b, c];
 
+/** Alias for the `Tuple` constructor. */
+const of = Tuple;
+
 //
 // Typeguards
 //
@@ -86,58 +96,64 @@ const Triple = <A, B, C>(a: A, b: B, c: C): Triple<A, B, C> => [a, b, c];
 /** Typeguard for the `Empty` tuple. */
 function isEmpty(arr: Empty): arr is Empty;
 function isEmpty<A>(arr: readonly A[]): arr is Empty;
-function isEmpty(arr: readonly any[]) {
-  return arr.length === 0;
+function isEmpty(arr: unknown): arr is Empty;
+function isEmpty(arr: unknown) {
+  return Array.isArray(arr) && arr.length === 0;
 }
 
 /** Typeguard for the `Single` tuple. */
 function isSingle<Tup extends Single<any>>(arr: Tup): arr is Tup;
 function isSingle<A>(arr: readonly A[]): arr is Single<A>;
-function isSingle(arr: readonly any[]) {
-  return arr.length === 1;
+function isSingle(arr: unknown): arr is Single<unknown>;
+function isSingle(arr: unknown) {
+  return Array.isArray(arr) && arr.length === 1;
 }
 
 /** Typeguard for the `Pair` tuple. */
 function isPair<P extends Pair<any, any>>(arr: P): arr is P;
 function isPair<A>(arr: readonly A[]): arr is Pair<A, A>;
-function isPair(arr: readonly any[]) {
-  return arr.length === 2;
+function isPair(arr: unknown): arr is Pair<unknown, unknown>;
+function isPair(arr: unknown) {
+  return Array.isArray(arr) && arr.length === 2;
 }
 
 /** Typeguard for the `Triple` tuple. */
 function isTriple<Tup extends Triple<any, any, any>>(arr: Tup): arr is Tup;
 function isTriple<A>(arr: readonly A[]): arr is Triple<A, A, A>;
-function isTriple(arr: readonly any[]) {
-  return arr.length === 3;
+function isTriple(arr: unknown): arr is Triple<unknown, unknown, unknown>;
+function isTriple(arr: unknown) {
+  return Array.isArray(arr) && arr.length === 3;
 }
 
 //
 // Conversions
 //
 
-/** Create a `Tuple` from the zero to three provided arguments. */
-function fromElements(): Empty;
-function fromElements<A>(a: A): Single<A>;
-function fromElements<A, B>(a: A, b: B): Pair<A, B>;
-function fromElements<A, B, C>(a: A, b: B, c: C): Triple<A, B, C>;
-function fromElements<Args extends Tuple<any, any, any>>(...args: Args) {
-  return args;
-}
-
 /**
- * Return `a` as a `Tuple` of the appropriate length, or return
- * `Maybe.Nothing` if `a.length` is not the correct tuple length.
+ * Return `a` as a `Tuple` if it's an array of length 3 or less, otherwise
+ * return `Maybe.Nothing`. If the optional `length` argument is provided then
+ * `a` is returned as a tuple of that specific length, or `Maybe.Nothing` if
+ * it's any other length.
  */
-function fromArray(length: 0, a: Empty): Empty;
-function fromArray<A>(length: 0, a: readonly A[]): Maybe.T<Empty>;
-function fromArray<Tup extends Single<any>>(size: 1, a: Tup): Tup;
-function fromArray<A>(length: 1, a: readonly A[]): Maybe.T<Single<A>>;
-function fromArray<Tup extends Pair<any, any>>(size: 2, a: Tup): Tup;
-function fromArray<A>(length: 2, a: readonly A[]): Maybe.T<Pair<A, A>>;
-function fromArray<Tup extends Triple<any, any, any>>(size: 3, a: Tup): Tup;
-function fromArray<A>(length: 3, a: readonly A[]): Maybe.T<Triple<A, A, A>>;
-function fromArray(length: number, a: readonly any[]) {
-  return a.length === length ? a : Maybe.Nothing;
+function fromArray(a: Empty): Empty;
+function fromArray(a: Empty, length: 0): Empty;
+function fromArray(a: readonly any[], length: 0): Maybe.T<Empty>;
+function fromArray<A>(a: Single<A>): Single<A>;
+function fromArray<A>(a: Single<A>, length: 1): Single<A>;
+function fromArray<A>(a: readonly A[], length: 1): Maybe.T<Single<A>>;
+function fromArray<A, B>(a: Pair<A, B>): Pair<A, B>;
+function fromArray<A, B>(a: Pair<A, B>, length: 2): Pair<A, B>;
+function fromArray<A>(a: readonly A[], length: 2): Maybe.T<Pair<A, A>>;
+function fromArray<A, B, C>(a: Triple<A, B, C>): Triple<A, B, C>;
+function fromArray<A, B, C>(a: Triple<A, B, C>, length: 3): Triple<A, B, C>;
+function fromArray<A>(a: readonly A[], length: 3): Maybe.T<Triple<A, A, A>>;
+function fromArray<A>(a: readonly A[]): Maybe.T<Tuple<A, A, A>>;
+function fromArray(a: readonly any[], length?: number) {
+  if (Maybe.isJust(length)) {
+    return a.length === length ? a : Maybe.Nothing;
+  } else {
+    return a.length <= 3 ? a : Maybe.Nothing;
+  }
 }
 
 //
@@ -158,7 +174,7 @@ const head = first;
 function tail(t: Single<any>): Empty;
 function tail<B>(t: Pair<any, B>): Single<B>;
 function tail<B, C>(t: Triple<any, B, C>): Pair<B, C>;
-function tail([h, ...t]: Single<any> | Pair<any, any> | Triple<any, any, any>) {
+function tail([_h, ...t]: ReadonlyArray<any>): ReadonlyArray<any> {
   return t;
 }
 
@@ -234,7 +250,11 @@ function reverse<Tup extends any[]>(t: Tup) {
   return [...t].reverse() as any;
 }
 
-/** Combine one to three arrays into one array of 1/2/3-tuples. */
+/**
+ * Combine one to three arrays into one array of 1/2/3-tuples. The resulting
+ * array will be the length of the shortest input array, and additional elements
+ * will be ignored.
+ */
 function zip<A>(a: NonEmptyArray.T<A>): NonEmptyArray.T<Single<A>>;
 function zip<A>(a: readonly A[]): Array<Single<A>>;
 function zip<A, B>(a: NonEmptyArray.T<A>, b: NonEmptyArray.T<B>): NonEmptyArray.T<Pair<A, B>>;
@@ -279,10 +299,15 @@ function unzip<A, B, C>(
   zipped: NonEmptyArray.T<Triple<A, B, C>>
 ): Triple<NonEmptyArray.T<A>, NonEmptyArray.T<B>, NonEmptyArray.T<C>>;
 function unzip<A, B, C>(zipped: ReadonlyArray<Triple<A, B, C>>): Triple<A[], B[], C[]>;
-function unzip<Tup extends Single<any> | Pair<any, any> | Triple<any, any, any>>([
-  firstTuple,
-  ...rest
-]: ReadonlyArray<Tup>) {
+function unzip<Tup extends Single<any> | Pair<any, any> | Triple<any, any, any>>(
+  tuples: ReadonlyArray<Tup>
+) {
+  if (tuples[0] === undefined) {
+    return [];
+  }
+
+  const [firstTuple, ...rest] = tuples;
+
   const resTups = firstTuple.map((x) => [x]);
 
   rest.forEach((nextTup) =>

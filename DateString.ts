@@ -9,6 +9,7 @@ export {
   DateTimeString,
   DateOnlyString,
   DateMonthString,
+  of,
   // Typeguards
   isDateString,
   isDateTimeString,
@@ -67,6 +68,45 @@ enum IsDateMonthString {
 type AllDates<A extends Array<any>> = { [k in keyof A]: Date };
 type AllValidDates<A extends Array<any>> = { [k in keyof A]: ValidDate.T };
 
+type NaiveDateTimeFields = {
+  year: number;
+  month: number;
+  day: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+};
+
+const getNaiveDateTimeFields = (d: Date): Maybe.T<NaiveDateTimeFields> => {
+  if (!ValidDate.isValidDate(d)) return undefined;
+
+  return {
+    year: d.getFullYear(),
+    month: d.getMonth() + 1,
+    day: d.getDate(),
+    hours: d.getHours(),
+    minutes: d.getMinutes(),
+    seconds: d.getSeconds()
+  };
+};
+
+const leftPad = (n: number, s: string): string => {
+  const diff = Math.max(n - s.length, 0);
+  const padding = "0".repeat(diff);
+  return padding + s;
+};
+
+const formatDateString = (d: NaiveDateTimeFields): string => {
+  const year = leftPad(4, String(d.year));
+  const month = leftPad(2, String(d.month));
+  const day = leftPad(2, String(d.day));
+  const hours = leftPad(2, String(d.hours));
+  const minutes = leftPad(2, String(d.minutes));
+  const seconds = leftPad(2, String(d.seconds));
+
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+};
+
 //
 // Constructors
 //
@@ -79,10 +119,9 @@ type AllValidDates<A extends Array<any>> = { [k in keyof A]: ValidDate.T };
 function DateTimeString<D extends DateString | ValidDate.T>(d: D): DateTimeString;
 function DateTimeString<D extends Date | string | number>(d: D): Maybe.T<DateTimeString>;
 function DateTimeString(d: DateString | ValidDate.T | Date | string | number) {
-  if (d instanceof Date && !ValidDate.isValidDate(d)) return undefined;
-
   const date = typeof d === "string" || typeof d === "number" ? new Date(d) : d;
-  return date.toISOString();
+  const fields = getNaiveDateTimeFields(date);
+  return Maybe.map(formatDateString, fields);
 }
 
 /**
@@ -93,13 +132,12 @@ function DateTimeString(d: DateString | ValidDate.T | Date | string | number) {
 function DateOnlyString<D extends DateString | ValidDate.T>(d: D): DateOnlyString;
 function DateOnlyString<D extends Date | string | number>(d: D): Maybe.T<DateOnlyString>;
 function DateOnlyString(d: DateString | ValidDate.T | Date | string | number) {
-  if (d instanceof Date && !ValidDate.isValidDate(d)) return undefined;
-
   const date = typeof d === "string" || typeof d === "number" ? new Date(d) : d;
-  const year = date.getFullYear();
-  const month = ("0" + (date.getMonth() + 1)).slice(-2);
-  const day = ("0" + date.getDate()).slice(-2);
-  return `${year}-${month}-${day}T00:00:00Z`;
+  const dateOnlyFields = Maybe.map(
+    (fields) => ({ ...fields, hours: 0, minutes: 0, seconds: 0 }),
+    getNaiveDateTimeFields(date)
+  );
+  return Maybe.map(formatDateString, dateOnlyFields);
 }
 
 /**
@@ -110,13 +148,16 @@ function DateOnlyString(d: DateString | ValidDate.T | Date | string | number) {
 function DateMonthString<D extends DateString | ValidDate.T>(d: D): DateMonthString;
 function DateMonthString<D extends Date | string | number>(d: D): Maybe.T<DateMonthString>;
 function DateMonthString(d: DateString | ValidDate.T | Date | string | number) {
-  if (d instanceof Date && !ValidDate.isValidDate(d)) return undefined;
-
   const date = typeof d === "string" || typeof d === "number" ? new Date(d) : d;
-  const year = date.getFullYear();
-  const month = ("0" + (date.getMonth() + 1)).slice(-2);
-  return `${year}-${month}-01T00:00:00Z`;
+  const monthOnlyFields = Maybe.map(
+    (fields) => ({ ...fields, day: 1, hours: 0, minutes: 0, seconds: 0 }),
+    getNaiveDateTimeFields(date)
+  );
+  return Maybe.map(formatDateString, monthOnlyFields);
 }
+
+/** Alias for the `DateTimeString` constructor. */
+const of = DateTimeString;
 
 //
 // Typeguards
@@ -170,26 +211,14 @@ const toDate = (d: DateString): ValidDate.T => new Date(d) as ValidDate.T;
 /**
  * Apply a `Date` object operation onto one or more `DateString`s, returning a
  * new `DateString`. If `fn` produces a `DateString`, return that value. If
- * `fn` produces a `Date`, convert it to a `DateTimeString`. If `fn` produces
+ * `fn` produces a `Date`, convert it to a `DateString`. If `fn` produces
  * an invalid `Date`, return `Maybe.Nothing`.
  */
-function map<Args extends Array<DateString>, R extends DateString>(
-  fn: (...dates: AllDates<Args>) => R,
-  ...dateStringArgs: Args
-): R;
-function map<Args extends Array<DateString>>(
-  fn: (...dates: AllDates<Args>) => ValidDate.T,
-  ...dateStringArgs: Args
-): DateTimeString;
-function map<Args extends Array<DateString>>(
-  fn: (...dates: AllDates<Args>) => Date,
-  ...dateStringArgs: Args
-): Maybe.T<DateTimeString>;
-function map<Args extends Array<DateString>>(
-  fn: (...dates: AllDates<Args>) => Date | DateString,
-  ...dateStringArgs: Args
-) {
-  const r = fn(...(dateStringArgs.map(toDate) as any));
+function map<R extends DateString>(fn: (d: Date) => R, dateString: DateString): R;
+function map(fn: (d: Date) => ValidDate.T, dateString: DateString): DateString;
+function map(fn: (d: Date) => Date, dateString: DateString): Maybe.T<DateString>;
+function map(fn: (d: Date) => Date | DateString, dateString: DateString) {
+  const r = fn(toDate(dateString));
   if (isDateString(r)) {
     return r;
   } else {
@@ -201,18 +230,8 @@ function map<Args extends Array<DateString>>(
  * Apply a `Date` operation to one or more `DateString`s. Unlike `map`, the
  * result of applying `fn` might not be a new `DateString`.
  */
-function applyAsDate<Args extends Array<DateString | ValidDate.T>, R>(
-  fn: (...dates: AllValidDates<Args>) => R,
-  ...dateStringArgs: Args
-): R;
-function applyAsDate<Args extends Array<DateString | Date>, R>(
-  fn: (...dates: AllDates<Args>) => R,
-  ...dateStringArgs: Args
-): R;
-function applyAsDate<Args extends Array<DateString | Date>>(
-  fn: (...dates: Args) => any,
-  ...dateStringArgs: Args
-) {
-  const dates = dateStringArgs.map((d) => (d instanceof Date ? d : toDate(d)));
-  return fn(...(dates as any));
+function applyAsDate<R>(fn: (date: ValidDate.T) => R, d: DateString | ValidDate.T): R;
+function applyAsDate<R>(fn: (date: Date) => R, d: DateString | Date): R;
+function applyAsDate(fn: (date: any) => any, d: DateString | ValidDate.T | Date) {
+  return fn(d instanceof Date ? d : toDate(d));
 }

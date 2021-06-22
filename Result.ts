@@ -1,6 +1,6 @@
 import * as Maybe from "./Maybe";
 import * as AsyncData from "./AsyncData";
-import { ErrorValue, isErrorValue, fromError } from "./ErrorValue";
+import { ErrorData, isErrorData } from "./ErrorData";
 
 export {
   // Types
@@ -9,25 +9,25 @@ export {
   // Constructors
   Ok,
   Err,
+  ErrData,
+  of,
   // Typeguards
   isOk,
   isErr,
   // Conversions
   fromMaybe,
   fromAsyncData,
-  fromErrorable,
-  fromPromise,
   toMaybe,
   toAsyncData,
   // Operations
   map,
   mapErr,
-  mapBoth,
   withDefault,
   unwrap,
   caseOf,
   combine,
-  encase
+  encase,
+  encasePromise
 };
 
 //
@@ -35,68 +35,84 @@ export {
 //
 
 /**
- * A `Result` is either an `Ok` with data of type `V`, or an `Err` object
- * containing an error value of type `E`.
+ * A `Result` is either an `Ok` with data of type `V`, or an `Err` which
+ * inherits from the javascript `Error` object.
  */
-type Result<V, E> = Ok<V> | Err<E>;
+type Result<V, E extends Error> = V | E;
 
 /** Alias for the `Result` type. */
-type T<V, E> = Result<V, E>;
+type T<V, E extends Error> = Result<V, E>;
 
 /**
  * The `Ok` variant of a `Result` is an alias for non-error values of type
- * `V`. Values of this type can be constructed with the `Ok` function.
+ * `V`. As a formality values of this type can be constructed with the `Ok`
+ * function, but in practice any value of type `A` that isn't an object
+ * inheriting from `Error` is already an `Ok<A>`.
  */
-type Ok<V> = V;
+type Ok<V> = Exclude<V, Error>;
 
-/** 
- * The `Err` variant of a `Result` is an object which inherits from the default
- * JS `Error` built-in, and contains some error value of type `E`. Values of
- * this type can be constructed with the `Err` function.
-
+/**
+ * The `Err` variant of a `Result` is any object which inherits from the default
+ * JS `Error` built-in. Values of this type can be created like any normal
+ * error object. The provided constructor `Err` creates a vanilla `Error` object,
+ * while `ErrData` creates an `ErrorData<D>` object which inherits from `Error`
+ * but has an additional `data` field containing error data of type `D`.
  */
-type Err<E> = ErrorValue<E>;
-
-/* Create a wrapped type where each member of `T` is a `Result` with error
- * value `E`.
- */
-type ResultMapped<T, E> = { [k in keyof T]: Result<T[k], E> };
+type Err<E extends Error> = E;
 
 /* The `caseOf` function expects either exhaustive pattern matching, or
  * non-exhaustive with a `default` case.
  */
-type CaseOfPattern<A, B, E> =
+type CaseOfPattern<V, E extends Error, R> =
   | {
-      Ok: (a: A) => B;
-      Err: (e: Err<E>) => B;
+      Ok: (a: Ok<V>) => R;
+      Err: (e: E) => R;
     }
   | {
-      Ok?: (a: A) => B;
-      Err?: (e: Err<E>) => B;
-      default: () => B;
+      Ok?: (a: Ok<V>) => R;
+      Err?: (e: E) => R;
+      default: () => R;
     };
+
 //
 // Constructors
 //
 
-/**
- * A constructor for the `Ok` variant of `Result`, which is effectively the
- * identity function.
- */
-const Ok = <V>(v: V): Ok<V> => v;
+/** A constructor for the `Ok` variant of `Result`. */
+const Ok = <V>(v: Ok<V>): Ok<V> => v;
 
-/** A constructor for the `Err` variant of `Result`. */
-const Err = <E>(e: E): Err<E> => new ErrorValue(e);
+/**
+ * A constructor for the `Err` variant of `Result`, creates a vanilla `Error`
+ * object.
+ */
+const Err = (message?: string): Err<Error> => new Error(message);
+
+/**
+ * A constructor for the `Err` variant of `Result`, creates an `ErrorData`
+ * object.
+ */
+const ErrData = <D>(errorData: D): Err<ErrorData<D>> => new ErrorData(errorData);
+
+/** Alias for the `Ok` constructor. */
+const of = Ok;
 
 //
 // Typeguards
 //
 
 /** Typeguard for the `Ok` variant of a `Result`. */
-const isOk = <V, E>(x: Result<V, E>): x is V => !(x instanceof ErrorValue);
+function isOk<V, E extends Error>(x: Result<V, E>): x is Ok<V>;
+function isOk(x: unknown): x is Ok<unknown>;
+function isOk(x: unknown) {
+  return !(x instanceof Error);
+}
 
 /** Typeguard for the `Err` variant of a `Result`. */
-const isErr = <V, E>(x: Result<V, E>): x is Err<E> => x instanceof ErrorValue;
+function isErr<V, E extends Error>(x: Result<V, E>): x is Err<E>;
+function isErr<E extends Error = Error>(x: unknown): x is Err<E>;
+function isErr(x: unknown) {
+  return x instanceof Error;
+}
 
 //
 // Conversions
@@ -121,30 +137,14 @@ const fromMaybe = Maybe.toResult;
  */
 const fromAsyncData = AsyncData.toResult;
 
-/** Create a `Result` from any value that might be a JS `Error` object. */
-function fromErrorable<V, E>(x: Result<V, E>): Result<Exclude<V, Error>, E>;
-function fromErrorable<V>(x: V | Error): Result<Exclude<V, Error>, string>;
-function fromErrorable(x: any) {
-  return x instanceof Error ? fromError(x) : x;
-}
-
-/**
- * Given a promise, return a promise which will always fulfill, catching
- * rejected values in an `Err`.
- *
- *    fulfilled Promise<D> -> Promise<Ok<V>>
- *    rejected Promise<D>  -> Promise<Err<unknown>>
- */
-const fromPromise = <V, E = unknown>(p: Promise<V>): Promise<Result<V, E>> =>
-  p.then((v: V) => Ok(v)).catch((e: E) => Err(e));
-
 /**
  * Create a `Maybe` from a `Result` by replacing an `Err` with `Nothing`.
  *
  *     Ok<V>  -> Just<V>
  *     Err<E> -> Nothing
  */
-const toMaybe = <V, E>(x: Result<V, E>): Maybe.T<V> => (isOk(x) ? x : Maybe.Nothing);
+const toMaybe = <V, E extends Error>(x: Result<V, E>): Maybe.T<Ok<V>> =>
+  isOk(x) ? x : Maybe.Nothing;
 
 /**
  * Create a `AsyncData` from a `Result`. Since the `Result` type is a subset
@@ -153,57 +153,66 @@ const toMaybe = <V, E>(x: Result<V, E>): Maybe.T<V> => (isOk(x) ? x : Maybe.Noth
  *     Ok<V>  -> Success<V>
  *     Err<E> -> Failure<E>
  */
-const toAsyncData = <V, E>(x: Result<V, E>): AsyncData.T<V, E> => x as AsyncData.T<V, E>;
+const toAsyncData = <V, E extends Error>(x: Result<V, E>): AsyncData.T<Ok<V>, Err<E>> =>
+  x as AsyncData.T<Ok<V>, Err<E>>;
 
-/** Apply `fn` if all of `resultArgs` are `Ok`s. Otherwise return the first `Err`. */
-const map = <Args extends Array<any>, R, E>(
-  fn: (...args: Args) => Result<R, E>,
-  ...resultArgs: ResultMapped<Args, E>
-): Result<R, E> => {
-  const firstErr = resultArgs.find(isErr) as Err<E> | undefined;
-  const okVals = resultArgs.filter(isOk);
-  return firstErr === undefined ? fn(...(okVals as Args)) : firstErr;
-};
+/** Apply `fn` if `a` is an `Ok`. Otherwise return the `Err`. */
+function map<A, B, E extends Error>(fn: (a: Ok<A>) => B, a: E): E;
+function map<A, B, E extends Error>(fn: (a: Ok<A>) => B, a: Ok<A>): B;
+function map<A, B, E extends Error>(fn: (a: Ok<A>) => Ok<B>, a: Result<Ok<A>, E>): Result<Ok<B>, E>;
+function map<A, B, E extends Error>(
+  fn: (a: Ok<A>) => B,
+  a: Result<Ok<A>, E>
+): Result<Ok<B>, Extract<E | B, Error>>;
+function map<A>(fn: (a: A) => any, a: Result<A, Error>) {
+  return isOk(a) ? fn(a) : a;
+}
 
 /**
  * Apply `fn` if `x` is an `Err`. Note that in order to change the error
  * value, `fn` will either have to mutate the object, or create a new
  * object. Both options have pitfalls in different contexts.
  */
-const mapErr = <V, A, B>(fn: (e: Err<A>) => Result<V, B>, x: Result<V, A>): Result<V, B> =>
-  isErr(x) ? fn(x) : x;
-
-/**
- * Either apply `okFn` to all `resultArgs` if they are all `Ok`, or apply
- * `errFn` to the first `Err` value.
- */
-const mapBoth = <Args extends Array<any>, R, E, F>(
-  okFn: (...args: Args) => Result<R, F>,
-  errFn: (e: Err<E>) => Result<R, F>,
-  ...resultArgs: ResultMapped<Args, E>
-): Result<R, F> => {
-  const firstErr = resultArgs.find(isErr) as Err<E> | undefined;
-  const okVals = resultArgs.filter(isOk);
-  return firstErr === undefined ? okFn(...(okVals as Args)) : errFn(firstErr);
-};
+function mapErr<A, B, E extends Error>(fn: (e: E) => B, a: Ok<A>): Ok<A>;
+function mapErr<A, B, E extends Error>(fn: (e: E) => B, a: E): B;
+function mapErr<A, B, E extends Error>(fn: (e: E) => Ok<B>, a: Result<Ok<A>, E>): Ok<A | B>;
+function mapErr<A, B, EA extends Error, EB extends Error>(
+  fn: (e: EA) => Result<Ok<B>, EB>,
+  a: Result<Ok<A>, EA>
+): Result<Ok<A | B>, EB>;
+function mapErr<A, B, E extends Error>(fn: (e: E) => B, a: Result<A, E>) {
+  return isErr(a) ? fn(a) : a;
+}
 
 /**
  * Provide a default which is used if `x` is an `Err`.
  */
-const withDefault = <V, E>(defaultVal: V, x: Result<V, E>): V => (isOk(x) ? x : defaultVal);
+function withDefault<V, DE extends Error>(defaultVal: Err<DE>, x: Result<V, Error>): Result<V, DE>;
+function withDefault<V, DV>(defaultVal: Ok<DV>, x: Ok<V>): Ok<V>;
+function withDefault<V, DV>(defaultVal: Ok<DV>, x: Result<V, Error>): Ok<V | DV>;
+function withDefault<V, DV, DE extends Error>(
+  defaultVal: Result<DV, DE>,
+  x: Result<V, Error>
+): Result<V | DV, DE>;
+function withDefault(defaultVal: unknown, x: unknown) {
+  return isOk(x) ? x : defaultVal;
+}
 
 /**
  * Like a `case` in languages with pattern matching. Apply the `okFn` to an
  * `Ok` value and `errFn` to an `Err`.
  */
-const unwrap = <A, B, E>(okFn: (a: A) => B, errFn: (e: Err<E>) => B, x: Result<A, E>): B =>
-  isOk(x) ? okFn(x) : errFn(x);
+const unwrap = <A, B, E extends Error>(
+  okFn: (a: Ok<A>) => B,
+  errFn: (e: E) => B,
+  x: Result<A, E>
+): B => (isErr(x) ? errFn(x) : okFn(x as Ok<A>));
 
 /**
  * Simulates an ML style `case x of` pattern match, following the same
  * logic as `unwrap`.
  */
-const caseOf = <A, B, E>(pattern: CaseOfPattern<A, B, E>, x: Result<A, E>): B => {
+const caseOf = <A, E extends Error, R>(pattern: CaseOfPattern<A, E, R>, x: Result<A, E>): R => {
   if (isOk(x) && pattern["Ok"]) {
     return pattern["Ok"](x);
   } else if (isErr(x) && pattern["Err"]) {
@@ -214,12 +223,12 @@ const caseOf = <A, B, E>(pattern: CaseOfPattern<A, B, E>, x: Result<A, E>): B =>
 };
 
 /**
- * If all values in the `xs` array are not `Err`s then return the array. If
+ * If all values in the `xs` array are `Ok`s then return the array. If
  * any value is an `Err` then return the first error value.
  */
-const combine = <A, E>(xs: ReadonlyArray<Result<A, E>>): Result<Array<A>, E> => {
-  const firstErr = xs.find(isErr);
-  const okVals = xs.filter(isOk);
+const combine = <A, E extends Error>(xs: ReadonlyArray<Result<A, E>>): Result<Array<A>, E> => {
+  const firstErr = xs.find(isErr) as E | undefined;
+  const okVals = xs.filter<A>(isOk);
   return firstErr === undefined ? okVals : firstErr;
 };
 
@@ -227,20 +236,27 @@ const combine = <A, E>(xs: ReadonlyArray<Result<A, E>>): Result<Array<A>, E> => 
  * Create a version of a function which returns a `Result` instead of
  * throwing an error.
  */
-const encase = <Args extends Array<any>, V>(
-  throwsFn: (...args: Args) => V
-): ((...args: Args) => Result<V, unknown>) => {
-  return (...args: Args): Result<V, unknown> => {
+const encase = <Args extends Array<any>, V, E extends Error>(
+  onThrow: (e: unknown) => E,
+  fn: (...args: Args) => V
+): ((...args: Args) => Result<V, E>) => {
+  return (...args: Args): Result<V, E> => {
     try {
-      return throwsFn(...args);
-    } catch (e) {
-      if (e instanceof ErrorValue) {
-        return e;
-      } else if (e instanceof Error) {
-        return fromErrorable(e);
-      } else {
-        return new ErrorValue(e);
-      }
+      return fn(...args);
+    } catch (e: unknown) {
+      return onThrow(e);
     }
   };
 };
+
+/**
+ * Given a promise, return a promise which will always fulfill, catching
+ * rejected values in an `Err`.
+ *
+ *    fulfilled Promise<V> -> Promise<Ok<V>>
+ *    rejected Promise<V>  -> Promise<Err>
+ */
+const encasePromise = <V, E extends Error>(
+  onReject: (e: unknown) => E,
+  p: Promise<Ok<V>>
+): Promise<Result<Ok<V>, Err<E>>> => p.then((v: Ok<V>) => Ok(v)).catch((e: unknown) => onReject(e));

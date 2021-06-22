@@ -5,7 +5,10 @@
     "strict": true,
     "declaration": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true
   },
-    "exclude": ["node_modules", "test-d"]
+  "exclude": ["node_modules", "test-d"]
 }
