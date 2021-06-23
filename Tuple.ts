@@ -312,7 +312,6 @@ function unzip<Tup extends Single<any> | Pair<any, any> | Triple<any, any, any>>
 
   rest.forEach((nextTup) =>
     resTups.forEach((resElem, resElemIndex) => {
-      console.log(resElem);
       resElem.push(nextTup[resElemIndex]);
     })
   );
