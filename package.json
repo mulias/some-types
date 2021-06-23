@@ -12,16 +12,23 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "npm run build && tsd",
+    "test": "npm run build && tsd && jest",
     "format": "prettier --write ."
   },
   "prettier": {
     "printWidth": 100,
     "trailingComma": "none"
   },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node"
+  },
   "devDependencies": {
+    "@types/jest": "^26.0.23",
+    "jest": "^27.0.4",
     "prettier": "2.3.1",
-    "typescript": "4.3.4",
-    "tsd": "0.17.0"
+    "ts-jest": "^27.0.3",
+    "tsd": "0.17.0",
+    "typescript": "4.3.4"
   }
 }

@@ -10,5 +10,5 @@
     "noImplicitReturns": true,
     "noUncheckedIndexedAccess": true
   },
-  "exclude": ["node_modules", "test-d"]
+  "exclude": ["node_modules", "test", "test-d"]
 }
