@@ -38,13 +38,12 @@ export {
 //
 
 /**
- * `AsyncData` models the lifecycle of async requests, where data
- * starts uninitialized, a request is made, and then either a
- * successful or unsuccessful response is received. These four stages
- * correspond to the types `NotAsked`, `Loading`, `Success`, and
- * `Failure`. The `Success` type has data of type `D`, while
- * `Failure` is an object which inherits from the javascript `Error`
- * object.
+ * `AsyncData` models the lifecycle of async requests, where data starts
+ * uninitialized, a request is made, and then either a successful or
+ * unsuccessful response is received. These four stages correspond to the types
+ * `NotAsked`, `Loading`, `Success`, and `Failure`. The `Success` type has data
+ * of type `D`, while `Failure` can be any object which inherits from the
+ * javascript `Error` object.
  */
 type AsyncData<D, E extends Error> = NotAsked | Loading | D | E;
 
@@ -67,23 +66,21 @@ type Loading = typeof Loading;
 
 /**
  * The `Success` variant of a `AsyncData` is an alias for retrieved data of
- * type `D`. Values of this type can be constructed with the `Success`
- * function.
+ * type `D`. The data can be of any concrete type that isn't an object
+ * inheriting from `Error`, or the two constants `NotAsked` and `Loading`.
  */
 type Success<D> = Exclude<D, NotAsked | Loading | Error>;
 
 /**
- * The `Failure` variant of a `AsyncData` represents data that could not be
- * retrieved. The error object inherits from the default JS `Error` built-in,
- * and contains some error value of type `E`. Values of this type can be
- * constructed with the `Failure` function.
+ * The `Failure` variant of a `AsyncData` represents a situation where the data
+ * could not be retrieved. It can be any error object which inherits from the
+ * default JS `Error` built-in. Values of this type can be created like any
+ * normal error object. The provided constructor `Failure` creates a vanilla
+ * `Error` object, while `FailureData` creates an `ErrorData<D>` object which
+ * inherits from `Error` but has an additional `data` field containing error
+ * data of type `D`.
  */
 type Failure<E extends Error> = E;
-
-/* Create a wrapped type where each member of `T` is a `AsyncData` with error
- * value `E`.
- */
-type AsyncDataMapped<T, E extends Error> = { [k in keyof T]: AsyncData<T[k], E> };
 
 /* The `caseOf` function expects either exhaustive pattern matching, or
  * non-exhaustive with a `default` case.
@@ -169,7 +166,7 @@ function isCompleted(x: unknown) {
 //
 
 /**
- * Create a `AsyncData` from a `Maybe` by returning either a `NotAsked` or `Success`
+ * Create an `AsyncData` from a `Maybe` by returning either a `NotAsked` or `Success`
  *
  *     Just<A> -> Success<A>
  *     Nothing -> NotAsked
@@ -177,7 +174,7 @@ function isCompleted(x: unknown) {
 const fromMaybe = Maybe.toAsyncData;
 
 /**
- * Create a `AsyncData` from a `Result`. Since the `Result` type is a subset
+ * Create an `AsyncData` from a `Result`. Since the `Result` type is a subset
  * of `AsyncData` this is a lossless typecast.
  *
  *     Ok<V>  -> Success<V>
@@ -186,7 +183,7 @@ const fromMaybe = Maybe.toAsyncData;
 const fromResult = Result.toAsyncData;
 
 /**
- * Create a `Maybe` from a `AsyncData` by mapping `Success` to
+ * Create a `Maybe` from an `AsyncData` by mapping `Success` to
  * `Just` and everything else to `Nothing`.
  *
  *     NotAsked         -> Nothing
@@ -198,7 +195,7 @@ const toMaybe = <D, E extends Error>(x: AsyncData<D, E>): Maybe.T<Success<D>> =>
   isSuccess(x) ? x : Maybe.Nothing;
 
 /**
- * Create a `Result` from a `AsyncData`, where the incomplete statuses map to
+ * Create a `Result` from an `AsyncData`, where the incomplete statuses map to
  * `Maybe.Nothing`.
  *
  *     NotAsked   -> Ok<Nothing>

@@ -44,10 +44,9 @@ type Result<V, E extends Error> = V | E;
 type T<V, E extends Error> = Result<V, E>;
 
 /**
- * The `Ok` variant of a `Result` is an alias for non-error values of type
- * `V`. As a formality values of this type can be constructed with the `Ok`
- * function, but in practice any value of type `A` that isn't an object
- * inheriting from `Error` is already an `Ok<A>`.
+ * The `Ok` variant of a `Result` is an alias for non-error values of type `V`.
+ * The value can be of any concrete type that isn't an object inheriting from
+ * `Error`.
  */
 type Ok<V> = Exclude<V, Error>;
 

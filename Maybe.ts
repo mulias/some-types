@@ -45,10 +45,8 @@ type Maybe<A> = A | undefined;
 type T<A> = Maybe<A>;
 
 /**
- * The `Just` variant of a `Maybe` is an alias for the data of type `A`. As a
- * formality values of this type can be constructed with the `Just` function,
- * but in practice any value of type `A` except `undefined` is already a
- * `Just<A>`.
+ * The `Just` variant of a `Maybe` is an alias for data of type `A`. The data
+ * can be of any concrete type that isn't `undefined`.
  */
 type Just<A> = Exclude<A, undefined>;
 
