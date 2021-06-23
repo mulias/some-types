@@ -268,12 +268,12 @@ function zip<A, B, C>(a: readonly A[], b: readonly B[], c: readonly C[]): Array<
 function zip(a: readonly any[], b?: readonly any[], c?: readonly any[]) {
   const res = [];
 
-  if (b !== undefined && c !== undefined) {
+  if (Maybe.isJust(b) && Maybe.isJust(c)) {
     const len = Math.min(a.length, b.length, c.length);
     for (let i = 0; i < len; i++) {
       res[i] = [a[i], b[i], c[i]];
     }
-  } else if (b !== undefined) {
+  } else if (Maybe.isJust(b)) {
     const len = Math.min(a.length, b.length);
     for (let i = 0; i < len; i++) {
       res[i] = [a[i], b[i]];
@@ -302,7 +302,7 @@ function unzip<A, B, C>(zipped: ReadonlyArray<Triple<A, B, C>>): Triple<A[], B[]
 function unzip<Tup extends Single<any> | Pair<any, any> | Triple<any, any, any>>(
   tuples: ReadonlyArray<Tup>
 ) {
-  if (tuples[0] === undefined) {
+  if (Maybe.isNothing(tuples[0])) {
     return [];
   }
 
