@@ -14,7 +14,7 @@ import {
 } from "../DateString";
 
 describe("Constructors", () => {
-  it("should", () => {
+  it("should create DateString values", () => {
     const dts = "2015-01-11T20:10:03";
     const dos = "2015-01-11T00:00:00";
     const dms = "2015-01-01T00:00:00";
