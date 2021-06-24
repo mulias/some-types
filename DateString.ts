@@ -128,31 +128,24 @@ const of = DateTimeString;
 const isDateString = (d: unknown): d is DateString => isDateTimeString(d);
 
 /** Typeguard for any string that parses to a valid Date. */
-const isDateTimeString = (d: unknown): d is DateTimeString => {
-  if (typeof d !== "string") return false;
-  const dateTime = new Date(d).getTime();
-  return dateTime !== NaN;
-};
+const isDateTimeString = (d: unknown): d is DateTimeString =>
+  typeof d === "string" && dateStringRegex.test(d) && new Date(d).getTime() !== NaN;
 
 /**
  * Typeguard for any string that parses to a valid Date where the time is
  * 00:00:00.
  */
-const isDateOnlyString = (d: unknown): d is DateOnlyString => {
-  if (typeof d !== "string") return false;
-  const dateTime = new Date(d).getTime();
-  return dateTime !== NaN && dateTime % 100000 === 0;
-};
+const isDateOnlyString = (d: unknown): d is DateOnlyString =>
+  isDateTimeString(d) && new Date(d).getTime() % 100000 === 0;
 
 /**
  * Typeguard for any string that parses to a valid Date where the time is
  * 00:00:00 and the day is the first of the month.
  */
 const isDateMonthString = (d: unknown): d is DateMonthString => {
-  if (typeof d !== "string") return false;
+  if (!isDateTimeString(d)) return false;
   const date = new Date(d);
-  const dateTime = date.getTime();
-  return dateTime !== NaN && dateTime % 100000 === 0 && date.getDate() === 1;
+  return date.getTime() % 100000 === 0 && date.getDate() === 1;
 };
 
 //
@@ -204,14 +197,16 @@ function applyAsDate(fn: (date: any) => any, d: DateString | ValidDate.T | Date)
 const getNaiveDateTimeFields = (d: Date): Maybe.T<NaiveDateTimeFields> => {
   if (!ValidDate.isValidDate(d)) return undefined;
 
-  return {
-    year: d.getFullYear(),
-    month: d.getMonth() + 1,
-    day: d.getDate(),
-    hours: d.getHours(),
-    minutes: d.getMinutes(),
-    seconds: d.getSeconds()
-  };
+  const year = d.getFullYear();
+  if (year < 0 || year > 9999) return undefined;
+
+  const month = d.getMonth() + 1;
+  const day = d.getDate();
+  const hours = d.getHours();
+  const minutes = d.getMinutes();
+  const seconds = d.getSeconds();
+
+  return { year, month, day, hours, minutes, seconds };
 };
 
 const leftPad = (n: number, s: string): string => {
@@ -230,3 +225,5 @@ const formatDateString = (d: NaiveDateTimeFields): string => {
 
   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
 };
+
+const dateStringRegex = /\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/;
