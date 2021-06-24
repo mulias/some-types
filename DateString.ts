@@ -40,33 +40,24 @@ type T = DateString;
  * String encoding of a Year-Month-Day-Time date. Values of this type can be
  * constructed with the `DateTimeString` function.
  */
-type DateTimeString = string & IsDateTimeString;
-enum IsDateTimeString {
-  _ = "DATE_TIME_STRING"
-}
+type DateTimeString = string & { readonly __opaque__: IsDateTimeString };
+enum IsDateTimeString {}
 
 /**
  * String encoding of a Year/Month/Day date. When parsed as a Date the time
  * defaults to 00:00:00. Values of this type can be constructed with the
  * `DateOnlyString` function.
  */
-type DateOnlyString = string & IsDateOnlyString;
-enum IsDateOnlyString {
-  _ = "DATE_ONLY_STRING"
-}
+type DateOnlyString = string & { readonly __opaque__: IsDateOnlyString };
+enum IsDateOnlyString {}
 
 /**
  * String encoding of a Year-Month date. When parsed as a Date the day
  * defaults to the first of the month, and time to 00:00:00. Values of this
  * type can be constructed with the `DateMonthString` function.
  */
-type DateMonthString = string & IsDateMonthString;
-enum IsDateMonthString {
-  _ = "DATE_MONTH_STRING"
-}
-
-type AllDates<A extends Array<any>> = { [k in keyof A]: Date };
-type AllValidDates<A extends Array<any>> = { [k in keyof A]: ValidDate.T };
+type DateMonthString = string & { readonly __opaque__: IsDateMonthString };
+enum IsDateMonthString {}
 
 type NaiveDateTimeFields = {
   year: number;

@@ -21,10 +21,8 @@ export {
 //
 
 /** A `Date` object which we know is not an `Invalid Date`. */
-type ValidDate = Date & IsValidDate;
-enum IsValidDate {
-  _ = "VALID_DATE"
-}
+type ValidDate = Date & { readonly __opaque__: IsValidDate };
+enum IsValidDate {}
 
 /** Alias for the `ValidDate` type */
 type T = ValidDate;
