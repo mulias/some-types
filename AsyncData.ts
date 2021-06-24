@@ -228,10 +228,7 @@ function map<A>(fn: (a: A) => any, a: AsyncData<A, Error>) {
 }
 
 /**
- * Apply `fn` if `x` is a `Failure`. Note that in order to change the error
- * value, `fn` will either have to mutate the object, or create a new
- * object. Both options have pitfalls in different contexts.
- */
+ * Apply `fn` if `x` is a `Failure`. Otherwise return the non-failure value. */
 function mapFailure<A, B, E extends Error>(fn: (e: E) => B, a: Success<A>): Success<A>;
 function mapFailure<A, B, E extends Error>(fn: (a: E) => B, a: NotAsked): NotAsked;
 function mapFailure<A, B, E extends Error>(fn: (a: E) => B, a: Loading): Loading;
