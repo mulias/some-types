@@ -68,36 +68,6 @@ type NaiveDateTimeFields = {
   seconds: number;
 };
 
-const getNaiveDateTimeFields = (d: Date): Maybe.T<NaiveDateTimeFields> => {
-  if (!ValidDate.isValidDate(d)) return undefined;
-
-  return {
-    year: d.getFullYear(),
-    month: d.getMonth() + 1,
-    day: d.getDate(),
-    hours: d.getHours(),
-    minutes: d.getMinutes(),
-    seconds: d.getSeconds()
-  };
-};
-
-const leftPad = (n: number, s: string): string => {
-  const diff = Math.max(n - s.length, 0);
-  const padding = "0".repeat(diff);
-  return padding + s;
-};
-
-const formatDateString = (d: NaiveDateTimeFields): string => {
-  const year = leftPad(4, String(d.year));
-  const month = leftPad(2, String(d.month));
-  const day = leftPad(2, String(d.day));
-  const hours = leftPad(2, String(d.hours));
-  const minutes = leftPad(2, String(d.minutes));
-  const seconds = leftPad(2, String(d.seconds));
-
-  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
-};
-
 //
 // Constructors
 //
@@ -226,3 +196,37 @@ function applyAsDate<R>(fn: (date: Date) => R, d: DateString | Date): R;
 function applyAsDate(fn: (date: any) => any, d: DateString | ValidDate.T | Date) {
   return fn(d instanceof Date ? d : toDate(d));
 }
+
+//
+// Helpers
+//
+
+const getNaiveDateTimeFields = (d: Date): Maybe.T<NaiveDateTimeFields> => {
+  if (!ValidDate.isValidDate(d)) return undefined;
+
+  return {
+    year: d.getFullYear(),
+    month: d.getMonth() + 1,
+    day: d.getDate(),
+    hours: d.getHours(),
+    minutes: d.getMinutes(),
+    seconds: d.getSeconds()
+  };
+};
+
+const leftPad = (n: number, s: string): string => {
+  const diff = Math.max(n - s.length, 0);
+  const padding = "0".repeat(diff);
+  return padding + s;
+};
+
+const formatDateString = (d: NaiveDateTimeFields): string => {
+  const year = leftPad(4, String(d.year));
+  const month = leftPad(2, String(d.month));
+  const day = leftPad(2, String(d.day));
+  const hours = leftPad(2, String(d.hours));
+  const minutes = leftPad(2, String(d.minutes));
+  const seconds = leftPad(2, String(d.seconds));
+
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+};
