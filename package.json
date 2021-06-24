@@ -11,8 +11,9 @@
   "sideEffects": false,
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch",
-    "test": "npm run build && tsd && jest",
+    "cleanup": "rm *.d.ts && rm *.js",
+    "dev": "tsc --watch --noEmit",
+    "test": "npm run build && tsd && jest; npm run cleanup",
     "format": "prettier --write ."
   },
   "prettier": {
