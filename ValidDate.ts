@@ -2,12 +2,13 @@ import * as Maybe from "./Maybe";
 import * as DateString from "./DateString";
 
 export {
-  // Types (and constructor)
+  // Types
   ValidDate,
   T,
   // Constructors
-  now,
+  // ValidDate,
   of,
+  now,
   // Typeguards
   isValidDate,
   // Conversions
@@ -35,17 +36,17 @@ type T = ValidDate;
  * Attempt to parse some value into a new `Date` object. If the result is
  * valid, return a `ValidDate`, otherwise return `Maybe.Nothing`.
  */
-function ValidDate<A extends DateString.T | ValidDate>(a: A): ValidDate;
-function ValidDate<A extends Date | number | string>(a: A): Maybe.T<ValidDate>;
-function ValidDate(a: any) {
-  return fromDate(new Date(a));
+function ValidDate<D extends DateString.T | ValidDate>(d: D): ValidDate;
+function ValidDate(value: string | number | Date): Maybe.T<ValidDate>;
+function ValidDate(a: unknown) {
+  return fromDate(new Date(a as any));
 }
-
-/** Get the current time, which we know is a `ValidDate`. */
-const now = (): ValidDate => new Date() as ValidDate;
 
 /** Alias for the `ValidDate` constructor. */
 const of = ValidDate;
+
+/** Get the current time, which we know is a `ValidDate`. */
+const now = () => new Date() as ValidDate;
 
 //
 // Typeguards
@@ -59,13 +60,13 @@ const isValidDate = (d: unknown): d is ValidDate => d instanceof Date && !isNaN(
 //
 
 /**
- * Return `d` as a `ValidDate` if it's valid, otherwise return
- * `Maybe.Nothing`.
+ * Return `d` as a `ValidDate` if it's valid, otherwise return `Maybe.Nothing`.
+ * Unlike the `ValidDate` constructor this does not create a new object.
  */
 function fromDate(d: ValidDate): ValidDate;
 function fromDate(d: Date): Maybe.T<ValidDate>;
 function fromDate(d: Date) {
-  return isValidDate(d) ? d : undefined;
+  return Maybe.fromPredicate(isValidDate, d);
 }
 
 //
@@ -78,8 +79,6 @@ function fromDate(d: Date) {
  */
 function map(fn: (d: Date) => ValidDate, validDate: ValidDate): ValidDate;
 function map(fn: (d: Date) => Date, validDate: ValidDate): ValidDate | undefined;
-function map(fn: (d: ValidDate) => ValidDate, validDate: ValidDate): ValidDate;
-function map(fn: (d: ValidDate) => Date, validDate: ValidDate): ValidDate | undefined;
 function map(fn: (d: any) => any, validDate: ValidDate): any {
   return fromDate(fn(validDate));
 }

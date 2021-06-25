@@ -15,9 +15,9 @@ import {
 
 describe("Constructors", () => {
   it("should create DateString values", () => {
-    const dts = "2015-01-11T20:10:03";
-    const dos = "2015-01-11T00:00:00";
-    const dms = "2015-01-01T00:00:00";
+    const dts = "2015-01-11T20:10:03.000";
+    const dos = "2015-01-11T00:00:00.000";
+    const dms = "2015-01-01T00:00:00.000";
     const d = new Date(dts);
 
     expect(DateTimeString(d)).toBe(dts);
@@ -40,7 +40,7 @@ describe("Constructors", () => {
     expect(Maybe.map(DateTimeString, DateOnlyString(d))).toBe(dos);
     expect(Maybe.map(DateTimeString, DateMonthString(d))).toBe(dms);
 
-    expect(DateTimeString("Jan 21 1993")).toBe("1993-01-21T00:00:00");
+    expect(DateTimeString("Jan 21 1993")).toBe("1993-01-21T00:00:00.000");
     expect(DateTimeString("Jan 21 1993 at 12:57")).toBeUndefined();
 
     const utcString = dts + "Z";

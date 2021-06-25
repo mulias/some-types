@@ -4,11 +4,15 @@ import * as ValidDate from "./ValidDate";
 export {
   // Types
   DateString,
-  T,
-  // Constructors
   DateTimeString,
   DateOnlyString,
   DateMonthString,
+  T,
+  // Constructors
+  // DateString,
+  // DateTimeString,
+  // DateOnlyString,
+  // DateMonthString,
   of,
   // Typeguards
   isDateString,
@@ -16,6 +20,7 @@ export {
   isDateOnlyString,
   isDateMonthString,
   // Conversions
+  toFields,
   toDate,
   // Operations
   map
@@ -27,9 +32,20 @@ export {
 
 /**
  * A string encoding of a Date, guaranteed to parse to a valid Date object. The
- * three encodings provided store date information at different levels of
- * specificity, but are not mutually exclusive. For example, a `DateOnlyString`
- * is a valid `DateTimeString`, but with the time value zeroed out.
+ * three encodings `DateTimeString`, `DateOnlyString`, and `DateMonthString`
+ * all use the same ISO 8601 complient format, but truncated to different
+ * levels of specificity. For example, a `DateOnlyString` is a valid
+ * `DateTimeString`, but with the time value zeroed out.
+ *
+ * The format used is
+ * ```
+ * `${year}-${month}-${date}T${hours}:${minutes}:${seconds}.${milliseconds}`
+ * ```
+ * For example `2021-12-10T08:25:00.000` or `0000-01-01T00:00:00.000`.
+ *
+ * This format comes with some restrictions -- namely that the year must be
+ * between `0000` and `9999`, and that UTC offset and timezones are not
+ * supported.
  */
 type DateString = DateTimeString | DateOnlyString | DateMonthString;
 
@@ -37,15 +53,15 @@ type DateString = DateTimeString | DateOnlyString | DateMonthString;
 type T = DateString;
 
 /**
- * String encoding of a Year-Month-Day-Time date. Values of this type can be
+ * String encoding of a Year-Month-Date-Time date. Values of this type can be
  * constructed with the `DateTimeString` function.
  */
 type DateTimeString = string & { readonly __opaque__: IsDateTimeString };
 enum IsDateTimeString {}
 
 /**
- * String encoding of a Year/Month/Day date. When parsed as a Date the time
- * defaults to 00:00:00. Values of this type can be constructed with the
+ * String encoding of a Year-Month-Date date. When parsed as a Date the time
+ * defaults to 00:00:00.000. Values of this type can be constructed with the
  * `DateOnlyString` function.
  */
 type DateOnlyString = string & { readonly __opaque__: IsDateOnlyString };
@@ -53,94 +69,148 @@ enum IsDateOnlyString {}
 
 /**
  * String encoding of a Year-Month date. When parsed as a Date the day
- * defaults to the first of the month, and time to 00:00:00. Values of this
+ * defaults to the first of the month, and time to 00:00:00.000. Values of this
  * type can be constructed with the `DateMonthString` function.
  */
 type DateMonthString = string & { readonly __opaque__: IsDateMonthString };
 enum IsDateMonthString {}
 
-type NaiveDateTimeFields = {
+type DateStringFields = {
   year: number;
   month: number;
-  day: number;
+  date: number;
   hours: number;
   minutes: number;
   seconds: number;
+  milliseconds: number;
+};
+
+type DateTimeFieldsArg = {
+  year: number;
+  month: number;
+  date: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+  milliseconds?: number;
+};
+
+type DateOnlyFieldsArg = {
+  year: number;
+  month: number;
+  date: number;
+};
+
+type DateMonthFieldsArg = {
+  year: number;
+  month: number;
 };
 
 //
 // Constructors
 //
 
+function DateString(fields: DateTimeFieldsArg): Maybe.T<DateTimeString>;
+function DateString(fields: DateOnlyFieldsArg): Maybe.T<DateOnlyString>;
+function DateString(fields: DateMonthFieldsArg): Maybe.T<DateMonthString>;
+function DateString(fields: {
+  year: number;
+  month: number;
+  date?: number;
+  hours?: number;
+  minutes?: number;
+  seconds?: number;
+  milliseconds?: number;
+}) {
+  const dateStr = formatDateString({
+    year: fields.year,
+    month: fields.month,
+    date: fields.date ?? 1,
+    hours: fields.hours ?? 0,
+    minutes: fields.minutes ?? 0,
+    seconds: fields.seconds ?? 0,
+    milliseconds: fields.milliseconds ?? 0
+  });
+  return Maybe.fromPredicate(isDateString, dateStr);
+}
+
 /**
- * Create a DateTimeString from an input that might encode a Date. If the input
+ * Create a `DateTimeString` from an input that might encode a Date. If the input
  * is a `DateString` or `ValidDate`, then the return type is `DateTimeString`.
- * Otherwise the return type is `Maybe<DateTimeString>`.
+ * Otherwise the return type is `Maybe.T<DateTimeString>`.
  */
-function DateTimeString<D extends DateString | ValidDate.T>(d: D): DateTimeString;
-function DateTimeString<D extends Date | string | number>(d: D): Maybe.T<DateTimeString>;
-function DateTimeString(d: DateString | ValidDate.T | Date | string | number) {
-  const date = typeof d === "string" || typeof d === "number" ? new Date(d) : d;
-  const fields = getNaiveDateTimeFields(date);
-  return Maybe.map(formatDateString, fields);
+function DateTimeString(d: DateString | ValidDate.T): DateTimeString;
+function DateTimeString(d: string | number | Date | DateTimeFieldsArg): Maybe.T<DateTimeString>;
+function DateTimeString(a: unknown): Maybe.T<DateTimeString> {
+  if (a instanceof Object && "year" in a && "month" in a && "date" in a) {
+    return DateString(a);
+  }
+
+  const date = new Date(a as any);
+  const fields = getDateStringFields(date);
+  return Maybe.fromPredicate(isDateTimeString, formatDateString(fields));
 }
 
 /**
  * Create a DateOnlyString from an input that might encode a Date. If the input
  * is a `DateString` or `ValidDate`, then the return type is `DateOnlyString`.
- * Otherwise the return type is `Maybe<DateOnlyString>`.
+ * Otherwise the return type is `Maybe.T<DateOnlyString>`.
  */
-function DateOnlyString<D extends DateString | ValidDate.T>(d: D): DateOnlyString;
-function DateOnlyString<D extends Date | string | number>(d: D): Maybe.T<DateOnlyString>;
-function DateOnlyString(d: DateString | ValidDate.T | Date | string | number) {
-  const date = typeof d === "string" || typeof d === "number" ? new Date(d) : d;
-  const dateOnlyFields = Maybe.map(
-    (fields) => ({ ...fields, hours: 0, minutes: 0, seconds: 0 }),
-    getNaiveDateTimeFields(date)
-  );
-  return Maybe.map(formatDateString, dateOnlyFields);
+function DateOnlyString(d: DateString | ValidDate.T): DateOnlyString;
+function DateOnlyString(d: string | number | Date | DateOnlyFieldsArg): Maybe.T<DateOnlyString>;
+function DateOnlyString(a: unknown) {
+  if (a instanceof Object && "year" in a && "month" in a && "date" in a) {
+    return DateString(a);
+  }
+
+  const date = new Date(a as any);
+  const fields = getDateStringFields(date);
+  const dateOnlyFields = { ...fields, hours: 0, minutes: 0, seconds: 0 };
+  return Maybe.fromPredicate(isDateOnlyString, formatDateString(dateOnlyFields));
 }
 
 /**
  * Create a DateMonthString from an input that might encode a Date. If the input
  * is a `DateString` or `ValidDate`, then the return type is `DateMonthString`.
- * Otherwise the return type is `Maybe<DateMonthString>`.
+ * Otherwise the return type is `Maybe.T<DateMonthString>`.
  */
-function DateMonthString<D extends DateString | ValidDate.T>(d: D): DateMonthString;
-function DateMonthString<D extends Date | string | number>(d: D): Maybe.T<DateMonthString>;
-function DateMonthString(d: DateString | ValidDate.T | Date | string | number) {
-  const date = typeof d === "string" || typeof d === "number" ? new Date(d) : d;
-  const monthOnlyFields = Maybe.map(
-    (fields) => ({ ...fields, day: 1, hours: 0, minutes: 0, seconds: 0 }),
-    getNaiveDateTimeFields(date)
-  );
-  return Maybe.map(formatDateString, monthOnlyFields);
+function DateMonthString(d: DateString | ValidDate.T): DateMonthString;
+function DateMonthString(d: string | number | Date | DateMonthFieldsArg): Maybe.T<DateMonthString>;
+function DateMonthString(a: unknown) {
+  if (a instanceof Object && "year" in a && "month" in a && "date" in a) {
+    return DateString(a);
+  }
+
+  const date = new Date(a as any);
+  const fields = getDateStringFields(date);
+  const monthOnlyFields = { ...fields, date: 1, hours: 0, minutes: 0, seconds: 0 };
+  return Maybe.fromPredicate(isDateMonthString, formatDateString(monthOnlyFields));
 }
 
-/** Alias for the `DateTimeString` constructor. */
-const of = DateTimeString;
+/** Alias for the `DateString` constructor. */
+const of = DateString;
 
 //
 // Typeguards
 //
 
-/** Typeguard for any string that parses to a valid Date. */
+/** Typeguard for any string that encodes a valid date in the DateString format. */
 const isDateString = (d: unknown): d is DateString => isDateTimeString(d);
 
-/** Typeguard for any string that parses to a valid Date. */
+/** Typeguard for any string that encodes a valid date in the DateString format. */
 const isDateTimeString = (d: unknown): d is DateTimeString =>
   typeof d === "string" && dateStringRegex.test(d) && new Date(d).getTime() !== NaN;
 
 /**
- * Typeguard for any string that parses to a valid Date where the time is
- * 00:00:00.
+ * Typeguard for any string that encodes a valid date in the DateString format
+ * where the time is 00:00:00.000.
  */
 const isDateOnlyString = (d: unknown): d is DateOnlyString =>
   isDateTimeString(d) && new Date(d).getTime() % 100000 === 0;
 
 /**
- * Typeguard for any string that parses to a valid Date where the time is
- * 00:00:00 and the day is the first of the month.
+ * Typeguard for any string that encodes a valid date in the DateString format
+ * where the time is 00:00:00.000 and the date is the first of the month.
  */
 const isDateMonthString = (d: unknown): d is DateMonthString => {
   if (!isDateTimeString(d)) return false;
@@ -156,14 +226,19 @@ const isDateMonthString = (d: unknown): d is DateMonthString => {
  * Parse a `DateString` into a `Date` object. Because the result is guaranteed
  * to be valid, we return a `ValidDate` type.
  */
-const toDate = (d: DateString): ValidDate.T => new Date(d) as ValidDate.T;
+const toDate = (d: DateString): ValidDate.T => ValidDate.of(d);
+
+/**
+ * Get the Date-related fields encoded in a `DateString`.
+ */
+const toFields = (d: DateString): DateStringFields => getDateStringFields(ValidDate.of(d));
 
 //
 // Operations
 //
 
 /**
- * Apply a `Date` object operation onto one or more `DateString`s, returning a
+ * Apply a function that expects a `Date` argument onto a `DateString`, returning a
  * new `DateString`. If `fn` produces a `DateString`, return that value. If
  * `fn` produces a `Date`, convert it to a `DateString`. If `fn` produces
  * an invalid `Date`, return `Maybe.Nothing`.
@@ -181,32 +256,25 @@ function map(fn: (d: Date) => Date | DateString, dateString: DateString) {
 }
 
 /**
- * Apply a `Date` operation to one or more `DateString`s. Unlike `map`, the
+ * Apply a function that expects a `Date` argument onto a `DateString`. Unlike `map`, the
  * result of applying `fn` might not be a new `DateString`.
  */
-function applyAsDate<R>(fn: (date: ValidDate.T) => R, d: DateString | ValidDate.T): R;
-function applyAsDate<R>(fn: (date: Date) => R, d: DateString | Date): R;
-function applyAsDate(fn: (date: any) => any, d: DateString | ValidDate.T | Date) {
-  return fn(d instanceof Date ? d : toDate(d));
-}
+const applyAsDate = <R>(fn: (date: Date) => R, d: DateString): R => fn(toDate(d));
 
 //
 // Helpers
 //
 
-const getNaiveDateTimeFields = (d: Date): Maybe.T<NaiveDateTimeFields> => {
-  if (!ValidDate.isValidDate(d)) return undefined;
-
+const getDateStringFields = (d: Date): DateStringFields => {
   const year = d.getFullYear();
-  if (year < 0 || year > 9999) return undefined;
-
   const month = d.getMonth() + 1;
-  const day = d.getDate();
+  const date = d.getDate();
   const hours = d.getHours();
   const minutes = d.getMinutes();
   const seconds = d.getSeconds();
+  const milliseconds = d.getMilliseconds();
 
-  return { year, month, day, hours, minutes, seconds };
+  return { year, month, date, hours, minutes, seconds, milliseconds };
 };
 
 const leftPad = (n: number, s: string): string => {
@@ -215,15 +283,16 @@ const leftPad = (n: number, s: string): string => {
   return padding + s;
 };
 
-const formatDateString = (d: NaiveDateTimeFields): string => {
+const formatDateString = (d: DateStringFields): string => {
   const year = leftPad(4, String(d.year));
   const month = leftPad(2, String(d.month));
-  const day = leftPad(2, String(d.day));
+  const date = leftPad(2, String(d.date));
   const hours = leftPad(2, String(d.hours));
   const minutes = leftPad(2, String(d.minutes));
   const seconds = leftPad(2, String(d.seconds));
+  const milliseconds = leftPad(3, String(d.milliseconds));
 
-  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+  return `${year}-${month}-${date}T${hours}:${minutes}:${seconds}.${milliseconds}`;
 };
 
-const dateStringRegex = /\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/;
+const dateStringRegex = /\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\.\d\d\d/;
