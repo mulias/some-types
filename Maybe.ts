@@ -144,8 +144,15 @@ const fromAsyncData = AsyncData.toMaybe;
 const fromNullable = <A>(x: A): Maybe<Exclude<A, null>> =>
   x == null ? Nothing : (x as Just<Exclude<A, null>>);
 
-/** Keeps the value `a` if `test` returns true, otherwise returns `Nothing`. */
-const fromPredicate = <A>(test: (a: A) => boolean, a: A): Maybe<A> => (test(a) ? a : Nothing);
+/**
+ * Keeps the value `a` if `test` returns true, otherwise returns `Nothing`.
+ * Supports narrowing the return type via typeguards.
+ */
+function fromPredicate<A, B extends A>(test: (a: A) => a is B, a: A): Maybe<B>;
+function fromPredicate<A>(test: (a: A) => boolean, a: A): Maybe<A>;
+function fromPredicate<A>(test: (a: A) => boolean, a: A) {
+  return test(a) ? a : Nothing;
+}
 
 /** Keep truthy values, return `Nothing` for falsy values such as `null`, `0` and `""`. */
 const fromFalsy = <A>(x: A | Falsy): Maybe<A> => (!!x ? x : Nothing);
