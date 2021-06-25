@@ -20,6 +20,19 @@ describe("Constructors", () => {
     const dms = "2015-01-01T00:00:00.000";
     const d = new Date(dts);
 
+    expect(
+      DateString({
+        year: 2015,
+        month: 1,
+        date: 11,
+        hours: 20,
+        minutes: 10,
+        seconds: 3
+      })
+    ).toBe(dts);
+    expect(DateString({ year: 2015, month: 1, date: 11 })).toBe(dos);
+    expect(DateString({ year: 2015, month: 1 })).toBe(dms);
+
     expect(DateTimeString(d)).toBe(dts);
     expect(DateOnlyString(d)).toBe(dos);
     expect(DateMonthString(d)).toBe(dms);
