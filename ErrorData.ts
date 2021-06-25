@@ -1,8 +1,9 @@
 export {
-  // Types (and class constructor)
+  // Types
   ErrorData,
   T,
   // Constructors
+  // ErrorData,
   of,
   // Typeguards
   isErrorData,

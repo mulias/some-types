@@ -1,10 +1,11 @@
 import * as Maybe from "./Maybe";
 
 export {
-  // Types (and constructor)
+  // Types
   NonEmptyArray,
   T,
   // Constructors
+  // NonEmptyArray,
   of,
   // Typeguards
   isNonEmptyArray,

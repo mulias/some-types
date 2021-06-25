@@ -5,12 +5,16 @@ import { ErrorData, isErrorData, fromError } from "./ErrorData";
 export {
   // Types
   AsyncData,
-  T,
-  // Constructors
   NotAsked,
   Loading,
   Success,
   Failure,
+  T,
+  // Constructors
+  // NotAsked,
+  // Loading,
+  // Success,
+  // Failure,
   FailureData,
   of,
   // Typeguards

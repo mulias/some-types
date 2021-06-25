@@ -5,10 +5,12 @@ import { ErrorData, isErrorData } from "./ErrorData";
 export {
   // Types
   Result,
-  T,
-  // Constructors
   Ok,
   Err,
+  T,
+  // Constructors
+  // Ok,
+  // Err,
   ErrData,
   of,
   // Typeguards

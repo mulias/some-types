@@ -2,14 +2,19 @@ import * as Maybe from "./Maybe";
 import * as NonEmptyArray from "./NonEmptyArray";
 
 export {
-  // Types (and constructor)
+  // Types
   Tuple,
-  T,
-  // Constructors
   Empty,
   Single,
   Pair,
   Triple,
+  T,
+  // Constructors
+  // Tuple,
+  // Empty,
+  // Single,
+  // Pair,
+  // Triple,
   of,
   // Typeguards
   isEmpty,

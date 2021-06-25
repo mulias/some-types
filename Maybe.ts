@@ -4,10 +4,12 @@ import * as AsyncData from "./AsyncData";
 export {
   // Types
   Maybe,
-  T,
-  // Constructors
   Just,
   Nothing,
+  T,
+  // Constructors
+  // Just,
+  // Nothing,
   of,
   // Typeguards
   isJust,
