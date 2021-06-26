@@ -15,12 +15,5 @@ import {
 } from "../DateString";
 
 expectType<DateTimeString | undefined>(
-  Maybe.map(DateTimeString, {
-    year: 1,
-    month: 1,
-    date: 1,
-    hours: 1,
-    minutes: 1,
-    seconds: 1
-  })
+  Maybe.map({ year: 1, month: 1, date: 1, hours: 1, minutes: 1, seconds: 1 }, DateTimeString)
 );

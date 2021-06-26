@@ -215,37 +215,37 @@ const toResult = <D, E extends Error>(x: AsyncData<D, E>): Result.T<Maybe.T<D>, 
 //
 
 /** Apply `fn` if `a` is a `Success`. Otherwise return the non-success value. */
-function map<A, B, E extends Error>(fn: (a: Success<A>) => B, a: E): E;
-function map<A, B, E extends Error>(fn: (a: Success<A>) => B, a: NotAsked): NotAsked;
-function map<A, B, E extends Error>(fn: (a: Success<A>) => B, a: Loading): Loading;
-function map<A, B, E extends Error>(fn: (a: Success<A>) => B, a: Success<A>): B;
+function map<A, B, E extends Error>(a: E, fn: (a: Success<A>) => B): E;
+function map<A, B, E extends Error>(a: NotAsked, fn: (a: Success<A>) => B): NotAsked;
+function map<A, B, E extends Error>(a: Loading, fn: (a: Success<A>) => B): Loading;
+function map<A, B, E extends Error>(a: Success<A>, fn: (a: Success<A>) => B): B;
 function map<A, B, E extends Error>(
-  fn: (a: Success<A>) => Success<B>,
-  a: AsyncData<Success<A>, E>
+  a: AsyncData<Success<A>, E>,
+  fn: (a: Success<A>) => Success<B>
 ): AsyncData<Success<B>, E>;
 function map<A, B, E extends Error>(
-  fn: (a: Success<A>) => B,
-  a: AsyncData<Success<A>, E>
+  a: AsyncData<Success<A>, E>,
+  fn: (a: Success<A>) => B
 ): AsyncData<Success<B>, Extract<E | B, Error>>;
-function map<A>(fn: (a: A) => any, a: AsyncData<A, Error>) {
+function map<A>(a: AsyncData<A, Error>, fn: (a: A) => any) {
   return isSuccess(a) ? fn(a) : a;
 }
 
 /**
  * Apply `fn` if `x` is a `Failure`. Otherwise return the non-failure value. */
-function mapFailure<A, B, E extends Error>(fn: (e: E) => B, a: Success<A>): Success<A>;
-function mapFailure<A, B, E extends Error>(fn: (a: E) => B, a: NotAsked): NotAsked;
-function mapFailure<A, B, E extends Error>(fn: (a: E) => B, a: Loading): Loading;
-function mapFailure<A, B, E extends Error>(fn: (e: E) => B, a: E): B;
+function mapFailure<A, B, E extends Error>(a: Success<A>, fn: (e: E) => B): Success<A>;
+function mapFailure<A, B, E extends Error>(a: NotAsked, fn: (a: E) => B): NotAsked;
+function mapFailure<A, B, E extends Error>(a: Loading, fn: (a: E) => B): Loading;
+function mapFailure<A, B, E extends Error>(a: E, fn: (e: E) => B): B;
 function mapFailure<A, B, E extends Error>(
-  fn: (e: E) => Success<B>,
-  a: AsyncData<Success<A>, E>
+  a: AsyncData<Success<A>, E>,
+  fn: (e: E) => Success<B>
 ): Success<A | B>;
 function mapFailure<A, B, EA extends Error, EB extends Error>(
-  fn: (e: EA) => AsyncData<Success<B>, EB>,
-  a: AsyncData<Success<A>, EA>
+  a: AsyncData<Success<A>, EA>,
+  fn: (e: EA) => AsyncData<Success<B>, EB>
 ): AsyncData<Success<A | B>, EB>;
-function mapFailure<A, B, E extends Error>(fn: (e: E) => B, a: AsyncData<A, E>) {
+function mapFailure<A, B, E extends Error>(a: AsyncData<A, E>, fn: (e: E) => B) {
   return isFailure(a) ? fn(a) : a;
 }
 
@@ -254,11 +254,11 @@ function mapFailure<A, B, E extends Error>(fn: (e: E) => B, a: AsyncData<A, E>) 
  * depending on the data's status.
  */
 const unwrap = <A, B, E extends Error>(
+  x: AsyncData<A, E>,
   notAskedFn: () => B,
   loadingFn: () => B,
   successFn: (a: A) => B,
-  failureFn: (e: E) => B,
-  x: AsyncData<A, E>
+  failureFn: (e: E) => B
 ): B => {
   if (isSuccess(x)) {
     return successFn(x);
@@ -275,7 +275,7 @@ const unwrap = <A, B, E extends Error>(
  * Simulates an ML style `case x of` pattern match, following the same logic as
  * `unwrap`.
  */
-const caseOf = <A, B, E extends Error>(pattern: CaseOfPattern<A, B, E>, x: AsyncData<A, E>): B => {
+const caseOf = <A, B, E extends Error>(x: AsyncData<A, E>, pattern: CaseOfPattern<A, B, E>): B => {
   if (isNotAsked(x) && pattern["NotAsked"]) {
     return pattern["NotAsked"]();
   } else if (isLoading(x) && pattern["Loading"]) {
@@ -308,7 +308,7 @@ const combine = <A, E extends Error>(xs: ReadonlyArray<AsyncData<A, E>>): AsyncD
  *    rejected Promise<V>  -> Promise<Failure<E>>
  */
 const encasePromise = <V, E extends Error>(
-  onReject: (e: unknown) => E,
-  p: Promise<Success<V>>
+  p: Promise<Success<V>>,
+  onReject: (e: unknown) => E
 ): Promise<AsyncData<Success<V>, Failure<E>>> =>
   p.then((v: Success<V>) => Success(v)).catch((e: unknown) => onReject(e));

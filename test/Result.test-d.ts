@@ -82,46 +82,46 @@ const testToAsyncData = () => {};
 
 const testMap = () => {
   const fnA = (x: number) => x + 1;
-  expectType<number>(map(fnA, 0));
-  expectType<Error>(map(fnA, Err()));
-  expectType<Result<number, Error>>(map(fnA, 0 as Result<number, Error>));
+  expectType<number>(map(0, fnA));
+  expectType<Error>(map(Err(), fnA));
+  expectType<Result<number, Error>>(map(0 as Result<number, Error>, fnA));
 
   const fnB = (x: number) => ErrData("I don't like numbers");
-  expectType<ErrorData.T<string>>(map(fnB, 0));
-  expectType<Error>(map(fnB, Err()));
+  expectType<ErrorData.T<string>>(map(0, fnB));
+  expectType<Error>(map(Err(), fnB));
   expectAssignable<ErrorData.T<number | string>>(
-    map(fnB, 0 as Result<number, ErrorData.T<number>>)
+    map(0 as Result<number, ErrorData.T<number>>, fnB)
   );
 
   const fnC = (x: number) => (x === 72 ? ErrData("I don't like that number") : x);
   expectAssignable<Result<number, ErrorData.T<number | string>>>(
-    map(fnC, 0 as Result<number, ErrorData.T<number>>)
+    map(0 as Result<number, ErrorData.T<number>>, fnC)
   );
 };
 
 const testMapErr = () => {
   const fnA = (e: Error) => ErrData(e.message);
-  expectType<ErrorData.T<string>>(mapErr(fnA, Err("foo")));
-  expectType<Result<string, ErrorData.T<string>>>(mapErr(fnA, Err("foo") as Result<string, Error>));
-  expectType<"bar">(mapErr(fnA, "bar"));
-  expectType<Result<string, ErrorData.T<string>>>(mapErr(fnA, "bar" as Result<string, Error>));
+  expectType<ErrorData.T<string>>(mapErr(Err("foo"), fnA));
+  expectType<Result<string, ErrorData.T<string>>>(mapErr(Err("foo") as Result<string, Error>, fnA));
+  expectType<"bar">(mapErr("bar", fnA));
+  expectType<Result<string, ErrorData.T<string>>>(mapErr("bar" as Result<string, Error>, fnA));
 };
 
 const testWithDefault = () => {
   // no default needed
-  expectType<3>(withDefault(0, 3));
+  expectType<3>(withDefault(3, 0));
   // default removes Error from return type
-  expectType<0 | 3>(withDefault(0, 3 as Result<3, Error>));
-  expectType<number>(withDefault(0, 3 as Result<number, Error>));
-  expectType<number | "oops">(withDefault("oops", Err() as Result<number, Error>));
+  expectType<0 | 3>(withDefault(3 as Result<3, Error>, 0));
+  expectType<number>(withDefault(3 as Result<number, Error>, 0));
+  expectType<number | "oops">(withDefault(Err() as Result<number, Error>, "oops"));
   // default error type overrides value error type
   expectType<Result<number, ErrorData.T<true>>>(
-    withDefault(ErrData(true), 4 as Result<number, ErrorData.T<string>>)
+    withDefault(4 as Result<number, ErrorData.T<string>>, ErrData(true))
   );
   expectType<Result<string | number, ErrorData.T<boolean>>>(
     withDefault(
-      ErrData(true) as Result<string, ErrorData.T<boolean>>,
-      4 as Result<number, ErrorData.T<string>>
+      4 as Result<number, ErrorData.T<string>>,
+      ErrData(true) as Result<string, ErrorData.T<boolean>>
     )
   );
 };
@@ -141,7 +141,7 @@ const testEncase = () => {
   };
   const handleErr = (e: unknown) => Err(e as string);
 
-  expectType<(a: string, b?: number) => Result<string, Error>>(encase(handleErr, fn));
+  expectType<(a: string, b?: number) => Result<string, Error>>(encase(fn, handleErr));
 };
 
 async function testEncasePromise() {
@@ -149,12 +149,12 @@ async function testEncasePromise() {
   const handleErr = (e: unknown) => Err(e as string);
   const handleErrData = (e: unknown) => ErrData(e as string);
 
-  expectType<Promise<Result<boolean, Error>>>(encasePromise(handleErr, willReject));
-  expectType<Result<boolean, Error>>(await encasePromise(handleErr, willReject));
+  expectType<Promise<Result<boolean, Error>>>(encasePromise(willReject, handleErr));
+  expectType<Result<boolean, Error>>(await encasePromise(willReject, handleErr));
 
   expectType<Promise<Result<boolean, ErrorData.T<string>>>>(
-    encasePromise(handleErrData, willReject)
+    encasePromise(willReject, handleErrData)
   );
-  expectType<Result<boolean, ErrorData.T<string>>>(await encasePromise(handleErrData, willReject));
-  expectType<Promise<Result<boolean, ErrorData.T<unknown>>>>(encasePromise(ErrData, willReject));
+  expectType<Result<boolean, ErrorData.T<string>>>(await encasePromise(willReject, handleErrData));
+  expectType<Promise<Result<boolean, ErrorData.T<unknown>>>>(encasePromise(willReject, ErrData));
 }

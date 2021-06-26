@@ -66,7 +66,7 @@ const isValidDate = (d: unknown): d is ValidDate => d instanceof Date && !isNaN(
 function fromDate(d: ValidDate): ValidDate;
 function fromDate(d: Date): Maybe.T<ValidDate>;
 function fromDate(d: Date) {
-  return Maybe.fromPredicate(isValidDate, d);
+  return Maybe.fromPredicate(d, isValidDate);
 }
 
 //
@@ -77,8 +77,8 @@ function fromDate(d: Date) {
  * Apply a `Date` object operation onto one or more `ValidDate`s. If `fn`
  * produces an invalid `Date`, return `Maybe.Nothing`.
  */
-function map(fn: (d: Date) => ValidDate, validDate: ValidDate): ValidDate;
-function map(fn: (d: Date) => Date, validDate: ValidDate): ValidDate | undefined;
-function map(fn: (d: any) => any, validDate: ValidDate): any {
+function map(validDate: ValidDate, fn: (d: Date) => ValidDate): ValidDate;
+function map(validDate: ValidDate, fn: (d: Date) => Date): ValidDate | undefined;
+function map(validDate: ValidDate, fn: (d: any) => any): any {
   return fromDate(fn(validDate));
 }

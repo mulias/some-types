@@ -87,7 +87,7 @@ const testFromNullable = () => {
 const testFromPredicate = () => {
   const x = 5 as number;
   const pred = (a: number) => a % 2 === 0;
-  expectType<Maybe<number>>(fromPredicate(pred, x));
+  expectType<Maybe<number>>(fromPredicate(x, pred));
 };
 
 const testFromFalsy = () => {
@@ -110,12 +110,12 @@ const testToNullable = () => {
 };
 
 const testToResult = () => {
-  expectType<Result.T<null, ErrorData.T<string>>>(toResult(Result.ErrData("nothin"), Just(null)));
-  expectType<Result.T<number, Error>>(toResult(Result.Err(), Just(12 as number)));
-  expectType<Result.T<string, Error>>(toResult(Result.Err(), Nothing as Maybe<string>));
-  expectType<Result.T<never, Error>>(toResult(Result.Err(), Nothing));
-  expectType<Result.T<string, Error>>(toResult<string, Error>(Result.Err(), Nothing));
-  expectError(toResult<string, Error>(Result.Err(), Just(9)));
+  expectType<Result.T<null, ErrorData.T<string>>>(toResult(Just(null), Result.ErrData("nothin")));
+  expectType<Result.T<number, Error>>(toResult(Just(12 as number), Result.Err()));
+  expectType<Result.T<string, Error>>(toResult(Nothing as Maybe<string>, Result.Err()));
+  expectType<Result.T<never, Error>>(toResult(Nothing, Result.Err()));
+  expectType<Result.T<string, Error>>(toResult<string, Error>(Nothing, Result.Err()));
+  expectError(toResult<string, Error>(Just(9), Result.Err()));
 };
 
 const testToAsyncData = () => {
@@ -130,66 +130,60 @@ const testToAsyncData = () => {
 
 const testMap = () => {
   const fnA = (x: number) => x + 1;
-  expectType<number>(map(fnA, 0));
-  expectType<Nothing>(map(fnA, Nothing));
-  expectType<Maybe<number>>(map(fnA, 0 as Maybe<number>));
-  expectType<Maybe<number>>(map(fnA, undefined as Maybe<number>));
+  expectType<number>(map(0, fnA));
+  expectType<Nothing>(map(Nothing, fnA));
+  expectType<Maybe<number>>(map(0 as Maybe<number>, fnA));
+  expectType<Maybe<number>>(map(undefined as Maybe<number>, fnA));
 
   const fnB = (x: number) => String(x);
-  expectType<string>(map(fnB, 0));
-  expectType<Nothing>(map(fnB, Nothing));
-  expectType<Maybe<string>>(map(fnB, 0 as Maybe<number>));
-  expectType<Maybe<string>>(map(fnB, undefined as Maybe<number>));
+  expectType<string>(map(0, fnB));
+  expectType<Nothing>(map(Nothing, fnB));
+  expectType<Maybe<string>>(map(0 as Maybe<number>, fnB));
+  expectType<Maybe<string>>(map(undefined as Maybe<number>, fnB));
 };
 
 const testWithDefault = () => {
-  expectType<0 | 3>(withDefault(0, 3 as Maybe<3>));
-  expectType<number>(withDefault(0, 3 as Maybe<number>));
-  expectAssignable<number>(withDefault(0, Just(3)));
-  expectAssignable<number | string>(withDefault("oops", Nothing as Maybe<number>));
-  withDefault(undefined, 4 as number | undefined);
+  expectType<0 | 3>(withDefault(3 as Maybe<3>, 0));
+  expectType<number>(withDefault(3 as Maybe<number>, 0));
+  expectAssignable<number>(withDefault(Just(3), 0));
+  expectAssignable<number | string>(withDefault(Nothing as Maybe<number>, "oops"));
+  expectType<number | undefined>(withDefault(4 as number | undefined, undefined));
 };
 
 const testUnwrap = () => {
   const a = unwrap(
+    55,
     (x) => x * 12,
-    () => 0,
-    55
+    () => 0
   );
   expectType<number>(a);
 
   const b = unwrap(
+    Just(4),
     (x) => (x === 0 ? Nothing : String(x)),
-    () => Nothing,
-    Just(4)
+    () => Nothing
   );
   expectType<Maybe<string>>(b);
 
   const c = unwrap<number, number | string>(
+    99 as Maybe<number>,
     (x) => x - 99,
-    () => "nope",
-    99 as Maybe<number>
+    () => "nope"
   );
   expectType<number | string>(c);
 };
 
 const testCaseOf = () => {
-  const a = caseOf(
-    {
-      Just: (x) => x * 12,
-      Nothing: () => 0
-    },
-    55 as Maybe<number>
-  );
+  const a = caseOf(55 as Maybe<number>, {
+    Just: (x) => x * 12,
+    Nothing: () => 0
+  });
   expectType<number>(a);
 
-  const b = caseOf(
-    {
-      Just: (x) => (x === 0 ? Nothing : String(x)),
-      Nothing: () => Nothing
-    },
-    Just(4)
-  );
+  const b = caseOf(Just(4), {
+    Just: (x) => (x === 0 ? Nothing : String(x)),
+    Nothing: () => Nothing
+  });
   expectType<Maybe<string>>(b);
 };
 

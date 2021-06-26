@@ -158,14 +158,14 @@ const toAsyncData = <V, E extends Error>(x: Result<V, E>): AsyncData.T<Ok<V>, Er
   x as AsyncData.T<Ok<V>, Err<E>>;
 
 /** Apply `fn` if `a` is an `Ok`. Otherwise return the `Err`. */
-function map<A, B, E extends Error>(fn: (a: Ok<A>) => B, a: E): E;
-function map<A, B, E extends Error>(fn: (a: Ok<A>) => B, a: Ok<A>): B;
-function map<A, B, E extends Error>(fn: (a: Ok<A>) => Ok<B>, a: Result<Ok<A>, E>): Result<Ok<B>, E>;
+function map<A, B, E extends Error>(a: E, fn: (a: Ok<A>) => B): E;
+function map<A, B, E extends Error>(a: Ok<A>, fn: (a: Ok<A>) => B): B;
+function map<A, B, E extends Error>(a: Result<Ok<A>, E>, fn: (a: Ok<A>) => Ok<B>): Result<Ok<B>, E>;
 function map<A, B, E extends Error>(
-  fn: (a: Ok<A>) => B,
-  a: Result<Ok<A>, E>
+  a: Result<Ok<A>, E>,
+  fn: (a: Ok<A>) => B
 ): Result<Ok<B>, Extract<E | B, Error>>;
-function map<A>(fn: (a: A) => any, a: Result<A, Error>) {
+function map<A>(a: Result<A, Error>, fn: (a: A) => any) {
   return isOk(a) ? fn(a) : a;
 }
 
@@ -174,28 +174,28 @@ function map<A>(fn: (a: A) => any, a: Result<A, Error>) {
  * value, `fn` will either have to mutate the object, or create a new
  * object. Both options have pitfalls in different contexts.
  */
-function mapErr<A, B, E extends Error>(fn: (e: E) => B, a: Ok<A>): Ok<A>;
-function mapErr<A, B, E extends Error>(fn: (e: E) => B, a: E): B;
-function mapErr<A, B, E extends Error>(fn: (e: E) => Ok<B>, a: Result<Ok<A>, E>): Ok<A | B>;
+function mapErr<A, B, E extends Error>(a: Ok<A>, fn: (e: E) => B): Ok<A>;
+function mapErr<A, B, E extends Error>(a: E, fn: (e: E) => B): B;
+function mapErr<A, B, E extends Error>(a: Result<Ok<A>, E>, fn: (e: E) => Ok<B>): Ok<A | B>;
 function mapErr<A, B, EA extends Error, EB extends Error>(
-  fn: (e: EA) => Result<Ok<B>, EB>,
-  a: Result<Ok<A>, EA>
+  a: Result<Ok<A>, EA>,
+  fn: (e: EA) => Result<Ok<B>, EB>
 ): Result<Ok<A | B>, EB>;
-function mapErr<A, B, E extends Error>(fn: (e: E) => B, a: Result<A, E>) {
+function mapErr<A, B, E extends Error>(a: Result<A, E>, fn: (e: E) => B) {
   return isErr(a) ? fn(a) : a;
 }
 
 /**
  * Provide a default which is used if `x` is an `Err`.
  */
-function withDefault<V, DE extends Error>(defaultVal: Err<DE>, x: Result<V, Error>): Result<V, DE>;
-function withDefault<V, DV>(defaultVal: Ok<DV>, x: Ok<V>): Ok<V>;
-function withDefault<V, DV>(defaultVal: Ok<DV>, x: Result<V, Error>): Ok<V | DV>;
+function withDefault<V, DE extends Error>(x: Result<V, Error>, defaultVal: Err<DE>): Result<V, DE>;
+function withDefault<V, DV>(x: Ok<V>, defaultVal: Ok<DV>): Ok<V>;
+function withDefault<V, DV>(x: Result<V, Error>, defaultVal: Ok<DV>): Ok<V | DV>;
 function withDefault<V, DV, DE extends Error>(
-  defaultVal: Result<DV, DE>,
-  x: Result<V, Error>
+  x: Result<V, Error>,
+  defaultVal: Result<DV, DE>
 ): Result<V | DV, DE>;
-function withDefault(defaultVal: unknown, x: unknown) {
+function withDefault(x: unknown, defaultVal: unknown) {
   return isOk(x) ? x : defaultVal;
 }
 
@@ -204,16 +204,16 @@ function withDefault(defaultVal: unknown, x: unknown) {
  * `Ok` value and `errFn` to an `Err`.
  */
 const unwrap = <A, B, E extends Error>(
+  x: Result<A, E>,
   okFn: (a: Ok<A>) => B,
-  errFn: (e: E) => B,
-  x: Result<A, E>
+  errFn: (e: E) => B
 ): B => (isErr(x) ? errFn(x) : okFn(x as Ok<A>));
 
 /**
  * Simulates an ML style `case x of` pattern match, following the same
  * logic as `unwrap`.
  */
-const caseOf = <A, E extends Error, R>(pattern: CaseOfPattern<A, E, R>, x: Result<A, E>): R => {
+const caseOf = <A, E extends Error, R>(x: Result<A, E>, pattern: CaseOfPattern<A, E, R>): R => {
   if (isOk(x) && pattern["Ok"]) {
     return pattern["Ok"](x);
   } else if (isErr(x) && pattern["Err"]) {
@@ -238,8 +238,8 @@ const combine = <A, E extends Error>(xs: ReadonlyArray<Result<A, E>>): Result<Ar
  * throwing an error.
  */
 const encase = <Args extends Array<any>, V, E extends Error>(
-  onThrow: (e: unknown) => E,
-  fn: (...args: Args) => V
+  fn: (...args: Args) => V,
+  onThrow: (e: unknown) => E
 ): ((...args: Args) => Result<V, E>) => {
   return (...args: Args): Result<V, E> => {
     try {
@@ -258,6 +258,6 @@ const encase = <Args extends Array<any>, V, E extends Error>(
  *    rejected Promise<V>  -> Promise<Err>
  */
 const encasePromise = <V, E extends Error>(
-  onReject: (e: unknown) => E,
-  p: Promise<Ok<V>>
+  p: Promise<Ok<V>>,
+  onReject: (e: unknown) => E
 ): Promise<Result<Ok<V>, Err<E>>> => p.then((v: Ok<V>) => Ok(v)).catch((e: unknown) => onReject(e));

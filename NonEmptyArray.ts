@@ -90,8 +90,8 @@ const front = <A>(a: NonEmptyArray<A>): readonly A[] => a.slice(0, a.length - 1)
  * instead of returning an `Array`.
  */
 const map = <A, B>(
-  fn: (a: A, index?: number, array?: NonEmptyArray<A>) => B,
-  a: NonEmptyArray<A>
+  a: NonEmptyArray<A>,
+  fn: (a: A, index?: number, array?: NonEmptyArray<A>) => B
 ): NonEmptyArray<B> => a.map(fn as any) as any;
 
 /** Reverse the order of a `NonEmptyArray`, returning a shallow copy. */

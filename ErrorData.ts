@@ -70,5 +70,5 @@ function fromError(e: Error) {
 //
 
 /** Copy an `ErrorData` object and apply `fn` to the `data` field. */
-const map = <A, B>(fn: (data: A) => B, e: ErrorData<A>): ErrorData<B> =>
+const map = <A, B>(e: ErrorData<A>, fn: (data: A) => B): ErrorData<B> =>
   new ErrorData(fn(e.data), e.message);

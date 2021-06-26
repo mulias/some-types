@@ -49,9 +49,9 @@ describe("Constructors", () => {
     expect(DateOnlyString(dms)).toBe(dms);
     expect(DateMonthString(dms)).toBe(dms);
 
-    expect(Maybe.map(DateTimeString, DateTimeString(d))).toBe(dts);
-    expect(Maybe.map(DateTimeString, DateOnlyString(d))).toBe(dos);
-    expect(Maybe.map(DateTimeString, DateMonthString(d))).toBe(dms);
+    expect(Maybe.map(DateTimeString(d), DateTimeString)).toBe(dts);
+    expect(Maybe.map(DateOnlyString(d), DateTimeString)).toBe(dos);
+    expect(Maybe.map(DateMonthString(d), DateTimeString)).toBe(dms);
 
     expect(DateTimeString("Jan 21 1993")).toBe("1993-01-21T00:00:00.000");
     expect(DateTimeString("Jan 21 1993 at 12:57")).toBeUndefined();

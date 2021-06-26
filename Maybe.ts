@@ -148,9 +148,9 @@ const fromNullable = <A>(x: A): Maybe<Exclude<A, null>> =>
  * Keeps the value `a` if `test` returns true, otherwise returns `Nothing`.
  * Supports narrowing the return type via typeguards.
  */
-function fromPredicate<A, B extends A>(test: (a: A) => a is B, a: A): Maybe<B>;
-function fromPredicate<A>(test: (a: A) => boolean, a: A): Maybe<A>;
-function fromPredicate<A>(test: (a: A) => boolean, a: A) {
+function fromPredicate<A, B extends A>(a: A, test: (a: A) => a is B): Maybe<B>;
+function fromPredicate<A>(a: A, test: (a: A) => boolean): Maybe<A>;
+function fromPredicate<A>(a: A, test: (a: A) => boolean) {
   return test(a) ? a : Nothing;
 }
 
@@ -172,7 +172,7 @@ const toNullable = <A>(x: Maybe<A>): Just<A> | null => (isJust(x) ? x : null);
  *     Just<A> -> Ok<A>
  *     Nothing -> Err<E>
  */
-const toResult = <V, E extends Error>(e: E, x: Maybe<V>): Result.T<Just<V>, E> =>
+const toResult = <V, E extends Error>(x: Maybe<V>, e: E): Result.T<Just<V>, E> =>
   isJust(x) ? x : e;
 
 /**
@@ -189,19 +189,19 @@ const toAsyncData = <V>(x: Maybe<V>): AsyncData.Success<Just<V>> | AsyncData.Not
 //
 
 /** Apply `fn` if `a` is a `Just`. Otherwise return `Nothing`. */
-function map<A, B>(fn: (a: A) => B, a: Nothing): Nothing;
-function map<A, B>(fn: (a: A) => B, a: Just<A>): B;
-function map<A, B>(fn: (a: A) => B, a: Maybe<A>): Maybe<B>;
-function map<A, B>(fn: (a: A) => B, a: Maybe<A>) {
+function map<A, B>(a: Nothing, fn: (a: A) => B): Nothing;
+function map<A, B>(a: Just<A>, fn: (a: A) => B): B;
+function map<A, B>(a: Maybe<A>, fn: (a: A) => B): Maybe<B>;
+function map<A, B>(a: Maybe<A>, fn: (a: A) => B) {
   return isJust(a) ? fn(a) : Nothing;
 }
 
 /** Provide a default which is used if `x` is `Nothing`. */
-function withDefault<A>(defaultVal: undefined, x: Maybe<A>): Maybe<A>;
-function withDefault<A, B>(defaultVal: Just<B>, x: Just<A>): Just<A>;
-function withDefault<A, B>(defaultVal: Just<B>, x: Maybe<A>): Just<A | B>;
-function withDefault<A, B>(defaultVal: Maybe<B>, x: Maybe<A>): Maybe<A | B>;
-function withDefault(defaultVal: unknown, x: Maybe<any>) {
+function withDefault<A>(x: Maybe<A>, defaultVal: undefined): Maybe<A>;
+function withDefault<A, B>(x: Just<A>, defaultVal: Just<B>): Just<A>;
+function withDefault<A, B>(x: Maybe<A>, defaultVal: Just<B>): Just<A | B>;
+function withDefault<A, B>(x: Maybe<A>, defaultVal: Maybe<B>): Maybe<A | B>;
+function withDefault(x: Maybe<any>, defaultVal: unknown) {
   return isJust(x) ? x : defaultVal;
 }
 
@@ -209,14 +209,14 @@ function withDefault(defaultVal: unknown, x: Maybe<any>) {
  * Like a `case` in languages with pattern matching. Apply the `justFn` to a
  * `Just` value and execute `nothingFn` for a `Nothing`.
  */
-const unwrap = <A, B>(justFn: (a: Just<A>) => B, nothingFn: () => B, x: Maybe<A>): B =>
+const unwrap = <A, B>(x: Maybe<A>, justFn: (a: Just<A>) => B, nothingFn: () => B): B =>
   isJust(x) ? justFn(x) : nothingFn();
 
 /**
  * Simulates an ML style `case x of` pattern match, following the same logic as
  * `unwrap`.
  */
-const caseOf = <A, B>(pattern: CaseOfPattern<A, B>, x: Maybe<A>): B => {
+const caseOf = <A, B>(x: Maybe<A>, pattern: CaseOfPattern<A, B>): B => {
   if (isJust(x) && pattern["Just"]) {
     return pattern["Just"](x);
   } else if (isNothing(x) && pattern["Nothing"]) {

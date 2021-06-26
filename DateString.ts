@@ -131,7 +131,7 @@ function DateString(fields: {
     seconds: fields.seconds ?? 0,
     milliseconds: fields.milliseconds ?? 0
   });
-  return Maybe.fromPredicate(isDateString, dateStr);
+  return Maybe.fromPredicate(dateStr, isDateString);
 }
 
 /**
@@ -148,7 +148,7 @@ function DateTimeString(a: unknown): Maybe.T<DateTimeString> {
 
   const date = new Date(a as any);
   const fields = getDateStringFields(date);
-  return Maybe.fromPredicate(isDateTimeString, formatDateString(fields));
+  return Maybe.fromPredicate(formatDateString(fields), isDateTimeString);
 }
 
 /**
@@ -166,7 +166,7 @@ function DateOnlyString(a: unknown) {
   const date = new Date(a as any);
   const fields = getDateStringFields(date);
   const dateOnlyFields = { ...fields, hours: 0, minutes: 0, seconds: 0 };
-  return Maybe.fromPredicate(isDateOnlyString, formatDateString(dateOnlyFields));
+  return Maybe.fromPredicate(formatDateString(dateOnlyFields), isDateOnlyString);
 }
 
 /**
@@ -184,7 +184,7 @@ function DateMonthString(a: unknown) {
   const date = new Date(a as any);
   const fields = getDateStringFields(date);
   const monthOnlyFields = { ...fields, date: 1, hours: 0, minutes: 0, seconds: 0 };
-  return Maybe.fromPredicate(isDateMonthString, formatDateString(monthOnlyFields));
+  return Maybe.fromPredicate(formatDateString(monthOnlyFields), isDateMonthString);
 }
 
 /** Alias for the `DateString` constructor. */
@@ -243,10 +243,10 @@ const toFields = (d: DateString): DateStringFields => getDateStringFields(ValidD
  * `fn` produces a `Date`, convert it to a `DateString`. If `fn` produces
  * an invalid `Date`, return `Maybe.Nothing`.
  */
-function map<R extends DateString>(fn: (d: Date) => R, dateString: DateString): R;
-function map(fn: (d: Date) => ValidDate.T, dateString: DateString): DateString;
-function map(fn: (d: Date) => Date, dateString: DateString): Maybe.T<DateString>;
-function map(fn: (d: Date) => Date | DateString, dateString: DateString) {
+function map<R extends DateString>(dateString: DateString, fn: (d: Date) => R): R;
+function map(dateString: DateString, fn: (d: Date) => ValidDate.T): DateString;
+function map(dateString: DateString, fn: (d: Date) => Date): Maybe.T<DateString>;
+function map(dateString: DateString, fn: (d: Date) => Date | DateString) {
   const r = fn(toDate(dateString));
   if (isDateString(r)) {
     return r;
@@ -259,7 +259,7 @@ function map(fn: (d: Date) => Date | DateString, dateString: DateString) {
  * Apply a function that expects a `Date` argument onto a `DateString`. Unlike `map`, the
  * result of applying `fn` might not be a new `DateString`.
  */
-const applyAsDate = <R>(fn: (date: Date) => R, d: DateString): R => fn(toDate(d));
+const applyAsDate = <R>(d: DateString, fn: (date: Date) => R): R => fn(toDate(d));
 
 //
 // Helpers
@@ -277,20 +277,20 @@ const getDateStringFields = (d: Date): DateStringFields => {
   return { year, month, date, hours, minutes, seconds, milliseconds };
 };
 
-const leftPad = (n: number, s: string): string => {
+const leftPad = (s: string, n: number): string => {
   const diff = Math.max(n - s.length, 0);
   const padding = "0".repeat(diff);
   return padding + s;
 };
 
 const formatDateString = (d: DateStringFields): string => {
-  const year = leftPad(4, String(d.year));
-  const month = leftPad(2, String(d.month));
-  const date = leftPad(2, String(d.date));
-  const hours = leftPad(2, String(d.hours));
-  const minutes = leftPad(2, String(d.minutes));
-  const seconds = leftPad(2, String(d.seconds));
-  const milliseconds = leftPad(3, String(d.milliseconds));
+  const year = leftPad(String(d.year), 4);
+  const month = leftPad(String(d.month), 2);
+  const date = leftPad(String(d.date), 2);
+  const hours = leftPad(String(d.hours), 2);
+  const minutes = leftPad(String(d.minutes), 2);
+  const seconds = leftPad(String(d.seconds), 2);
+  const milliseconds = leftPad(String(d.milliseconds), 3);
 
   return `${year}-${month}-${date}T${hours}:${minutes}:${seconds}.${milliseconds}`;
 };

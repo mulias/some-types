@@ -197,17 +197,17 @@ function front(t: Single<any> | Pair<any, any> | Triple<any, any, any>) {
  * `Array.prototype.map`, this function preserves the tuple length,
  * instead of returning an `Array`.
  */
-function map(fn: (value: never, index?: never, tup?: Empty) => Empty, t: Empty): Empty;
-function map<A, D>(fn: (value: A, index?: 1, tup?: Single<A>) => D, t: Single<A>): Single<D>;
+function map(t: Empty, fn: (value: never, index?: never, tup?: Empty) => Empty): Empty;
+function map<A, D>(t: Single<A>, fn: (value: A, index?: 1, tup?: Single<A>) => D): Single<D>;
 function map<A, B, D>(
-  fn: (value: A | B, index?: 1 | 2, tup?: Pair<A, B>) => D,
-  t: Pair<A, B>
+  t: Pair<A, B>,
+  fn: (value: A | B, index?: 1 | 2, tup?: Pair<A, B>) => D
 ): Pair<D, D>;
 function map<A, B, C, D>(
-  fn: (value: A | B | C, index?: 1 | 2 | 3, tup?: Triple<A, B, C>) => D,
-  t: Triple<A, B, C>
+  t: Triple<A, B, C>,
+  fn: (value: A | B | C, index?: 1 | 2 | 3, tup?: Triple<A, B, C>) => D
 ): Triple<D, D, D>;
-function map(fn: any, t: any) {
+function map(t: any, fn: any) {
   return t.map(fn);
 }
 
@@ -215,12 +215,12 @@ function map(fn: any, t: any) {
  * Apply `fn` to the first element in a 1/2/3-tuple, producing a new `Tuple`
  * with any other element unchanged.
  */
-function mapFirst<A, R>(fn: (a: A) => R, t: Single<A>): Single<R>;
-function mapFirst<A, B, R>(fn: (a: A) => R, t: Pair<A, B>): Pair<R, B>;
-function mapFirst<A, B, C, R>(fn: (a: A) => R, t: Triple<A, B, C>): Triple<R, B, C>;
+function mapFirst<A, R>(t: Single<A>, fn: (a: A) => R): Single<R>;
+function mapFirst<A, B, R>(t: Pair<A, B>, fn: (a: A) => R): Pair<R, B>;
+function mapFirst<A, B, C, R>(t: Triple<A, B, C>, fn: (a: A) => R): Triple<R, B, C>;
 function mapFirst<A, Tup extends Single<A> | Pair<A, any> | Triple<A, any, any>>(
-  fn: (a: A) => any,
-  [a, ...rest]: Tup
+  [a, ...rest]: Tup,
+  fn: (a: A) => any
 ) {
   return [fn(a), ...rest] as any;
 }
@@ -229,11 +229,11 @@ function mapFirst<A, Tup extends Single<A> | Pair<A, any> | Triple<A, any, any>>
  * Apply `fn` to the second element in a 2/3-tuple, producing a new `Tuple` with
  * the other elements unchanged;
  */
-function mapSecond<A, B, R>(fn: (b: B) => R, t: Pair<A, B>): Pair<A, R>;
-function mapSecond<A, B, C, R>(fn: (b: B) => R, t: Triple<A, B, C>): Triple<A, R, C>;
+function mapSecond<A, B, R>(t: Pair<A, B>, fn: (b: B) => R): Pair<A, R>;
+function mapSecond<A, B, C, R>(t: Triple<A, B, C>, fn: (b: B) => R): Triple<A, R, C>;
 function mapSecond<B, Tup extends Pair<any, B> | Triple<any, B, any>>(
-  fn: (b: B) => any,
-  [a, b, ...rest]: Tup
+  [a, b, ...rest]: Tup,
+  fn: (b: B) => any
 ) {
   return [a, fn(b), ...rest] as any;
 }
@@ -242,7 +242,7 @@ function mapSecond<B, Tup extends Pair<any, B> | Triple<any, B, any>>(
  * Apply `fn` to the third element in a 3-tuple, producing a new `Tuple` with
  * the other elements unchanged;
  */
-function mapThird<A, B, C, R>(fn: (c: C) => R, [a, b, c]: Triple<A, B, C>): Triple<A, B, R> {
+function mapThird<A, B, C, R>([a, b, c]: Triple<A, B, C>, fn: (c: C) => R): Triple<A, B, R> {
   return [a, b, fn(c)];
 }
 
