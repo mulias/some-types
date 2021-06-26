@@ -34,6 +34,7 @@ export {
   unwrap,
   caseOf,
   combine,
+  encase,
   encasePromise
 };
 
@@ -299,6 +300,23 @@ const combine = <A, E extends Error>(xs: ReadonlyArray<AsyncData<A, E>>): AsyncD
   const successVals = xs.filter<A>(isSuccess);
   return firstNonSuccess === undefined ? successVals : firstNonSuccess;
 };
+
+/**
+ * Create a version of a function which returns a `Success` or `Failure`
+ * instead of throwing an error.
+ */
+const encase =
+  <Args extends Array<any>, V, E extends Error>(
+    fn: (...args: Args) => V,
+    onThrow: (e: unknown) => E
+  ): ((...args: Args) => AsyncData<V, E>) =>
+  (...args: Args) => {
+    try {
+      return fn(...args);
+    } catch (e) {
+      return onThrow(e);
+    }
+  };
 
 /**
  * Given a promise, return a promise which will always fulfill, catching
