@@ -75,6 +75,7 @@ enum IsDateOnlyString {}
 type DateMonthString = string & { readonly __opaque__: IsDateMonthString };
 enum IsDateMonthString {}
 
+/* Fields encoded in all `DateString`s. */
 type DateStringFields = {
   year: number;
   month: number;
@@ -85,6 +86,7 @@ type DateStringFields = {
   milliseconds: number;
 };
 
+/* Fields needed to construct a `DateTimeString`. */
 type DateTimeFieldsArg = {
   year: number;
   month: number;
@@ -95,12 +97,14 @@ type DateTimeFieldsArg = {
   milliseconds?: number;
 };
 
+/* Fields needed to construct a `DateOnlyString`. */
 type DateOnlyFieldsArg = {
   year: number;
   month: number;
   date: number;
 };
 
+/* Fields needed to construct a `DateMonthString`. */
 type DateMonthFieldsArg = {
   year: number;
   month: number;
@@ -110,6 +114,10 @@ type DateMonthFieldsArg = {
 // Constructors
 //
 
+/**
+ * Create a `DateTimeString`, `DateOnlyString`, or `DateMonthString` by
+ * providing the necessary constituent parts.
+ */
 function DateString(fields: DateTimeFieldsArg): Maybe.T<DateTimeString>;
 function DateString(fields: DateOnlyFieldsArg): Maybe.T<DateOnlyString>;
 function DateString(fields: DateMonthFieldsArg): Maybe.T<DateMonthString>;
