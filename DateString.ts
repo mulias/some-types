@@ -122,16 +122,15 @@ function DateString(fields: {
   seconds?: number;
   milliseconds?: number;
 }) {
-  const dateStr = formatDateString({
-    year: fields.year,
-    month: fields.month,
-    date: fields.date ?? 1,
-    hours: fields.hours ?? 0,
-    minutes: fields.minutes ?? 0,
-    seconds: fields.seconds ?? 0,
-    milliseconds: fields.milliseconds ?? 0
-  });
-  return Maybe.fromPredicate(dateStr, isDateString);
+  const { year, month, date, hours, minutes, seconds, milliseconds } = fields;
+
+  if (Maybe.isJust(date) && Maybe.isJust(hours) && Maybe.isJust(minutes) && Maybe.isJust(seconds)) {
+    return DateTimeString({ year, month, date, hours, minutes, seconds, milliseconds });
+  } else if (Maybe.isJust(date)) {
+    return DateOnlyString({ year, month, date });
+  } else {
+    return DateMonthString({ year, month });
+  }
 }
 
 /**
@@ -141,13 +140,15 @@ function DateString(fields: {
  */
 function DateTimeString(d: DateString | ValidDate.T): DateTimeString;
 function DateTimeString(d: string | number | Date | DateTimeFieldsArg): Maybe.T<DateTimeString>;
-function DateTimeString(a: unknown): Maybe.T<DateTimeString> {
-  if (a instanceof Object && "year" in a && "month" in a && "date" in a) {
-    return DateString(a);
+function DateTimeString(
+  d: DateString | ValidDate.T | string | number | Date | DateTimeFieldsArg
+): Maybe.T<DateTimeString> {
+  let fields;
+  if (d instanceof Object && "year" in d && "month" in d && "date" in d) {
+    fields = { ...d, milliseconds: d.milliseconds ?? 0 };
+  } else {
+    fields = getDateStringFields(new Date(d));
   }
-
-  const date = new Date(a as any);
-  const fields = getDateStringFields(date);
   return Maybe.fromPredicate(formatDateString(fields), isDateTimeString);
 }
 
@@ -158,14 +159,14 @@ function DateTimeString(a: unknown): Maybe.T<DateTimeString> {
  */
 function DateOnlyString(d: DateString | ValidDate.T): DateOnlyString;
 function DateOnlyString(d: string | number | Date | DateOnlyFieldsArg): Maybe.T<DateOnlyString>;
-function DateOnlyString(a: unknown) {
-  if (a instanceof Object && "year" in a && "month" in a && "date" in a) {
-    return DateString(a);
+function DateOnlyString(d: DateString | ValidDate.T | string | number | Date | DateOnlyFieldsArg) {
+  let fields;
+  if (d instanceof Object && "year" in d && "month" in d && "date" in d) {
+    fields = d;
+  } else {
+    fields = getDateStringFields(new Date(d));
   }
-
-  const date = new Date(a as any);
-  const fields = getDateStringFields(date);
-  const dateOnlyFields = { ...fields, hours: 0, minutes: 0, seconds: 0 };
+  const dateOnlyFields = { ...fields, hours: 0, minutes: 0, seconds: 0, milliseconds: 0 };
   return Maybe.fromPredicate(formatDateString(dateOnlyFields), isDateOnlyString);
 }
 
@@ -176,14 +177,17 @@ function DateOnlyString(a: unknown) {
  */
 function DateMonthString(d: DateString | ValidDate.T): DateMonthString;
 function DateMonthString(d: string | number | Date | DateMonthFieldsArg): Maybe.T<DateMonthString>;
-function DateMonthString(a: unknown) {
-  if (a instanceof Object && "year" in a && "month" in a && "date" in a) {
-    return DateString(a);
+function DateMonthString(
+  d: DateString | ValidDate.T | string | number | Date | DateMonthFieldsArg
+) {
+  let fields;
+  if (d instanceof Object && "year" in d && "month" in d) {
+    fields = d;
+  } else {
+    fields = getDateStringFields(new Date(d));
   }
 
-  const date = new Date(a as any);
-  const fields = getDateStringFields(date);
-  const monthOnlyFields = { ...fields, date: 1, hours: 0, minutes: 0, seconds: 0 };
+  const monthOnlyFields = { ...fields, date: 1, hours: 0, minutes: 0, seconds: 0, milliseconds: 0 };
   return Maybe.fromPredicate(formatDateString(monthOnlyFields), isDateMonthString);
 }
 
