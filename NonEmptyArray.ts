@@ -49,7 +49,7 @@ const of = NonEmptyArray;
 
 /** Typeguard for a `NonEmptyArray`. */
 function isNonEmptyArray<A>(a: ReadonlyArray<A>): a is NonEmptyArray<A>;
-function isNonEmptyArray(a: unknown): a is NonEmptyArray<unknown>;
+function isNonEmptyArray<A = unknown>(a: unknown): a is NonEmptyArray<A>;
 function isNonEmptyArray(a: unknown) {
   return Array.isArray(a) && a.length > 0;
 }
