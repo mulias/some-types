@@ -103,18 +103,10 @@ const of = Ok;
 //
 
 /** Typeguard for the `Ok` variant of a `Result`. */
-function isOk<V, E extends Error>(x: Result<V, E>): x is Ok<V>;
-function isOk(x: unknown): x is Ok<unknown>;
-function isOk(x: unknown) {
-  return !(x instanceof Error);
-}
+const isOk = <V, E extends Error>(x: Result<V, E>): x is Ok<V> => !(x instanceof Error);
 
 /** Typeguard for the `Err` variant of a `Result`. */
-function isErr<V, E extends Error>(x: Result<V, E>): x is Err<E>;
-function isErr<E extends Error = Error>(x: unknown): x is Err<E>;
-function isErr(x: unknown) {
-  return x instanceof Error;
-}
+const isErr = <V, E extends Error>(x: Result<V, E>): x is Err<E> => x instanceof Error;
 
 //
 // Conversions

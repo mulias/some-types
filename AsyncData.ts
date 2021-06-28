@@ -145,27 +145,15 @@ const isNotAsked = (x: unknown): x is NotAsked => x === NotAsked;
 const isLoading = (x: unknown): x is Loading => x === Loading;
 
 /** Typeguard for the `Failure` variant of a `AsyncData`. */
-function isFailure<D, E extends Error>(x: AsyncData<D, E>): x is Failure<E>;
-function isFailure<E extends Error = Error>(x: unknown): x is Failure<E>;
-function isFailure(x: unknown) {
-  return x instanceof Error;
-}
+const isFailure = <D, E extends Error>(x: AsyncData<D, E>): x is Failure<E> => x instanceof Error;
 
 /** Typeguard for the `Success` variant of a `AsyncData`. */
-function isSuccess<D, E extends Error>(x: AsyncData<D, E>): x is Success<D>;
-function isSuccess<D = unknown>(x: unknown): x is Success<D>;
-function isSuccess(x: unknown) {
-  return !isNotAsked(x) && !isLoading(x) && !isFailure(x);
-}
+const isSuccess = <D, E extends Error>(x: AsyncData<D, E>): x is Success<D> =>
+  !isNotAsked(x) && !isLoading(x) && !isFailure(x);
 
 /** Typeguard for the `Success` or `Failure` variants of a `AsyncData`. */
-function isCompleted<D, E extends Error>(x: AsyncData<D, E>): x is Success<D> | Failure<E>;
-function isCompleted<D = unknown, E extends Error = Error>(
-  x: unknown
-): x is Success<D> | Failure<E>;
-function isCompleted(x: unknown) {
-  return !isNotAsked(x) && !isLoading(x);
-}
+const isCompleted = <D, E extends Error>(x: AsyncData<D, E>): x is Success<D> | Failure<E> =>
+  !isNotAsked(x) && !isLoading(x);
 
 //
 // Conversions
