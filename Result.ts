@@ -261,4 +261,4 @@ const encase = <Args extends Array<any>, V, E extends Error>(
 const encasePromise = <V, E extends Error>(
   p: Promise<Ok<V>>,
   onReject: (e: unknown) => E
-): Promise<Result<Ok<V>, Err<E>>> => p.then((v: Ok<V>) => Ok(v)).catch((e: unknown) => onReject(e));
+): Promise<Result<Ok<V>, Err<E>>> => p.catch((e: unknown) => onReject(e));

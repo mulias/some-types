@@ -329,5 +329,4 @@ const encase =
 const encasePromise = <V, E extends Error>(
   p: Promise<Success<V>>,
   onReject: (e: unknown) => E
-): Promise<AsyncData<Success<V>, Failure<E>>> =>
-  p.then((v: Success<V>) => Success(v)).catch((e: unknown) => onReject(e));
+): Promise<AsyncData<Success<V>, E>> => p.catch((e: unknown) => onReject(e));
