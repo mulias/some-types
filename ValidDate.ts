@@ -78,7 +78,7 @@ function fromDate(d: Date) {
  * produces an invalid `Date`, return `Maybe.Nothing`.
  */
 function map(validDate: ValidDate, fn: (d: Date) => ValidDate): ValidDate;
-function map(validDate: ValidDate, fn: (d: Date) => Date): ValidDate | undefined;
+function map(validDate: ValidDate, fn: (d: Date) => Date): Maybe.T<ValidDate>;
 function map(validDate: ValidDate, fn: (d: any) => any): any {
   return fromDate(fn(validDate));
 }

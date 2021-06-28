@@ -65,7 +65,7 @@ function isNonEmptyArray(a: unknown) {
 function fromArray<A extends NonEmptyArray<any>>(a: A): A;
 function fromArray<A>(a: readonly A[]): Maybe.T<NonEmptyArray<A>>;
 function fromArray(a: readonly any[]) {
-  return isNonEmptyArray(a) ? a : Maybe.Nothing;
+  return Maybe.fromPredicate(a, isNonEmptyArray);
 }
 
 //

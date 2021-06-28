@@ -138,7 +138,7 @@ const fromAsyncData = AsyncData.toResult;
  *     Err<E> -> Nothing
  */
 const toMaybe = <V, E extends Error>(x: Result<V, E>): Maybe.T<Ok<V>> =>
-  isOk(x) ? x : Maybe.Nothing;
+  Maybe.fromPredicate(x, isOk);
 
 /**
  * Create a `AsyncData` from a `Result`. Since the `Result` type is a subset
@@ -221,9 +221,9 @@ const caseOf = <A, E extends Error, R>(x: Result<A, E>, pattern: CaseOfPattern<A
  * any value is an `Err` then return the first error value.
  */
 const combine = <A, E extends Error>(xs: ReadonlyArray<Result<A, E>>): Result<Array<A>, E> => {
-  const firstErr = xs.find(isErr) as E | undefined;
-  const okVals = xs.filter<A>(isOk);
-  return firstErr === undefined ? okVals : firstErr;
+  const firstErr = xs.find(isErr);
+  const okVals = xs.filter(isOk);
+  return Maybe.isJust(firstErr) ? firstErr : okVals;
 };
 
 /**

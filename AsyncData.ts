@@ -285,9 +285,8 @@ const caseOf = <A, B, E extends Error>(x: AsyncData<A, E>, pattern: CaseOfPatter
  * return the first non-success value.
  */
 const combine = <A, E extends Error>(xs: ReadonlyArray<AsyncData<A, E>>): AsyncData<A[], E> => {
-  const firstNonSuccess = xs.find((x) => !isSuccess(x)) as NotAsked | Loading | Failure<E>;
-  const successVals = xs.filter<A>(isSuccess);
-  return firstNonSuccess === undefined ? successVals : firstNonSuccess;
+  const firstNonSuccess = xs.find((x): x is NotAsked | Loading | Failure<E> => !isSuccess(x));
+  return Maybe.isNothing(firstNonSuccess) ? xs.filter(isSuccess) : firstNonSuccess;
 };
 
 /**
