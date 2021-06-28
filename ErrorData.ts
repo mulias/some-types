@@ -40,7 +40,7 @@ type T<D> = ErrorData<D>;
 // Constructos
 //
 
-/** Default constructor -- creates an `ErrorData` object. */
+/** Alias constructor function -- creates an `ErrorData` object. */
 const of = <D>(data: D, message?: string): ErrorData<D> => new ErrorData(data, message);
 
 //

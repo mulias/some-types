@@ -142,9 +142,10 @@ function DateString(fields: {
 }
 
 /**
- * Create a `DateTimeString` from an input that might encode a Date. If the input
- * is a `DateString` or `ValidDate`, then the return type is `DateTimeString`.
- * Otherwise the return type is `Maybe.T<DateTimeString>`.
+ * Create a `DateTimeString` from an input that might encode a Date, or an
+ * object with date-time fields. If the input is a `DateString` or `ValidDate`,
+ * then the return type is `DateTimeString`. Otherwise the return type is
+ * `Maybe.T<DateTimeString>`.
  */
 function DateTimeString(d: DateString | ValidDate.T): DateTimeString;
 function DateTimeString(d: string | number | Date | DateTimeFieldsArg): Maybe.T<DateTimeString>;
@@ -161,9 +162,10 @@ function DateTimeString(
 }
 
 /**
- * Create a DateOnlyString from an input that might encode a Date. If the input
- * is a `DateString` or `ValidDate`, then the return type is `DateOnlyString`.
- * Otherwise the return type is `Maybe.T<DateOnlyString>`.
+ * Create a DateOnlyString from an input that might encode a Date, or an object
+ * with date fields. If the input is a `DateString` or `ValidDate`, then the
+ * return type is `DateOnlyString`. Otherwise the return type is
+ * `Maybe.T<DateOnlyString>`.
  */
 function DateOnlyString(d: DateString | ValidDate.T): DateOnlyString;
 function DateOnlyString(d: string | number | Date | DateOnlyFieldsArg): Maybe.T<DateOnlyString>;
@@ -179,9 +181,10 @@ function DateOnlyString(d: DateString | ValidDate.T | string | number | Date | D
 }
 
 /**
- * Create a DateMonthString from an input that might encode a Date. If the input
- * is a `DateString` or `ValidDate`, then the return type is `DateMonthString`.
- * Otherwise the return type is `Maybe.T<DateMonthString>`.
+ * Create a DateMonthString from an input that might encode a Date, or an
+ * object with date fields. If the input is a `DateString` or `ValidDate`, then
+ * the return type is `DateMonthString`. Otherwise the return type is
+ * `Maybe.T<DateMonthString>`.
  */
 function DateMonthString(d: DateString | ValidDate.T): DateMonthString;
 function DateMonthString(d: string | number | Date | DateMonthFieldsArg): Maybe.T<DateMonthString>;
