@@ -38,8 +38,8 @@ type T = ValidDate;
  */
 function ValidDate<D extends DateString.T | ValidDate>(d: D): ValidDate;
 function ValidDate(value: string | number | Date): Maybe.T<ValidDate>;
-function ValidDate(a: unknown) {
-  return fromDate(new Date(a as any));
+function ValidDate(a: DateString.T | ValidDate | string | number | Date) {
+  return fromDate(new Date(a));
 }
 
 /** Alias for the `ValidDate` constructor. */
