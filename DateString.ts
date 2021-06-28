@@ -218,14 +218,14 @@ const isDateTimeString = (d: unknown): d is DateTimeString =>
  * where the time is 00:00:00.000.
  */
 const isDateOnlyString = (d: unknown): d is DateOnlyString =>
-  isDateTimeString(d) && new Date(d).getTime() % 100000 === 0;
+  typeof d === "string" && dateStringRegex.test(d) && new Date(d).getTime() % 100000 === 0;
 
 /**
  * Typeguard for any string that encodes a valid date in the DateString format
  * where the time is 00:00:00.000 and the date is the first of the month.
  */
 const isDateMonthString = (d: unknown): d is DateMonthString => {
-  if (!isDateTimeString(d)) return false;
+  if (typeof d !== "string" || !dateStringRegex.test(d)) return false;
   const date = new Date(d);
   return date.getTime() % 100000 === 0 && date.getDate() === 1;
 };
