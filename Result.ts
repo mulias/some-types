@@ -92,7 +92,8 @@ const Err = (message?: string): Err<Error> => new Error(message);
  * A constructor for the `Err` variant of `Result`, creates an `ErrorData`
  * object.
  */
-const ErrData = <D>(errorData: D): Err<ErrorData<D>> => new ErrorData(errorData);
+const ErrData = <D>(errorData: D, message?: string): Err<ErrorData<D>> =>
+  new ErrorData(errorData, message);
 
 /** Alias for the `Ok` constructor. */
 const of = Ok;

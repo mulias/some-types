@@ -128,7 +128,8 @@ const Failure = (message?: string): Failure<Error> => new Error(message);
  * A constructor for the `Failure` variant of `AsyncData`, creates an
  * `ErrorData` object.
  */
-const FailureData = <D>(errorData: D): Failure<ErrorData<D>> => new ErrorData(errorData);
+const FailureData = <D>(errorData: D, message?: string): Failure<ErrorData<D>> =>
+  new ErrorData(errorData, message);
 
 /** Alias for the `Success` constructor. */
 const of = Success;
