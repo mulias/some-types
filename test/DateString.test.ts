@@ -1,10 +1,15 @@
 import * as Maybe from "../Maybe";
 import {
   DateString,
-  T,
   DateTimeString,
   DateOnlyString,
   DateMonthString,
+  T,
+  dateString,
+  dateTimeString,
+  dateOnlyString,
+  dateMonthString,
+  of,
   isDateString,
   isDateTimeString,
   isDateOnlyString,
@@ -21,7 +26,7 @@ describe("Constructors", () => {
     const d = new Date(dts);
 
     expect(
-      DateString({
+      dateString({
         year: 2015,
         month: 1,
         date: 11,
@@ -30,34 +35,34 @@ describe("Constructors", () => {
         seconds: 3
       })
     ).toBe(dts);
-    expect(DateString({ year: 2015, month: 1, date: 11 })).toBe(dos);
-    expect(DateString({ year: 2015, month: 1 })).toBe(dms);
+    expect(dateString({ year: 2015, month: 1, date: 11 })).toBe(dos);
+    expect(dateString({ year: 2015, month: 1 })).toBe(dms);
 
-    expect(DateTimeString(d)).toBe(dts);
-    expect(DateOnlyString(d)).toBe(dos);
-    expect(DateMonthString(d)).toBe(dms);
+    expect(dateTimeString(d)).toBe(dts);
+    expect(dateOnlyString(d)).toBe(dos);
+    expect(dateMonthString(d)).toBe(dms);
 
-    expect(DateTimeString(dts)).toBe(dts);
-    expect(DateOnlyString(dts)).toBe(dos);
-    expect(DateMonthString(dts)).toBe(dms);
+    expect(dateTimeString(dts)).toBe(dts);
+    expect(dateOnlyString(dts)).toBe(dos);
+    expect(dateMonthString(dts)).toBe(dms);
 
-    expect(DateTimeString(dos)).toBe(dos);
-    expect(DateOnlyString(dos)).toBe(dos);
-    expect(DateMonthString(dos)).toBe(dms);
+    expect(dateTimeString(dos)).toBe(dos);
+    expect(dateOnlyString(dos)).toBe(dos);
+    expect(dateMonthString(dos)).toBe(dms);
 
-    expect(DateTimeString(dms)).toBe(dms);
-    expect(DateOnlyString(dms)).toBe(dms);
-    expect(DateMonthString(dms)).toBe(dms);
+    expect(dateTimeString(dms)).toBe(dms);
+    expect(dateOnlyString(dms)).toBe(dms);
+    expect(dateMonthString(dms)).toBe(dms);
 
-    expect(Maybe.map(DateTimeString(d), DateTimeString)).toBe(dts);
-    expect(Maybe.map(DateOnlyString(d), DateTimeString)).toBe(dos);
-    expect(Maybe.map(DateMonthString(d), DateTimeString)).toBe(dms);
+    expect(Maybe.map(dateTimeString(d), dateTimeString)).toBe(dts);
+    expect(Maybe.map(dateOnlyString(d), dateTimeString)).toBe(dos);
+    expect(Maybe.map(dateMonthString(d), dateTimeString)).toBe(dms);
 
-    expect(DateTimeString("Jan 21 1993")).toBe("1993-01-21T00:00:00.000");
-    expect(DateTimeString("Jan 21 1993 at 12:57")).toBeUndefined();
+    expect(dateTimeString("Jan 21 1993")).toBe("1993-01-21T00:00:00.000");
+    expect(dateTimeString("Jan 21 1993 at 12:57")).toBeUndefined();
 
     const utcString = dts + "Z";
-    expect(DateTimeString(utcString)).toBeDefined();
-    expect(DateTimeString(utcString)).not.toBe(dts);
+    expect(dateTimeString(utcString)).toBeDefined();
+    expect(dateTimeString(utcString)).not.toBe(dts);
   });
 });

@@ -1,6 +1,6 @@
 import * as Maybe from "./Maybe";
 import * as AsyncData from "./AsyncData";
-import { ErrorData } from "./ErrorData";
+import * as ErrorData from "./ErrorData";
 
 export {
   // Types
@@ -9,9 +9,9 @@ export {
   Err,
   T,
   // Constructors
-  // Ok,
-  // Err,
-  ErrData,
+  ok,
+  err,
+  errData,
   of,
   // Typeguards
   isOk,
@@ -85,23 +85,23 @@ type CaseOfPattern<V, E extends Error, R> =
 //
 
 /** A constructor for the `Ok` variant of `Result`. */
-const Ok = <V>(v: Ok<V>): Ok<V> => v;
+const ok = <V>(v: Ok<V>): Ok<V> => v;
 
 /**
  * A constructor for the `Err` variant of `Result`, creates a vanilla `Error`
  * object.
  */
-const Err = (message?: string): Err<Error> => new Error(message);
+const err = (message?: string): Err<Error> => new Error(message);
 
 /**
  * A constructor for the `Err` variant of `Result`, creates an `ErrorData`
  * object.
  */
-const ErrData = <D>(errorData: D, message?: string): Err<ErrorData<D>> =>
-  new ErrorData(errorData, message);
+const errData = <D>(errorData: D, message?: string): Err<ErrorData.T<D>> =>
+  ErrorData.of(errorData, message);
 
-/** Alias for the `Ok` constructor. */
-const of = Ok;
+/** Alias for the `ok` constructor. */
+const of = ok;
 
 //
 // Typeguards

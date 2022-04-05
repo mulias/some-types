@@ -2,10 +2,15 @@ import { expectType } from "tsd";
 import * as Maybe from "../Maybe";
 import {
   DateString,
-  T,
   DateTimeString,
   DateOnlyString,
   DateMonthString,
+  T,
+  dateString,
+  dateTimeString,
+  dateOnlyString,
+  dateMonthString,
+  of,
   isDateString,
   isDateTimeString,
   isDateOnlyString,
@@ -15,5 +20,5 @@ import {
 } from "../DateString";
 
 expectType<DateTimeString | undefined>(
-  Maybe.map({ year: 1, month: 1, date: 1, hours: 1, minutes: 1, seconds: 1 }, DateTimeString)
+  Maybe.map({ year: 1, month: 1, date: 1, hours: 1, minutes: 1, seconds: 1 }, dateTimeString)
 );

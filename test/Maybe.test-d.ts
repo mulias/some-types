@@ -6,6 +6,9 @@ import {
   Maybe,
   Just,
   Nothing,
+  just,
+  nothing,
+  of,
   isJust,
   isNothing,
   fromResult,
@@ -35,30 +38,30 @@ const testMaybe = () => {
 };
 
 const testNothing = () => {
-  expectType<undefined>(Nothing);
+  expectType<undefined>(nothing);
 };
 
 const testJust = () => {
-  expectType<5>(Just(5));
-  expectAssignable<number>(Just(5));
-  expectType<null>(Just(null));
-  expectType<any>(Just(0 as any));
-  expectType<unknown>(Just(0 as unknown));
-  expectType<never>(Just(0 as never));
-  expectError(Just(undefined));
-  expectError(Just(Nothing));
+  expectType<5>(just(5));
+  expectAssignable<number>(just(5));
+  expectType<null>(just(null));
+  expectType<any>(just(0 as any));
+  expectType<unknown>(just(0 as unknown));
+  expectType<never>(just(0 as never));
+  expectError(just(undefined));
+  expectError(just(nothing));
 };
 
 const testIsJust = () => {
-  const x = Nothing as Maybe<string>;
+  const x = nothing as Maybe<string>;
   if (isJust(x)) {
     expectType<string>(x);
   } else {
     expectType<Nothing>(x);
   }
 
-  expectType<number[]>([12, undefined, Just(4), Nothing].filter(isJust));
-  expectType<Array<string | number>>([12, Nothing, "string", 0].filter(isJust));
+  expectType<number[]>([12, undefined, just(4), nothing].filter(isJust));
+  expectType<Array<string | number>>([12, nothing, "string", 0].filter(isJust));
 };
 
 const testIsNothing = () => {
@@ -69,8 +72,8 @@ const testIsNothing = () => {
     expectType<number>(x);
   }
 
-  expectType<Nothing[]>([12, undefined, Just(4), Nothing].filter(isNothing));
-  expectType<undefined[]>([12, Nothing, "string", 0].filter(isNothing));
+  expectType<Nothing[]>([12, undefined, just(4), nothing].filter(isNothing));
+  expectType<undefined[]>([12, nothing, "string", 0].filter(isNothing));
 };
 
 const testFromNullable = () => {
@@ -110,34 +113,34 @@ const testToNullable = () => {
 };
 
 const testToResult = () => {
-  expectType<Result.T<null, ErrorData.T<string>>>(toResult(Just(null), Result.ErrData("nothin")));
-  expectType<Result.T<number, Error>>(toResult(Just(12 as number), Result.Err()));
-  expectType<Result.T<string, Error>>(toResult(Nothing as Maybe<string>, Result.Err()));
-  expectType<Result.T<never, Error>>(toResult(Nothing, Result.Err()));
-  expectType<Result.T<string, Error>>(toResult<string, Error>(Nothing, Result.Err()));
-  expectError(toResult<string, Error>(Just(9), Result.Err()));
+  expectType<Result.T<null, ErrorData.T<string>>>(toResult(just(null), Result.errData("nothin")));
+  expectType<Result.T<number, Error>>(toResult(just(12 as number), Result.err()));
+  expectType<Result.T<string, Error>>(toResult(nothing as Maybe<string>, Result.err()));
+  expectType<Result.T<never, Error>>(toResult(nothing, Result.err()));
+  expectType<Result.T<string, Error>>(toResult<string, Error>(nothing, Result.err()));
+  expectError(toResult<string, Error>(just(9), Result.err()));
 };
 
 const testToAsyncData = () => {
-  expectType<AsyncData.Success<null> | AsyncData.NotAsked>(toAsyncData(Just(null)));
-  expectAssignable<AsyncData.T<null, Error>>(toAsyncData(Just(null)));
-  expectType<AsyncData.Success<number> | AsyncData.NotAsked>(toAsyncData(Just(12 as number)));
+  expectType<AsyncData.Success<null> | AsyncData.NotAsked>(toAsyncData(just(null)));
+  expectAssignable<AsyncData.T<null, Error>>(toAsyncData(just(null)));
+  expectType<AsyncData.Success<number> | AsyncData.NotAsked>(toAsyncData(just(12 as number)));
   expectAssignable<AsyncData.T<number, never>>(toAsyncData(12 as Maybe<number>));
-  expectAssignable<AsyncData.T<string, Error>>(toAsyncData(Nothing as Maybe<string>));
-  expectType<AsyncData.NotAsked>(toAsyncData(Nothing));
-  expectAssignable<AsyncData.T<string, Error>>(toAsyncData<string>(Nothing));
+  expectAssignable<AsyncData.T<string, Error>>(toAsyncData(nothing as Maybe<string>));
+  expectType<AsyncData.NotAsked>(toAsyncData(nothing));
+  expectAssignable<AsyncData.T<string, Error>>(toAsyncData<string>(nothing));
 };
 
 const testMap = () => {
   const fnA = (x: number) => x + 1;
   expectType<number>(map(0, fnA));
-  expectType<Nothing>(map(Nothing, fnA));
+  expectType<Nothing>(map(nothing, fnA));
   expectType<Maybe<number>>(map(0 as Maybe<number>, fnA));
   expectType<Maybe<number>>(map(undefined as Maybe<number>, fnA));
 
   const fnB = (x: number) => String(x);
   expectType<string>(map(0, fnB));
-  expectType<Nothing>(map(Nothing, fnB));
+  expectType<Nothing>(map(nothing, fnB));
   expectType<Maybe<string>>(map(0 as Maybe<number>, fnB));
   expectType<Maybe<string>>(map(undefined as Maybe<number>, fnB));
 };
@@ -145,8 +148,8 @@ const testMap = () => {
 const testWithDefault = () => {
   expectType<0 | 3>(withDefault(3 as Maybe<3>, 0));
   expectType<number>(withDefault(3 as Maybe<number>, 0));
-  expectAssignable<number>(withDefault(Just(3), 0));
-  expectAssignable<number | string>(withDefault(Nothing as Maybe<number>, "oops"));
+  expectAssignable<number>(withDefault(just(3), 0));
+  expectAssignable<number | string>(withDefault(nothing as Maybe<number>, "oops"));
   expectType<number | undefined>(withDefault(4 as number | undefined, undefined));
 };
 
@@ -159,9 +162,9 @@ const testUnwrap = () => {
   expectType<number>(a);
 
   const b = unwrap(
-    Just(4),
-    (x) => (x === 0 ? Nothing : String(x)),
-    () => Nothing
+    just(4),
+    (x) => (x === 0 ? nothing : String(x)),
+    () => nothing
   );
   expectType<Maybe<string>>(b);
 
@@ -180,16 +183,16 @@ const testCaseOf = () => {
   });
   expectType<number>(a);
 
-  const b = caseOf(Just(4), {
-    Just: (x) => (x === 0 ? Nothing : String(x)),
-    Nothing: () => Nothing
+  const b = caseOf(just(4), {
+    Just: (x) => (x === 0 ? nothing : String(x)),
+    Nothing: () => nothing
   });
   expectType<Maybe<string>>(b);
 };
 
 const testCombine = () => {
   const x = [1, 2, 3, 4, undefined, 6, 7, 8, 9];
-  const y = [Just(true), Just(false), Nothing, Just("x"), Just({ a: 12 })];
+  const y = [just(true), just(false), nothing, just("x"), just({ a: 12 })];
   expectType<Maybe<number[]>>(combine(x));
   expectType<Maybe<Array<string | boolean | { a: number }>>>(combine(y));
   expectType<Maybe<any[]>>(combine(x as any[]));

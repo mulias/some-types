@@ -10,11 +10,11 @@ export {
   Triple,
   T,
   // Constructors
-  // Tuple,
-  // Empty,
-  // Single,
-  // Pair,
-  // Triple,
+  tuple,
+  empty,
+  single,
+  pair,
+  triple,
   of,
   // Typeguards
   isEmpty,
@@ -71,28 +71,28 @@ type Triple<A, B, C> = readonly [A, B, C];
 //
 
 /** Create a `Tuple` from the zero to three provided arguments. */
-function Tuple(): Empty;
-function Tuple<A>(a: A): Single<A>;
-function Tuple<A, B>(a: A, b: B): Pair<A, B>;
-function Tuple<A, B, C>(a: A, b: B, c: C): Triple<A, B, C>;
-function Tuple<Args extends Tuple<any, any, any>>(...args: Args) {
+function tuple(): Empty;
+function tuple<A>(a: A): Single<A>;
+function tuple<A, B>(a: A, b: B): Pair<A, B>;
+function tuple<A, B, C>(a: A, b: B, c: C): Triple<A, B, C>;
+function tuple<Args extends Tuple<any, any, any>>(...args: Args) {
   return args;
 }
 
 /** A constructor for the `Empty` tuple, which has no elements. */
-const Empty: Empty = [] as const;
+const empty: Empty = [] as const;
 
 /** A constructor for the `Single` tuple, which has one element. */
-const Single = <A>(a: A): Single<A> => [a];
+const single = <A>(a: A): Single<A> => [a];
 
 /** A constructor for the `Pair` tuple, which has two elements. */
-const Pair = <A, B>(a: A, b: B): Pair<A, B> => [a, b];
+const pair = <A, B>(a: A, b: B): Pair<A, B> => [a, b];
 
 /** A constructor for the `Triple` tuple, which has three elements. */
-const Triple = <A, B, C>(a: A, b: B, c: C): Triple<A, B, C> => [a, b, c];
+const triple = <A, B, C>(a: A, b: B, c: C): Triple<A, B, C> => [a, b, c];
 
-/** Alias for the `Tuple` constructor. */
-const of = Tuple;
+/** Alias for the `tuple` constructor. */
+const of = tuple;
 
 //
 // Typeguards
@@ -155,9 +155,9 @@ function fromArray<A>(a: readonly A[], length: 3): Maybe.T<Triple<A, A, A>>;
 function fromArray<A>(a: readonly A[]): Maybe.T<Tuple<A, A, A>>;
 function fromArray(a: readonly any[], length?: number) {
   if (Maybe.isJust(length)) {
-    return a.length === length ? a : Maybe.Nothing;
+    return a.length === length ? a : Maybe.nothing;
   } else {
-    return a.length <= 3 ? a : Maybe.Nothing;
+    return a.length <= 3 ? a : Maybe.nothing;
   }
 }
 

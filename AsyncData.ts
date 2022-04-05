@@ -1,6 +1,6 @@
 import * as Maybe from "./Maybe";
 import * as Result from "./Result";
-import { ErrorData } from "./ErrorData";
+import * as ErrorData from "./ErrorData";
 import { Opaque } from "./Opaque";
 
 export {
@@ -12,11 +12,11 @@ export {
   Failure,
   T,
   // Constructors
-  // NotAsked,
-  // Loading,
-  // Success,
-  // Failure,
-  FailureData,
+  notAsked,
+  loading,
+  success,
+  failure,
+  failureData,
   of,
   // Typeguards
   isNotAsked,
@@ -118,39 +118,39 @@ type CaseOfPattern<A, E extends Error, R> =
 //
 
 /** A constructor for the `NotAsked` variant of `AsyncData`. */
-const NotAsked: NotAsked = Symbol("NotAsked") as NotAsked;
+const notAsked: NotAsked = Symbol("NotAsked") as NotAsked;
 
 /** A constructor for the `Loading` variant of `AsyncData`. */
-const Loading: Loading = Symbol("Loading") as Loading;
+const loading: Loading = Symbol("Loading") as Loading;
 
 /** A constructor for the `Success` variant of `AsyncData`. */
-const Success = <D>(d: Success<D>): Success<D> => d;
+const success = <D>(d: Success<D>): Success<D> => d;
 
 /**
  * A constructor for the `Failure` variant of `AsyncData`, creates a vanilla
  * `Error` object.
  */
-const Failure = (message?: string): Failure<Error> => new Error(message);
+const failure = (message?: string): Failure<Error> => new Error(message);
 
 /**
  * A constructor for the `Failure` variant of `AsyncData`, creates an
  * `ErrorData` object.
  */
-const FailureData = <D>(errorData: D, message?: string): Failure<ErrorData<D>> =>
-  new ErrorData(errorData, message);
+const failureData = <D>(errorData: D, message?: string): Failure<ErrorData.T<D>> =>
+  ErrorData.of(errorData, message);
 
-/** Alias for the `Success` constructor. */
-const of = Success;
+/** Alias for the `success` constructor. */
+const of = success;
 
 //
 // Typeguards
 //
 
 /** Typeguard for the `NotAsked` variant of a `AsyncData`. */
-const isNotAsked = (x: unknown): x is NotAsked => x === NotAsked;
+const isNotAsked = (x: unknown): x is NotAsked => x === notAsked;
 
 /** Typeguard for the `Loading` variant of a `AsyncData`. */
-const isLoading = (x: unknown): x is Loading => x === Loading;
+const isLoading = (x: unknown): x is Loading => x === loading;
 
 /** Typeguard for the `Failure` variant of a `AsyncData`. */
 const isFailure = <D, E extends Error>(x: AsyncData<D, E>): x is Failure<E> => x instanceof Error;
@@ -194,7 +194,7 @@ const fromResult = Result.toAsyncData;
  *     Err<E>           -> Nothing
  */
 const toMaybe = <D, E extends Error>(x: AsyncData<D, E>): Maybe.T<Success<D>> =>
-  isSuccess(x) ? x : Maybe.Nothing;
+  isSuccess(x) ? x : Maybe.nothing;
 
 /**
  * Create a `Result` from an `AsyncData`, where the incomplete statuses map to
@@ -206,7 +206,7 @@ const toMaybe = <D, E extends Error>(x: AsyncData<D, E>): Maybe.T<Success<D>> =>
  *     Failure<E> -> Err<E>
  */
 const toResult = <D, E extends Error>(x: AsyncData<D, E>): Result.T<Maybe.T<D>, E> =>
-  isCompleted(x) ? x : Maybe.Nothing;
+  isCompleted(x) ? x : Maybe.nothing;
 
 //
 // Operations

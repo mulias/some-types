@@ -8,8 +8,8 @@ export {
   Nothing,
   T,
   // Constructors
-  // Just,
-  // Nothing,
+  just,
+  nothing,
   of,
   // Typeguards
   isJust,
@@ -89,26 +89,26 @@ type CaseOfPattern<A, B> =
  * A constructor for the `Just` variant of `Maybe`. It accepts any value `a`
  * except for `undefined`.
  */
-const Just = <A>(a: Just<A>): Just<A> => a;
+const just = <A>(a: Just<A>): Just<A> => a;
 
 /**
  * A constructor for the `Nothing` variant of `Maybe`, which is an alias
  * for undefined.
  */
-const Nothing: Nothing = undefined;
+const nothing: Nothing = undefined;
 
-/** Alis for the `Just` constructor. */
-const of = Just;
+/** Alis for the `just` constructor. */
+const of = just;
 
 //
 // Typeguards
 //
 
 /** Typeguard for the `Just` variant of a `Maybe`. */
-const isJust = <A>(x: Maybe<A>): x is Just<A> => x !== Nothing;
+const isJust = <A>(x: Maybe<A>): x is Just<A> => x !== nothing;
 
 /** Typeguard for the `Nothing` variant of a `Maybe`. */
-const isNothing = <A>(x: Maybe<A>): x is Nothing => x === Nothing;
+const isNothing = <A>(x: Maybe<A>): x is Nothing => x === nothing;
 
 //
 // Conversions
@@ -142,7 +142,7 @@ const fromAsyncData = AsyncData.toMaybe;
  *     A         -> Just<A>
  */
 const fromNullable = <A>(x: A): Maybe<Exclude<A, null>> =>
-  x == null ? Nothing : (x as Just<Exclude<A, null>>);
+  x == null ? nothing : (x as Just<Exclude<A, null>>);
 
 /**
  * Keeps the value `a` if `test` returns true, otherwise returns `Nothing`.
@@ -151,11 +151,11 @@ const fromNullable = <A>(x: A): Maybe<Exclude<A, null>> =>
 function fromPredicate<A, B extends A>(a: A, test: (a: A) => a is B): Maybe<B>;
 function fromPredicate<A>(a: A, test: (a: A) => boolean): Maybe<A>;
 function fromPredicate<A>(a: A, test: (a: A) => boolean) {
-  return test(a) ? a : Nothing;
+  return test(a) ? a : nothing;
 }
 
 /** Keep truthy values, return `Nothing` for falsy values such as `null`, `0` and `""`. */
-const fromFalsy = <A>(x: A | Falsy): Maybe<A> => (!!x ? x : Nothing);
+const fromFalsy = <A>(x: A | Falsy): Maybe<A> => (!!x ? x : nothing);
 
 /**
  * Given a `Maybe`, return a value which might be null. In other words, replace
@@ -182,7 +182,7 @@ const toResult = <V, E extends Error>(x: Maybe<V>, e: E): Result.T<Just<V>, E> =
  *     Nothing -> NotAsked
  */
 const toAsyncData = <V>(x: Maybe<V>): AsyncData.Success<Just<V>> | AsyncData.NotAsked =>
-  isNothing(x) ? AsyncData.NotAsked : (x as AsyncData.Success<Just<V>>);
+  isNothing(x) ? AsyncData.notAsked : (x as AsyncData.Success<Just<V>>);
 
 //
 // Operations
@@ -193,7 +193,7 @@ function map<A, B>(a: Nothing, fn: (a: A) => B): Nothing;
 function map<A, B>(a: Just<A>, fn: (a: A) => B): B;
 function map<A, B>(a: Maybe<A>, fn: (a: A) => B): Maybe<B>;
 function map<A, B>(a: Maybe<A>, fn: (a: A) => B) {
-  return isJust(a) ? fn(a) : Nothing;
+  return isJust(a) ? fn(a) : nothing;
 }
 
 /** Provide a default which is used if `x` is `Nothing`. */
@@ -234,7 +234,7 @@ function combine<T extends ReadonlyArray<any>>(xs: MaybeMapped<T>): Maybe<T>;
 function combine<A>(xs: ReadonlyArray<Maybe<A>>): Maybe<Array<A>>;
 function combine(xs: ReadonlyArray<Maybe<unknown>>) {
   const justVals = xs.filter(isJust);
-  return justVals.length === xs.length ? justVals : Nothing;
+  return justVals.length === xs.length ? justVals : nothing;
 }
 
 /**
@@ -247,7 +247,7 @@ const encase =
     try {
       return fn(...args);
     } catch {
-      return Nothing;
+      return nothing;
     }
   };
 
@@ -258,4 +258,4 @@ const encase =
  *    fulfilled Promise<D> -> fulfilled Promise<Just<V>>
  *    rejected Promise<D>  -> fulfilled Promise<Nothing>
  */
-const encasePromise = <A>(p: Promise<A>): Promise<Maybe<A>> => p.catch(() => Nothing);
+const encasePromise = <A>(p: Promise<A>): Promise<Maybe<A>> => p.catch(() => nothing);

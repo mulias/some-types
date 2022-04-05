@@ -5,7 +5,7 @@ export {
   NonEmptyArray,
   T,
   // Constructors
-  // NonEmptyArray,
+  nonEmptyArray,
   of,
   // Typeguards
   isNonEmptyArray,
@@ -38,10 +38,10 @@ type T<A> = NonEmptyArray<A>;
 //
 
 /** Create a NonEmptyArray with a `first` value and an optional `rest` array. */
-const NonEmptyArray = <A>(first: A, rest: A[] = []): NonEmptyArray<A> => [first, ...rest];
+const nonEmptyArray = <A>(first: A, rest: A[] = []): NonEmptyArray<A> => [first, ...rest];
 
-/** Alias for the `NonEmptyArray` constructor. */
-const of = NonEmptyArray;
+/** Alias for the `nonEmptyArray` constructor. */
+const of = nonEmptyArray;
 
 //
 // Typeguards

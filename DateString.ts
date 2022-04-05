@@ -10,10 +10,10 @@ export {
   DateMonthString,
   T,
   // Constructors
-  // DateString,
-  // DateTimeString,
-  // DateOnlyString,
-  // DateMonthString,
+  dateString,
+  dateTimeString,
+  dateOnlyString,
+  dateMonthString,
   of,
   now,
   // Typeguards
@@ -121,12 +121,12 @@ type DateMonthFieldsArg = {
  * value that might represent a date into a `Maybe<DateTimeString>`, or parse a
  * `ValidDate` into a `DateTimeString`.
  */
-function DateString(d: DateString | ValidDate.T): DateTimeString;
-function DateString(d: string | number | Date): Maybe.T<DateTimeString>;
-function DateString(d: DateTimeFieldsArg): Maybe.T<DateTimeString>;
-function DateString(d: DateOnlyFieldsArg): Maybe.T<DateOnlyString>;
-function DateString(d: DateMonthFieldsArg): Maybe.T<DateMonthString>;
-function DateString(
+function dateString(d: DateString | ValidDate.T): DateTimeString;
+function dateString(d: string | number | Date): Maybe.T<DateTimeString>;
+function dateString(d: DateTimeFieldsArg): Maybe.T<DateTimeString>;
+function dateString(d: DateOnlyFieldsArg): Maybe.T<DateOnlyString>;
+function dateString(d: DateMonthFieldsArg): Maybe.T<DateMonthString>;
+function dateString(
   d:
     | DateString
     | ValidDate.T
@@ -144,16 +144,16 @@ function DateString(
       }
 ) {
   if (d instanceof Date || typeof d !== "object") {
-    return DateTimeString(d);
+    return dateTimeString(d);
   } else {
     const { year, month, date, hours, minutes, seconds, milliseconds } = d;
 
     if (date != undefined && hours != undefined && minutes != undefined && seconds != undefined) {
-      return DateTimeString({ year, month, date, hours, minutes, seconds, milliseconds });
+      return dateTimeString({ year, month, date, hours, minutes, seconds, milliseconds });
     } else if (date != undefined) {
-      return DateOnlyString({ year, month, date });
+      return dateOnlyString({ year, month, date });
     } else {
-      return DateMonthString({ year, month });
+      return dateMonthString({ year, month });
     }
   }
 }
@@ -164,9 +164,9 @@ function DateString(
  * then the return type is `DateTimeString`. Otherwise the return type is
  * `Maybe.T<DateTimeString>`.
  */
-function DateTimeString(d: DateString | ValidDate.T): DateTimeString;
-function DateTimeString(d: string | number | Date | DateTimeFieldsArg): Maybe.T<DateTimeString>;
-function DateTimeString(
+function dateTimeString(d: DateString | ValidDate.T): DateTimeString;
+function dateTimeString(d: string | number | Date | DateTimeFieldsArg): Maybe.T<DateTimeString>;
+function dateTimeString(
   d: DateString | ValidDate.T | string | number | Date | DateTimeFieldsArg
 ): Maybe.T<DateTimeString> {
   let fields;
@@ -184,9 +184,9 @@ function DateTimeString(
  * return type is `DateOnlyString`. Otherwise the return type is
  * `Maybe.T<DateOnlyString>`.
  */
-function DateOnlyString(d: DateString | ValidDate.T): DateOnlyString;
-function DateOnlyString(d: string | number | Date | DateOnlyFieldsArg): Maybe.T<DateOnlyString>;
-function DateOnlyString(d: DateString | ValidDate.T | string | number | Date | DateOnlyFieldsArg) {
+function dateOnlyString(d: DateString | ValidDate.T): DateOnlyString;
+function dateOnlyString(d: string | number | Date | DateOnlyFieldsArg): Maybe.T<DateOnlyString>;
+function dateOnlyString(d: DateString | ValidDate.T | string | number | Date | DateOnlyFieldsArg) {
   let fields;
   if (d instanceof Object && "year" in d && "month" in d && "date" in d) {
     fields = d;
@@ -203,9 +203,9 @@ function DateOnlyString(d: DateString | ValidDate.T | string | number | Date | D
  * the return type is `DateMonthString`. Otherwise the return type is
  * `Maybe.T<DateMonthString>`.
  */
-function DateMonthString(d: DateString | ValidDate.T): DateMonthString;
-function DateMonthString(d: string | number | Date | DateMonthFieldsArg): Maybe.T<DateMonthString>;
-function DateMonthString(
+function dateMonthString(d: DateString | ValidDate.T): DateMonthString;
+function dateMonthString(d: string | number | Date | DateMonthFieldsArg): Maybe.T<DateMonthString>;
+function dateMonthString(
   d: DateString | ValidDate.T | string | number | Date | DateMonthFieldsArg
 ) {
   let fields;
@@ -219,10 +219,10 @@ function DateMonthString(
   return Maybe.fromPredicate(formatDateString(monthOnlyFields), isDateMonthString);
 }
 
-/** Alias for the `DateString` constructor. */
-const of = DateString;
+/** Alias for the `dateString` constructor. */
+const of = dateString;
 
-const now = () => DateString(ValidDate.now());
+const now = () => dateString(ValidDate.now());
 
 //
 // Typeguards
@@ -285,7 +285,7 @@ function map(dateString: DateString, fn: (d: Date) => Date | DateString) {
   if (isDateString(r)) {
     return r;
   } else {
-    return DateTimeString(r);
+    return dateTimeString(r);
   }
 }
 

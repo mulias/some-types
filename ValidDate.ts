@@ -7,7 +7,7 @@ export {
   ValidDate,
   T,
   // Constructors
-  // ValidDate,
+  validDate,
   of,
   now,
   // Typeguards
@@ -38,14 +38,14 @@ type T = ValidDate;
  * Attempt to parse some value into a new `Date` object. If the result is
  * valid, return a `ValidDate`, otherwise return `Maybe.Nothing`.
  */
-function ValidDate<D extends DateString.T | ValidDate>(d: D): ValidDate;
-function ValidDate(value: string | number | Date): Maybe.T<ValidDate>;
-function ValidDate(a: DateString.T | ValidDate | string | number | Date) {
+function validDate<D extends DateString.T | ValidDate>(d: D): ValidDate;
+function validDate(value: string | number | Date): Maybe.T<ValidDate>;
+function validDate(a: DateString.T | ValidDate | string | number | Date) {
   return fromDate(new Date(a));
 }
 
 /** Alias for the `ValidDate` constructor. */
-const of = ValidDate;
+const of = validDate;
 
 /** Get the current time, which we know is a `ValidDate`. */
 const now = () => new Date() as ValidDate;
@@ -79,10 +79,10 @@ function fromDate(d: Date) {
  * Apply a `Date` object operation onto a `ValidDate`. If `fn` produces an
  * invalid `Date`, return `Maybe.Nothing`.
  */
-function map(validDate: ValidDate, fn: (d: Date) => ValidDate): ValidDate;
-function map(validDate: ValidDate, fn: (d: Date) => Date): Maybe.T<ValidDate>;
-function map(validDate: ValidDate, fn: (d: Date) => Date): Maybe.T<ValidDate> {
-  return fromDate(fn(validDate));
+function map(vd: ValidDate, fn: (d: Date) => ValidDate): ValidDate;
+function map(vd: ValidDate, fn: (d: Date) => Date): Maybe.T<ValidDate>;
+function map(vd: ValidDate, fn: (d: Date) => Date): Maybe.T<ValidDate> {
+  return fromDate(fn(vd));
 }
 
 /**
@@ -91,6 +91,6 @@ function map(validDate: ValidDate, fn: (d: Date) => Date): Maybe.T<ValidDate> {
  * succeed if the input is a valid date, so it's expedient to circumvent the
  * more conservative return type of `map`.
  */
-function mapUnsafe(validDate: ValidDate, fn: (d: Date) => Date): ValidDate {
-  return map(validDate, fn) as ValidDate;
+function mapUnsafe(vd: ValidDate, fn: (d: Date) => Date): ValidDate {
+  return map(vd, fn) as ValidDate;
 }
