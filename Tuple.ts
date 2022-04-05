@@ -255,23 +255,24 @@ function reverse<Tup extends any[]>(t: Tup) {
 }
 
 /**
- * Combine zero to three arrays into one array of 0/1/2/3-tuples. The resulting
- * array will be the length of the shortest input array, and additional
- * elements will be ignored. When the inputs are thought of as the rows of a 2D
- * matrix this is a (0/1/2/3 x N) to (N x 0/1/2/3) transpose.
+ * Create an array of tuples from a tuple of arrays. The resulting array will
+ * be the length of the shortest input array, and additional elements will be
+ * ignored. When the input is thought of as a 2D matrix this is a (0/1/2/3 x N)
+ * to (N x 0/1/2/3) transpose.
  */
-function zip(): Empty;
-function zip<A>(a: NonEmptyArray.T<A>): NonEmptyArray.T<Single<A>>;
-function zip<A>(a: readonly A[]): Array<Single<A>>;
-function zip<A, B>(a: NonEmptyArray.T<A>, b: NonEmptyArray.T<B>): NonEmptyArray.T<Pair<A, B>>;
-function zip<A, B>(a: readonly A[], b: readonly B[]): Array<Pair<A, B>>;
+function zip(t: Empty): Empty;
+function zip<A>(t: Single<NonEmptyArray.T<A>>): NonEmptyArray.T<Single<A>>;
+function zip<A>(t: Single<ReadonlyArray<A>>): Array<Single<A>>;
+function zip<A, B>(t: Pair<NonEmptyArray.T<A>, NonEmptyArray.T<B>>): NonEmptyArray.T<Pair<A, B>>;
+function zip<A, B>(t: Pair<ReadonlyArray<A>, ReadonlyArray<B>>): Array<Pair<A, B>>;
 function zip<A, B, C>(
-  a: NonEmptyArray.T<A>,
-  b: NonEmptyArray.T<B>,
-  c: NonEmptyArray.T<C>
+  t: Triple<NonEmptyArray.T<A>, NonEmptyArray.T<B>, NonEmptyArray.T<C>>
 ): NonEmptyArray.T<Triple<A, B, C>>;
-function zip<A, B, C>(a: readonly A[], b: readonly B[], c: readonly C[]): Array<Triple<A, B, C>>;
-function zip(a?: readonly any[], b?: readonly any[], c?: readonly any[]) {
+function zip<A, B, C>(
+  t: Triple<ReadonlyArray<A>, ReadonlyArray<B>, ReadonlyArray<C>>
+): Array<Triple<A, B, C>>;
+function zip(t: Tuple<ReadonlyArray<unknown>, ReadonlyArray<unknown>, ReadonlyArray<unknown>>) {
+  const [a, b, c] = t;
   const res = [];
 
   if (a && b && c) {
@@ -295,8 +296,8 @@ function zip(a?: readonly any[], b?: readonly any[], c?: readonly any[]) {
 }
 
 /**
- * Extract zero to three arrays from an array of 0/1/2/3-tuples. When the input is
- * thought of as a 2D matrix this is a (N x 0/1/2/3) to (0/1/2/3 x N) transpose.
+ * Create a tuple of arrays from an array of tuples. When the input is thought
+ * of as a 2D matrix this is an (N x 0/1/2/3) to (0/1/2/3 x N) transpose.
  */
 function unzip(zipped: ReadonlyArray<Empty>): Empty;
 function unzip<A>(zipped: NonEmptyArray.T<Single<A>>): Single<NonEmptyArray.T<A>>;
