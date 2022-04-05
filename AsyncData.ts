@@ -1,6 +1,6 @@
 import * as Maybe from "./Maybe";
 import * as Result from "./Result";
-import { ErrorData, isErrorData, fromError } from "./ErrorData";
+import { ErrorData } from "./ErrorData";
 
 export {
   // Types

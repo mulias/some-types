@@ -1,6 +1,6 @@
 import * as Maybe from "./Maybe";
 import * as AsyncData from "./AsyncData";
-import { ErrorData, isErrorData } from "./ErrorData";
+import { ErrorData } from "./ErrorData";
 
 export {
   // Types
