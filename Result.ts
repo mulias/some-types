@@ -255,8 +255,8 @@ const encase = <Args extends Array<any>, V, E extends Error>(
  * Given a promise, return a promise which will always fulfill, catching
  * rejected values in an `Err`.
  *
- *    fulfilled Promise<V> -> Promise<Ok<V>>
- *    rejected Promise<V>  -> Promise<Err>
+ *    fulfilled Promise<V> -> fulfilled Promise<Ok<V>>
+ *    rejected Promise<V>  -> fulfilled Promise<Err>
  */
 const encasePromise = <V, E extends Error>(
   p: Promise<Ok<V>>,

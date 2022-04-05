@@ -193,9 +193,8 @@ function front(t: Single<any> | Pair<any, any> | Triple<any, any, any>) {
 }
 
 /**
- * Apply `fn` to each element in the `Tuple`. Unlike
- * `Array.prototype.map`, this function preserves the tuple length,
- * instead of returning an `Array`.
+ * Apply `fn` to each element in the `Tuple`. Unlike `Array.prototype.map`,
+ * this function preserves the tuple length, instead of returning an `Array`.
  */
 function map(t: Empty, fn: (value: never, index?: never, tup?: Empty) => Empty): Empty;
 function map<A, D>(t: Single<A>, fn: (value: A, index?: 1, tup?: Single<A>) => D): Single<D>;

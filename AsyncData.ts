@@ -228,8 +228,7 @@ function map<A>(a: AsyncData<A, Error>, fn: (a: A) => any) {
   return isSuccess(a) ? fn(a) : a;
 }
 
-/**
- * Apply `fn` if `x` is a `Failure`. Otherwise return the non-failure value. */
+/** Apply `fn` if `x` is a `Failure`. Otherwise return the non-failure value. */
 function mapFailure<A, B, E extends Error>(a: Success<A>, fn: (e: E) => B): Success<A>;
 function mapFailure<A, B, E extends Error>(a: NotAsked, fn: (a: E) => B): NotAsked;
 function mapFailure<A, B, E extends Error>(a: Loading, fn: (a: E) => B): Loading;
@@ -321,8 +320,8 @@ const encase =
  * Given a promise, return a promise which will always fulfill, catching
  * rejected values in a `Failure`.
  *
- *    fulfilled Promise<V> -> Promise<Success<V>>
- *    rejected Promise<V>  -> Promise<Failure<E>>
+ *    fulfilled Promise<V> -> fulfilled Promise<Success<V>>
+ *    rejected Promise<V>  -> fulfilled Promise<Failure<E>>
  */
 const encasePromise = <V, E extends Error>(
   p: Promise<Success<V>>,

@@ -255,7 +255,7 @@ const encase =
  * Given a promise, return a promise which will always fulfill, catching
  * rejected values as a `Nothing`.
  *
- *    fulfilled Promise<D> -> Promise<Just<V>>
- *    rejected Promise<D>  -> Promise<Nothing>
+ *    fulfilled Promise<D> -> fulfilled Promise<Just<V>>
+ *    rejected Promise<D>  -> fulfilled Promise<Nothing>
  */
 const encasePromise = <A>(p: Promise<A>): Promise<Maybe<A>> => p.catch(() => Nothing);
