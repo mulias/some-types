@@ -63,7 +63,7 @@ function isNonEmptyArray(a: unknown) {
  * `Maybe.Nothing` if it's empty.
  */
 function fromArray<A extends NonEmptyArray<any>>(a: A): A;
-function fromArray<A>(a: readonly A[]): Maybe.T<NonEmptyArray<A>>;
+function fromArray<A>(a: A[]): Maybe.T<NonEmptyArray<A>>;
 function fromArray(a: readonly any[]) {
   return Maybe.fromPredicate(a, isNonEmptyArray);
 }
@@ -76,7 +76,7 @@ function fromArray(a: readonly any[]) {
 const head = <A>([h]: NonEmptyArray<A>): A => h;
 
 /** Return a new, possibly empty, Array with all but the first element. */
-const tail = <A>([h, ...t]: NonEmptyArray<A>): readonly A[] => t;
+const tail = <A>([_h, ...t]: NonEmptyArray<A>): readonly A[] => t;
 
 /** Get the last element in a `NonEmptyArray`. */
 const last = <A>(a: NonEmptyArray<A>): A => a[a.length - 1] as A;

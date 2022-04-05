@@ -183,7 +183,7 @@ function tail([_h, ...t]: ReadonlyArray<any>): ReadonlyArray<any> {
   return t;
 }
 
-const last = <A>(t: Single<A> | Pair<any, A> | Triple<any, any, A>) => t[t.length - 1];
+const last = <A>(t: Single<A> | Pair<any, A> | Triple<any, any, A>): A => t[t.length - 1];
 
 function front(t: Single<any>): Empty;
 function front<A>(t: Pair<A, any>): Single<A>;
@@ -255,10 +255,12 @@ function reverse<Tup extends any[]>(t: Tup) {
 }
 
 /**
- * Combine one to three arrays into one array of 1/2/3-tuples. The resulting
- * array will be the length of the shortest input array, and additional elements
- * will be ignored.
+ * Combine zero to three arrays into one array of 0/1/2/3-tuples. The resulting
+ * array will be the length of the shortest input array, and additional
+ * elements will be ignored. When the inputs are thought of as the rows of a 2D
+ * matrix this is a (0/1/2/3 x N) to (N x 0/1/2/3) transpose.
  */
+function zip(): Empty;
 function zip<A>(a: NonEmptyArray.T<A>): NonEmptyArray.T<Single<A>>;
 function zip<A>(a: readonly A[]): Array<Single<A>>;
 function zip<A, B>(a: NonEmptyArray.T<A>, b: NonEmptyArray.T<B>): NonEmptyArray.T<Pair<A, B>>;
@@ -269,20 +271,20 @@ function zip<A, B, C>(
   c: NonEmptyArray.T<C>
 ): NonEmptyArray.T<Triple<A, B, C>>;
 function zip<A, B, C>(a: readonly A[], b: readonly B[], c: readonly C[]): Array<Triple<A, B, C>>;
-function zip(a: readonly any[], b?: readonly any[], c?: readonly any[]) {
+function zip(a?: readonly any[], b?: readonly any[], c?: readonly any[]) {
   const res = [];
 
-  if (Maybe.isJust(b) && Maybe.isJust(c)) {
+  if (a && b && c) {
     const len = Math.min(a.length, b.length, c.length);
     for (let i = 0; i < len; i++) {
       res[i] = [a[i], b[i], c[i]];
     }
-  } else if (Maybe.isJust(b)) {
+  } else if (a && b) {
     const len = Math.min(a.length, b.length);
     for (let i = 0; i < len; i++) {
       res[i] = [a[i], b[i]];
     }
-  } else {
+  } else if (a) {
     const len = a.length;
     for (let i = 0; i < len; i++) {
       res[i] = [a[i]];
@@ -292,7 +294,11 @@ function zip(a: readonly any[], b?: readonly any[], c?: readonly any[]) {
   return res as any;
 }
 
-/** Extract one to three arrays from an array of 1/2/3-tuples. */
+/**
+ * Extract zero to three arrays from an array of 0/1/2/3-tuples. When the input is
+ * thought of as a 2D matrix this is a (N x 0/1/2/3) to (0/1/2/3 x N) transpose.
+ */
+function unzip(zipped: ReadonlyArray<Empty>): Empty;
 function unzip<A>(zipped: NonEmptyArray.T<Single<A>>): Single<NonEmptyArray.T<A>>;
 function unzip<A>(zipped: ReadonlyArray<Single<A>>): Single<A[]>;
 function unzip<A, B>(
