@@ -97,19 +97,19 @@ type AsyncDataMapped<T extends ReadonlyArray<any>, E extends Error> = {
 /* The `caseOf` function expects either exhaustive pattern matching, or
  * non-exhaustive with a `default` case.
  */
-type CaseOfPattern<A, B, E extends Error> =
+type CaseOfPattern<A, E extends Error, R> =
   | {
-      NotAsked: () => B;
-      Loading: () => B;
-      Success: (a: A) => B;
-      Failure: (e: E) => B;
+      NotAsked: () => R;
+      Loading: () => R;
+      Success: (a: A) => R;
+      Failure: (e: E) => R;
     }
   | {
-      NotAsked?: () => B;
-      Loading?: () => B;
-      Success?: (a: A) => B;
-      Failure?: (e: E) => B;
-      default: () => B;
+      NotAsked?: () => R;
+      Loading?: () => R;
+      Success?: (a: A) => R;
+      Failure?: (e: E) => R;
+      default: () => R;
     };
 
 //
@@ -272,7 +272,7 @@ const unwrap = <A, B, E extends Error>(
  * Simulates an ML style `case x of` pattern match, following the same logic as
  * `unwrap`.
  */
-const caseOf = <A, B, E extends Error>(x: AsyncData<A, E>, pattern: CaseOfPattern<A, B, E>): B => {
+const caseOf = <A, E extends Error, R>(x: AsyncData<A, E>, pattern: CaseOfPattern<A, E, R>): R => {
   if (isNotAsked(x) && pattern["NotAsked"]) {
     return pattern["NotAsked"]();
   } else if (isLoading(x) && pattern["Loading"]) {
