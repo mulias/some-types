@@ -57,15 +57,9 @@ const isErrorData = <D = unknown>(x: unknown): x is ErrorData<D> => x instanceof
 // Conversions
 //
 
-/**
- * Convert any `Error` into an `ErrorData`. If `e` is already an `ErrorData`
- * then return it as-is. Otherwise create a new `ErrorData` with the error
- * message as the data value.
- */
-function fromError<D>(e: ErrorData<D>): ErrorData<D>;
-function fromError(e: Error): ErrorData<string>;
-function fromError(e: Error) {
-  return isErrorData(e) ? e : new ErrorData(e.message, e.message);
+/** Convert any `Error` into an `ErrorData`, using `fn` to create the data. */
+function fromError<D>(e: Error, fn: (e: Error) => D): ErrorData<D> {
+  return new ErrorData(fn(e), e.message);
 }
 
 //
