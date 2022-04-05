@@ -1,0 +1,26 @@
+{ pkgs ? import <nixpkgs> {} }:
+
+with pkgs;
+
+let
+  inherit (lib) optional optionals;
+
+  # requires unstable repo added at OS level
+  unstable = import <unstable> {};
+
+  nodejs = nodejs-16_x;
+
+  # currently 1.15.2
+  yarn = unstable.yarn;
+in
+
+mkShell {
+  buildInputs = [ nodejs yarn nodePackages.typescript-language-server ];
+
+  shellHook = ''
+    export PATH="$PATH:$HOME/.config/yarn/global/node_modules/.bin"
+
+    export NVIM_PRETTIER_LSP=true
+    export NVIM_TYPESCRIPT_LSP=true
+  '';
+}
