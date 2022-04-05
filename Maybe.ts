@@ -56,7 +56,7 @@ type Just<A> = Exclude<A, undefined>;
  * The `Nothing` variant of a `Maybe` is `undefined`. This works best for
  * integrating with TypeScript fatures such as optional property notation,
  * since `propName?: Maybe<string>`, and `propName?: string` are equivalent
- * type. Values of this type can be constructed with the `Nothing` constant, or
+ * types. Values of this type can be constructed with the `Nothing` constant, or
  * by using `undefined` directly.
  */
 type Nothing = undefined;
