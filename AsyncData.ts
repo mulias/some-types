@@ -60,14 +60,16 @@ type T<D, E extends Error> = AsyncData<D, E>;
  * initialized. Values of this type can be constructed with the `NotAsked`
  * constant.
  */
-type NotAsked = typeof NotAsked;
+type NotAsked = symbol & { readonly __opaque__: IsNotAsked };
+enum IsNotAsked {}
 
 /**
  * The `Loading` variant of a `AsyncData` represents data that is being
  * retrieved. Values of this type can be constructed with the `Loading`
  * constant.
  */
-type Loading = typeof Loading;
+type Loading = symbol & { readonly __opaque__: IsLoading };
+enum IsLoading {}
 
 /**
  * The `Success` variant of a `AsyncData` is an alias for retrieved data of
@@ -110,10 +112,10 @@ type CaseOfPattern<A, B, E extends Error> =
 //
 
 /** A constructor for the `NotAsked` variant of `AsyncData`. */
-const NotAsked: unique symbol = Symbol("NotAsked");
+const NotAsked: NotAsked = Symbol("NotAsked") as NotAsked;
 
 /** A constructor for the `Loading` variant of `AsyncData`. */
-const Loading: unique symbol = Symbol("Loading");
+const Loading: Loading = Symbol("Loading") as Loading;
 
 /** A constructor for the `Success` variant of `AsyncData`. */
 const Success = <D>(d: Success<D>): Success<D> => d;
