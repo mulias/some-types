@@ -61,6 +61,11 @@ type Ok<V> = Exclude<V, Error>;
  */
 type Err<E extends Error> = E;
 
+/* Create a wrapped type where each member of `T` is a `Result`. */
+type ResultMapped<T extends ReadonlyArray<any>, E extends Error> = {
+  [k in keyof T]: Result<T[k], E>;
+};
+
 /* The `caseOf` function expects either exhaustive pattern matching, or
  * non-exhaustive with a `default` case.
  */
@@ -220,11 +225,14 @@ const caseOf = <A, E extends Error, R>(x: Result<A, E>, pattern: CaseOfPattern<A
  * If all values in the `xs` array are `Ok`s then return the array. If
  * any value is an `Err` then return the first error value.
  */
-const combine = <A, E extends Error>(xs: ReadonlyArray<Result<A, E>>): Result<Array<A>, E> => {
+function combine<T extends ReadonlyArray<any>, E extends Error>(
+  xs: ResultMapped<T, E>
+): Result<T, E>;
+function combine<A, E extends Error>(xs: ReadonlyArray<Result<A, E>>): Result<A[], E>;
+function combine(xs: ReadonlyArray<Result<unknown, Error>>) {
   const firstErr = xs.find(isErr);
-  const okVals = xs.filter(isOk);
-  return Maybe.isJust(firstErr) ? firstErr : okVals;
-};
+  return Maybe.isJust(firstErr) ? firstErr : xs.filter(isOk);
+}
 
 /**
  * Create a version of a function which returns a `Result` instead of

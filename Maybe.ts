@@ -229,11 +229,10 @@ const caseOf = <A, B>(x: Maybe<A>, pattern: CaseOfPattern<A, B>): B => {
 /**
  * If the values in the `xs` array are all `Just`s then return the array.
  * Otherwise return `Nothing`.
- * TODO: test tuple support
  */
 function combine<T extends ReadonlyArray<any>>(xs: MaybeMapped<T>): Maybe<T>;
 function combine<A>(xs: ReadonlyArray<Maybe<A>>): Maybe<Array<A>>;
-function combine(xs: any) {
+function combine(xs: ReadonlyArray<Maybe<unknown>>) {
   const justVals = xs.filter(isJust);
   return justVals.length === xs.length ? justVals : Nothing;
 }

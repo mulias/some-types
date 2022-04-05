@@ -89,6 +89,11 @@ type Success<D> = Exclude<D, NotAsked | Loading | Error>;
  */
 type Failure<E extends Error> = E;
 
+/* Create a wrapped type where each member of `T` is an `AsyncData`. */
+type AsyncDataMapped<T extends ReadonlyArray<any>, E extends Error> = {
+  [k in keyof T]: AsyncData<T[k], E>;
+};
+
 /* The `caseOf` function expects either exhaustive pattern matching, or
  * non-exhaustive with a `default` case.
  */
@@ -285,12 +290,15 @@ const caseOf = <A, B, E extends Error>(x: AsyncData<A, E>, pattern: CaseOfPatter
 /**
  * If all values in the `xs` array are `Success`es then return the array. Otherwise
  * return the first non-success value.
- * TODO: support tuples
  */
-const combine = <A, E extends Error>(xs: ReadonlyArray<AsyncData<A, E>>): AsyncData<A[], E> => {
-  const firstNonSuccess = xs.find((x): x is NotAsked | Loading | Failure<E> => !isSuccess(x));
+function combine<T extends ReadonlyArray<any>, E extends Error>(
+  xs: AsyncDataMapped<T, E>
+): AsyncData<T, E>;
+function combine<A, E extends Error>(xs: ReadonlyArray<AsyncData<A, E>>): AsyncData<A[], E>;
+function combine(xs: ReadonlyArray<AsyncData<unknown, Error>>) {
+  const firstNonSuccess = xs.find((x) => !isSuccess(x));
   return Maybe.isNothing(firstNonSuccess) ? xs.filter(isSuccess) : firstNonSuccess;
-};
+}
 
 /**
  * Create a version of a function which returns a `Success` or `Failure`
