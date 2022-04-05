@@ -1,5 +1,6 @@
 import * as Maybe from "./Maybe";
 import * as ValidDate from "./ValidDate";
+import { Opaque } from "./Opaque";
 
 export {
   // Types
@@ -56,7 +57,7 @@ type T = DateString;
  * String encoding of a Year-Month-Date-Time date. Values of this type can be
  * constructed with the `DateTimeString` function.
  */
-type DateTimeString = string & { readonly __opaque__: IsDateTimeString };
+type DateTimeString = Opaque<string, IsDateTimeString>;
 enum IsDateTimeString {}
 
 /**
@@ -64,7 +65,7 @@ enum IsDateTimeString {}
  * defaults to 00:00:00.000. Values of this type can be constructed with the
  * `DateOnlyString` function.
  */
-type DateOnlyString = string & { readonly __opaque__: IsDateOnlyString };
+type DateOnlyString = Opaque<string, IsDateOnlyString>;
 enum IsDateOnlyString {}
 
 /**
@@ -72,7 +73,7 @@ enum IsDateOnlyString {}
  * defaults to the first of the month, and time to 00:00:00.000. Values of this
  * type can be constructed with the `DateMonthString` function.
  */
-type DateMonthString = string & { readonly __opaque__: IsDateMonthString };
+type DateMonthString = Opaque<string, IsDateMonthString>;
 enum IsDateMonthString {}
 
 /* Fields encoded in all `DateString`s. */

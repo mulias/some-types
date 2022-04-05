@@ -1,6 +1,7 @@
 import * as Maybe from "./Maybe";
 import * as Result from "./Result";
 import { ErrorData } from "./ErrorData";
+import { Opaque } from "./Opaque";
 
 export {
   // Types
@@ -60,7 +61,7 @@ type T<D, E extends Error> = AsyncData<D, E>;
  * initialized. Values of this type can be constructed with the `NotAsked`
  * constant.
  */
-type NotAsked = symbol & { readonly __opaque__: IsNotAsked };
+type NotAsked = Opaque<symbol, IsNotAsked>;
 enum IsNotAsked {}
 
 /**
@@ -68,7 +69,7 @@ enum IsNotAsked {}
  * retrieved. Values of this type can be constructed with the `Loading`
  * constant.
  */
-type Loading = symbol & { readonly __opaque__: IsLoading };
+type Loading = Opaque<symbol, IsLoading>;
 enum IsLoading {}
 
 /**

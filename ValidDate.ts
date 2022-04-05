@@ -1,5 +1,6 @@
 import * as Maybe from "./Maybe";
 import * as DateString from "./DateString";
+import { Opaque } from "./Opaque";
 
 export {
   // Types
@@ -23,7 +24,7 @@ export {
 //
 
 /** A `Date` object which we know is not an `Invalid Date`. */
-type ValidDate = Date & { readonly __opaque__: IsValidDate };
+type ValidDate = Opaque<Date, IsValidDate>;
 enum IsValidDate {}
 
 /** Alias for the `ValidDate` type */
