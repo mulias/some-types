@@ -14,7 +14,8 @@ export {
   // Conversions
   fromDate,
   // Operations
-  map
+  map,
+  mapUnsafe
 };
 
 //
@@ -74,11 +75,21 @@ function fromDate(d: Date) {
 //
 
 /**
- * Apply a `Date` object operation onto one or more `ValidDate`s. If `fn`
- * produces an invalid `Date`, return `Maybe.Nothing`.
+ * Apply a `Date` object operation onto a `ValidDate`. If `fn` produces an
+ * invalid `Date`, return `Maybe.Nothing`.
  */
 function map(validDate: ValidDate, fn: (d: Date) => ValidDate): ValidDate;
 function map(validDate: ValidDate, fn: (d: Date) => Date): Maybe.T<ValidDate>;
-function map(validDate: ValidDate, fn: (d: any) => any): any {
+function map(validDate: ValidDate, fn: (d: Date) => Date): Maybe.T<ValidDate> {
   return fromDate(fn(validDate));
+}
+
+/**
+ * Apply a `Date` object operation onto a `ValidDate`, casting the result as a
+ * `ValidDate`. In many cases we can be confident that a date operation will
+ * succeed if the input is a valid date, so it's expedient to circumvent the
+ * more conservative return type of `map`.
+ */
+function mapUnsafe(validDate: ValidDate, fn: (d: Date) => Date): ValidDate {
+  return map(validDate, fn) as ValidDate;
 }

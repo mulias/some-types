@@ -14,6 +14,7 @@ export {
   // DateOnlyString,
   // DateMonthString,
   of,
+  now,
   // Typeguards
   isDateString,
   isDateTimeString,
@@ -23,7 +24,9 @@ export {
   toFields,
   toDate,
   // Operations
-  map
+  map,
+  mapUnsafe,
+  applyAsDate
 };
 
 //
@@ -35,17 +38,14 @@ export {
  * three encodings `DateTimeString`, `DateOnlyString`, and `DateMonthString`
  * all use the same ISO 8601 complient format, but truncated to different
  * levels of specificity. For example, a `DateOnlyString` is a valid
- * `DateTimeString`, but with the time value zeroed out.
+ * `DateTimeString`, but with the time value zeroed out. Time zones are not
+ * supported.
  *
  * The format used is
  * ```
- * `${year}-${month}-${date}T${hours}:${minutes}:${seconds}.${milliseconds}`
+ * `YYYY-MM-DDThh:mm:ss.sss`
  * ```
  * For example `2021-12-10T08:25:00.000` or `0000-01-01T00:00:00.000`.
- *
- * This format comes with some restrictions -- namely that the year must be
- * between `0000` and `9999`, and that UTC offset and timezones are not
- * supported.
  */
 type DateString = DateTimeString | DateOnlyString | DateMonthString;
 
@@ -116,28 +116,44 @@ type DateMonthFieldsArg = {
 
 /**
  * Create a `DateTimeString`, `DateOnlyString`, or `DateMonthString` by
- * providing the necessary constituent parts.
+ * providing the necessary constituent parts. Alternativly, try to parse a
+ * value that might represent a date into a `Maybe<DateTimeString>`, or parse a
+ * `ValidDate` into a `DateTimeString`.
  */
-function DateString(fields: DateTimeFieldsArg): Maybe.T<DateTimeString>;
-function DateString(fields: DateOnlyFieldsArg): Maybe.T<DateOnlyString>;
-function DateString(fields: DateMonthFieldsArg): Maybe.T<DateMonthString>;
-function DateString(fields: {
-  year: number;
-  month: number;
-  date?: number;
-  hours?: number;
-  minutes?: number;
-  seconds?: number;
-  milliseconds?: number;
-}) {
-  const { year, month, date, hours, minutes, seconds, milliseconds } = fields;
-
-  if (Maybe.isJust(date) && Maybe.isJust(hours) && Maybe.isJust(minutes) && Maybe.isJust(seconds)) {
-    return DateTimeString({ year, month, date, hours, minutes, seconds, milliseconds });
-  } else if (Maybe.isJust(date)) {
-    return DateOnlyString({ year, month, date });
+function DateString(d: DateString | ValidDate.T): DateTimeString;
+function DateString(d: string | number | Date): Maybe.T<DateTimeString>;
+function DateString(d: DateTimeFieldsArg): Maybe.T<DateTimeString>;
+function DateString(d: DateOnlyFieldsArg): Maybe.T<DateOnlyString>;
+function DateString(d: DateMonthFieldsArg): Maybe.T<DateMonthString>;
+function DateString(
+  d:
+    | DateString
+    | ValidDate.T
+    | string
+    | number
+    | Date
+    | {
+        year: number;
+        month: number;
+        date?: number;
+        hours?: number;
+        minutes?: number;
+        seconds?: number;
+        milliseconds?: number;
+      }
+) {
+  if (d instanceof Date || typeof d !== "object") {
+    return DateTimeString(d);
   } else {
-    return DateMonthString({ year, month });
+    const { year, month, date, hours, minutes, seconds, milliseconds } = d;
+
+    if (date != undefined && hours != undefined && minutes != undefined && seconds != undefined) {
+      return DateTimeString({ year, month, date, hours, minutes, seconds, milliseconds });
+    } else if (date != undefined) {
+      return DateOnlyString({ year, month, date });
+    } else {
+      return DateMonthString({ year, month });
+    }
   }
 }
 
@@ -205,6 +221,8 @@ function DateMonthString(
 /** Alias for the `DateString` constructor. */
 const of = DateString;
 
+const now = () => DateString(ValidDate.now());
+
 //
 // Typeguards
 //
@@ -253,10 +271,10 @@ const toFields = (d: DateString): DateStringFields => getDateStringFields(ValidD
 //
 
 /**
- * Apply a function that expects a `Date` argument onto a `DateString`, returning a
- * new `DateString`. If `fn` produces a `DateString`, return that value. If
- * `fn` produces a `Date`, convert it to a `DateString`. If `fn` produces
- * an invalid `Date`, return `Maybe.Nothing`.
+ * Apply a function that expects a `Date` argument onto a `DateString`,
+ * returning a `Maybe.T<DateString>`. If `fn` produces a `DateString`, return
+ * that value. If `fn` produces a `Date`, convert it to a `DateString`. If `fn`
+ * produces an invalid `Date`, return `Maybe.Nothing`.
  */
 function map<R extends DateString>(dateString: DateString, fn: (d: Date) => R): R;
 function map(dateString: DateString, fn: (d: Date) => ValidDate.T): DateString;
@@ -268,6 +286,17 @@ function map(dateString: DateString, fn: (d: Date) => Date | DateString) {
   } else {
     return DateTimeString(r);
   }
+}
+
+/**
+ * Apply a function that expects a `Date` argument onto a `DateString`,
+ * returning a `Maybe.T<DateString>` cast as a `DateString`. In many cases we
+ * can be confident that a date operation will succeed if the input is a valid
+ * date, so it's expedient to circumvent the more conservative return type of
+ * `map`.
+ */
+function mapUnsafe(dateString: DateString, fn: (d: Date) => Date): DateString {
+  return map(dateString, fn) as DateString;
 }
 
 /**
