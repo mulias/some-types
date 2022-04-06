@@ -41,12 +41,6 @@ export {
  * levels of specificity. For example, a `DateOnlyString` is a valid
  * `DateTimeString`, but with the time value zeroed out. Time zones are not
  * supported.
- *
- * The format used is
- * ```
- * `YYYY-MM-DDThh:mm:ss.sss`
- * ```
- * For example `2021-12-10T08:25:00.000` or `0000-01-01T00:00:00.000`.
  */
 type DateString = DateTimeString | DateOnlyString | DateMonthString;
 
