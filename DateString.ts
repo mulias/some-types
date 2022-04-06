@@ -216,35 +216,41 @@ function dateMonthString(
 /** Alias for the `dateString` constructor. */
 const of = dateString;
 
-const now = () => dateString(ValidDate.now());
+function now() {
+  return dateString(ValidDate.now());
+}
 
 //
 // Typeguards
 //
 
 /** Typeguard for any string that encodes a valid date in the DateString format. */
-const isDateString = (d: unknown): d is DateString => isDateTimeString(d);
+function isDateString(d: unknown): d is DateString {
+  return isDateTimeString(d);
+}
 
 /** Typeguard for any string that encodes a valid date in the DateString format. */
-const isDateTimeString = (d: unknown): d is DateTimeString =>
-  typeof d === "string" && dateStringRegex.test(d) && new Date(d).getTime() !== NaN;
+function isDateTimeString(d: unknown): d is DateTimeString {
+  return typeof d === "string" && dateStringRegex.test(d) && new Date(d).getTime() !== NaN;
+}
 
 /**
  * Typeguard for any string that encodes a valid date in the DateString format
  * where the time is 00:00:00.000.
  */
-const isDateOnlyString = (d: unknown): d is DateOnlyString =>
-  typeof d === "string" && dateStringRegex.test(d) && new Date(d).getTime() % 100000 === 0;
+function isDateOnlyString(d: unknown): d is DateOnlyString {
+  return typeof d === "string" && dateStringRegex.test(d) && new Date(d).getTime() % 100000 === 0;
+}
 
 /**
  * Typeguard for any string that encodes a valid date in the DateString format
  * where the time is 00:00:00.000 and the date is the first of the month.
  */
-const isDateMonthString = (d: unknown): d is DateMonthString => {
+function isDateMonthString(d: unknown): d is DateMonthString {
   if (typeof d !== "string" || !dateStringRegex.test(d)) return false;
   const date = new Date(d);
   return date.getTime() % 100000 === 0 && date.getDate() === 1;
-};
+}
 
 //
 // Conversions
@@ -254,12 +260,16 @@ const isDateMonthString = (d: unknown): d is DateMonthString => {
  * Parse a `DateString` into a `Date` object. Because the result is guaranteed
  * to be valid, we return a `ValidDate` type.
  */
-const toDate = (d: DateString): ValidDate.T => ValidDate.of(d);
+function toDate(d: DateString): ValidDate.T {
+  return ValidDate.of(d);
+}
 
 /**
  * Get the Date-related fields encoded in a `DateString`.
  */
-const toFields = (d: DateString): DateStringFields => getDateStringFields(ValidDate.of(d));
+function toFields(d: DateString): DateStringFields {
+  return getDateStringFields(ValidDate.of(d));
+}
 
 //
 // Operations
@@ -298,7 +308,9 @@ function mapUnsafe(dateString: DateString, fn: (d: Date) => Date): DateString {
  * Apply a function that expects a `Date` argument onto a `DateString`. Unlike `map`, the
  * result of applying `fn` might not be a new `DateString`.
  */
-const applyAsDate = <R>(d: DateString, fn: (date: Date) => R): R => fn(toDate(d));
+function applyAsDate<R>(d: DateString, fn: (date: Date) => R): R {
+  return fn(toDate(d));
+}
 
 //
 // Helpers

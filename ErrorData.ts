@@ -41,7 +41,9 @@ type T<D> = ErrorData<D>;
 //
 
 /** A constructor for the `ErrorData` object. */
-const errorData = <D>(data: D, message?: string): ErrorData<D> => new ErrorData(data, message);
+function errorData<D>(data: D, message?: string): ErrorData<D> {
+  return new ErrorData(data, message);
+}
 
 /** Alias for the `errorData` constructor. */
 const of = errorData;
@@ -51,7 +53,9 @@ const of = errorData;
 //
 
 /** Typeguard for objects which are instances of `ErrorData`. */
-const isErrorData = <D = unknown>(x: unknown): x is ErrorData<D> => x instanceof ErrorData;
+function isErrorData<D = unknown>(x: unknown): x is ErrorData<D> {
+  return x instanceof ErrorData;
+}
 
 //
 // Conversions
@@ -67,5 +71,6 @@ function fromError<D>(e: Error, fn: (e: Error) => D): ErrorData<D> {
 //
 
 /** Copy an `ErrorData` object and apply `fn` to the `data` field. */
-const map = <A, B>(e: ErrorData<A>, fn: (data: A) => B): ErrorData<B> =>
-  new ErrorData(fn(e.data), e.message);
+function map<A, B>(e: ErrorData<A>, fn: (data: A) => B): ErrorData<B> {
+  return new ErrorData(fn(e.data), e.message);
+}

@@ -85,20 +85,25 @@ type CaseOfPattern<V, E extends Error, R> =
 //
 
 /** A constructor for the `Ok` variant of `Result`. */
-const ok = <V>(v: Ok<V>): Ok<V> => v;
+function ok<V>(v: Ok<V>): Ok<V> {
+  return v;
+}
 
 /**
  * A constructor for the `Err` variant of `Result`, creates a vanilla `Error`
  * object.
  */
-const err = (message?: string): Err<Error> => new Error(message);
+function err(message?: string): Err<Error> {
+  return new Error(message);
+}
 
 /**
  * A constructor for the `Err` variant of `Result`, creates an `ErrorData`
  * object.
  */
-const errData = <D>(errorData: D, message?: string): Err<ErrorData.T<D>> =>
-  ErrorData.of(errorData, message);
+function errData<D>(errorData: D, message?: string): Err<ErrorData.T<D>> {
+  return ErrorData.of(errorData, message);
+}
 
 /** Alias for the `ok` constructor. */
 const of = ok;
@@ -108,10 +113,14 @@ const of = ok;
 //
 
 /** Typeguard for the `Ok` variant of a `Result`. */
-const isOk = <V, E extends Error>(x: Result<V, E>): x is Ok<V> => !(x instanceof Error);
+function isOk<V, E extends Error>(x: Result<V, E>): x is Ok<V> {
+  return !(x instanceof Error);
+}
 
 /** Typeguard for the `Err` variant of a `Result`. */
-const isErr = <V, E extends Error>(x: Result<V, E>): x is Err<E> => x instanceof Error;
+function isErr<V, E extends Error>(x: Result<V, E>): x is Err<E> {
+  return x instanceof Error;
+}
 
 //
 // Conversions
@@ -142,8 +151,9 @@ const fromAsyncData = AsyncData.toResult;
  *     Ok<V>  -> Just<V>
  *     Err<E> -> Nothing
  */
-const toMaybe = <V, E extends Error>(x: Result<V, E>): Maybe.T<Ok<V>> =>
-  Maybe.fromPredicate(x, isOk);
+function toMaybe<V, E extends Error>(x: Result<V, E>): Maybe.T<Ok<V>> {
+  return Maybe.fromPredicate(x, isOk);
+}
 
 /**
  * Create a `AsyncData` from a `Result`. Since the `Result` type is a subset
@@ -152,8 +162,9 @@ const toMaybe = <V, E extends Error>(x: Result<V, E>): Maybe.T<Ok<V>> =>
  *     Ok<V>  -> Success<V>
  *     Err<E> -> Failure<E>
  */
-const toAsyncData = <V, E extends Error>(x: Result<V, E>): AsyncData.T<Ok<V>, Err<E>> =>
-  x as AsyncData.T<Ok<V>, Err<E>>;
+function toAsyncData<V, E extends Error>(x: Result<V, E>): AsyncData.T<Ok<V>, Err<E>> {
+  return x as AsyncData.T<Ok<V>, Err<E>>;
+}
 
 /** Apply `fn` if `a` is an `Ok`. Otherwise return the `Err`. */
 function map<A, B, E extends Error>(a: E, fn: (a: Ok<A>) => B): E;
@@ -201,17 +212,19 @@ function withDefault(x: unknown, defaultVal: unknown) {
  * Like a `case` in languages with pattern matching. Apply the `okFn` to an
  * `Ok` value and `errFn` to an `Err`.
  */
-const unwrap = <A, B, E extends Error>(
+function unwrap<A, B, E extends Error>(
   x: Result<A, E>,
   okFn: (a: Ok<A>) => B,
   errFn: (e: E) => B
-): B => (isErr(x) ? errFn(x) : okFn(x as Ok<A>));
+): B {
+  return isErr(x) ? errFn(x) : okFn(x as Ok<A>);
+}
 
 /**
  * Simulates an ML style `case x of` pattern match, following the same
  * logic as `unwrap`.
  */
-const caseOf = <A, E extends Error, R>(x: Result<A, E>, pattern: CaseOfPattern<A, E, R>): R => {
+function caseOf<A, E extends Error, R>(x: Result<A, E>, pattern: CaseOfPattern<A, E, R>): R {
   if (isOk(x) && pattern["Ok"]) {
     return pattern["Ok"](x);
   } else if (isErr(x) && pattern["Err"]) {
@@ -219,7 +232,7 @@ const caseOf = <A, E extends Error, R>(x: Result<A, E>, pattern: CaseOfPattern<A
   } else {
     return (pattern as any)["default"]();
   }
-};
+}
 
 /**
  * If all values in the `xs` array are `Ok`s then return the array. If
@@ -238,10 +251,10 @@ function combine(xs: ReadonlyArray<Result<unknown, Error>>) {
  * Create a version of a function which returns a `Result` instead of
  * throwing an error.
  */
-const encase = <Args extends Array<any>, V, E extends Error>(
+function encase<Args extends Array<any>, V, E extends Error>(
   fn: (...args: Args) => V,
   onThrow: (e: unknown) => E
-): ((...args: Args) => Result<V, E>) => {
+): (...args: Args) => Result<V, E> {
   return (...args: Args): Result<V, E> => {
     try {
       return fn(...args);
@@ -249,7 +262,7 @@ const encase = <Args extends Array<any>, V, E extends Error>(
       return onThrow(e);
     }
   };
-};
+}
 
 /**
  * Given a promise, return a promise which will always fulfill, catching
@@ -258,7 +271,9 @@ const encase = <Args extends Array<any>, V, E extends Error>(
  *    fulfilled Promise<V> -> fulfilled Promise<Ok<V>>
  *    rejected Promise<V>  -> fulfilled Promise<Err>
  */
-const encasePromise = <V, E extends Error>(
+function encasePromise<V, E extends Error>(
   p: Promise<Ok<V>>,
   onReject: (e: unknown) => E
-): Promise<Result<Ok<V>, Err<E>>> => p.catch((e: unknown) => onReject(e));
+): Promise<Result<Ok<V>, Err<E>>> {
+  return p.catch((e: unknown) => onReject(e));
+}

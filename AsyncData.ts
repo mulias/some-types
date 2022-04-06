@@ -124,20 +124,25 @@ const notAsked: NotAsked = Symbol("NotAsked") as NotAsked;
 const loading: Loading = Symbol("Loading") as Loading;
 
 /** A constructor for the `Success` variant of `AsyncData`. */
-const success = <D>(d: Success<D>): Success<D> => d;
+function success<D>(d: Success<D>): Success<D> {
+  return d;
+}
 
 /**
  * A constructor for the `Failure` variant of `AsyncData`, creates a vanilla
  * `Error` object.
  */
-const failure = (message?: string): Failure<Error> => new Error(message);
+function failure(message?: string): Failure<Error> {
+  return new Error(message);
+}
 
 /**
  * A constructor for the `Failure` variant of `AsyncData`, creates an
  * `ErrorData` object.
  */
-const failureData = <D>(errorData: D, message?: string): Failure<ErrorData.T<D>> =>
-  ErrorData.of(errorData, message);
+function failureData<D>(errorData: D, message?: string): Failure<ErrorData.T<D>> {
+  return ErrorData.of(errorData, message);
+}
 
 /** Alias for the `success` constructor. */
 const of = success;
@@ -147,21 +152,29 @@ const of = success;
 //
 
 /** Typeguard for the `NotAsked` variant of a `AsyncData`. */
-const isNotAsked = (x: unknown): x is NotAsked => x === notAsked;
+function isNotAsked(x: unknown): x is NotAsked {
+  return x === notAsked;
+}
 
 /** Typeguard for the `Loading` variant of a `AsyncData`. */
-const isLoading = (x: unknown): x is Loading => x === loading;
+function isLoading(x: unknown): x is Loading {
+  return x === loading;
+}
 
 /** Typeguard for the `Failure` variant of a `AsyncData`. */
-const isFailure = <D, E extends Error>(x: AsyncData<D, E>): x is Failure<E> => x instanceof Error;
+function isFailure<D, E extends Error>(x: AsyncData<D, E>): x is Failure<E> {
+  return x instanceof Error;
+}
 
 /** Typeguard for the `Success` variant of a `AsyncData`. */
-const isSuccess = <D, E extends Error>(x: AsyncData<D, E>): x is Success<D> =>
-  !isNotAsked(x) && !isLoading(x) && !isFailure(x);
+function isSuccess<D, E extends Error>(x: AsyncData<D, E>): x is Success<D> {
+  return !isNotAsked(x) && !isLoading(x) && !isFailure(x);
+}
 
 /** Typeguard for the `Success` or `Failure` variants of a `AsyncData`. */
-const isCompleted = <D, E extends Error>(x: AsyncData<D, E>): x is Success<D> | Failure<E> =>
-  !isNotAsked(x) && !isLoading(x);
+function isCompleted<D, E extends Error>(x: AsyncData<D, E>): x is Success<D> | Failure<E> {
+  return !isNotAsked(x) && !isLoading(x);
+}
 
 //
 // Conversions
@@ -193,8 +206,9 @@ const fromResult = Result.toAsyncData;
  *     Success<V>       -> Just<V>
  *     Err<E>           -> Nothing
  */
-const toMaybe = <D, E extends Error>(x: AsyncData<D, E>): Maybe.T<Success<D>> =>
-  isSuccess(x) ? x : Maybe.nothing;
+function toMaybe<D, E extends Error>(x: AsyncData<D, E>): Maybe.T<Success<D>> {
+  return isSuccess(x) ? x : Maybe.nothing;
+}
 
 /**
  * Create a `Result` from an `AsyncData`, where the incomplete statuses map to
@@ -205,8 +219,9 @@ const toMaybe = <D, E extends Error>(x: AsyncData<D, E>): Maybe.T<Success<D>> =>
  *     Success<V> -> Ok<V>
  *     Failure<E> -> Err<E>
  */
-const toResult = <D, E extends Error>(x: AsyncData<D, E>): Result.T<Maybe.T<D>, E> =>
-  isCompleted(x) ? x : Maybe.nothing;
+function toResult<D, E extends Error>(x: AsyncData<D, E>): Result.T<Maybe.T<D>, E> {
+  return isCompleted(x) ? x : Maybe.nothing;
+}
 
 //
 // Operations
@@ -250,13 +265,13 @@ function mapFailure<A, B, E extends Error>(a: AsyncData<A, E>, fn: (e: E) => B) 
  * Like a `case` in languages with pattern matching. Apply the appropriate function
  * depending on the data's status.
  */
-const unwrap = <A, B, E extends Error>(
+function unwrap<A, B, E extends Error>(
   x: AsyncData<A, E>,
   notAskedFn: () => B,
   loadingFn: () => B,
   successFn: (a: A) => B,
   failureFn: (e: E) => B
-): B => {
+): B {
   if (isSuccess(x)) {
     return successFn(x);
   } else if (isFailure(x)) {
@@ -266,13 +281,13 @@ const unwrap = <A, B, E extends Error>(
   } else {
     return loadingFn();
   }
-};
+}
 
 /**
  * Simulates an ML style `case x of` pattern match, following the same logic as
  * `unwrap`.
  */
-const caseOf = <A, E extends Error, R>(x: AsyncData<A, E>, pattern: CaseOfPattern<A, E, R>): R => {
+function caseOf<A, E extends Error, R>(x: AsyncData<A, E>, pattern: CaseOfPattern<A, E, R>): R {
   if (isNotAsked(x) && pattern["NotAsked"]) {
     return pattern["NotAsked"]();
   } else if (isLoading(x) && pattern["Loading"]) {
@@ -285,7 +300,7 @@ const caseOf = <A, E extends Error, R>(x: AsyncData<A, E>, pattern: CaseOfPatter
     // if we reach this point then the default must exist
     return (pattern as any)["default"]();
   }
-};
+}
 
 /**
  * If all values in the `xs` array are `Success`es then return the array. Otherwise
@@ -304,18 +319,18 @@ function combine(xs: ReadonlyArray<AsyncData<unknown, Error>>) {
  * Create a version of a function which returns a `Success` or `Failure`
  * instead of throwing an error.
  */
-const encase =
-  <Args extends Array<any>, V, E extends Error>(
-    fn: (...args: Args) => V,
-    onThrow: (e: unknown) => E
-  ): ((...args: Args) => AsyncData<V, E>) =>
-  (...args: Args) => {
+function encase<Args extends Array<any>, V, E extends Error>(
+  fn: (...args: Args) => V,
+  onThrow: (e: unknown) => E
+): (...args: Args) => AsyncData<V, E> {
+  return (...args: Args) => {
     try {
       return fn(...args);
     } catch (e) {
       return onThrow(e);
     }
   };
+}
 
 /**
  * Given a promise, return a promise which will always fulfill, catching
@@ -324,7 +339,9 @@ const encase =
  *    fulfilled Promise<V> -> fulfilled Promise<Success<V>>
  *    rejected Promise<V>  -> fulfilled Promise<Failure<E>>
  */
-const encasePromise = <V, E extends Error>(
+function encasePromise<V, E extends Error>(
   p: Promise<Success<V>>,
   onReject: (e: unknown) => E
-): Promise<AsyncData<Success<V>, E>> => p.catch((e: unknown) => onReject(e));
+): Promise<AsyncData<Success<V>, E>> {
+  return p.catch((e: unknown) => onReject(e));
+}

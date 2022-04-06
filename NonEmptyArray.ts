@@ -38,7 +38,9 @@ type T<A> = NonEmptyArray<A>;
 //
 
 /** Create a NonEmptyArray with a `first` value and an optional `rest` array. */
-const nonEmptyArray = <A>(first: A, rest: A[] = []): NonEmptyArray<A> => [first, ...rest];
+function nonEmptyArray<A>(first: A, rest: A[] = []): NonEmptyArray<A> {
+  return [first, ...rest];
+}
 
 /** Alias for the `nonEmptyArray` constructor. */
 const of = nonEmptyArray;
@@ -73,26 +75,38 @@ function fromArray(a: readonly any[]) {
 //
 
 /** Get the first element in a `NonEmptyArray`. */
-const head = <A>([h]: NonEmptyArray<A>): A => h;
+function head<A>([h]: NonEmptyArray<A>): A {
+  return h;
+}
 
 /** Return a new, possibly empty, Array with all but the first element. */
-const tail = <A>([_h, ...t]: NonEmptyArray<A>): readonly A[] => t;
+function tail<A>([_h, ...t]: NonEmptyArray<A>): readonly A[] {
+  return t;
+}
 
 /** Get the last element in a `NonEmptyArray`. */
-const last = <A>(a: NonEmptyArray<A>): A => a[a.length - 1] as A;
+function last<A>(a: NonEmptyArray<A>): A {
+  return a[a.length - 1] as A;
+}
 
 /** Return a new, possibly empty, Array with all but the last element. */
-const front = <A>(a: NonEmptyArray<A>): readonly A[] => a.slice(0, a.length - 1);
+function front<A>(a: NonEmptyArray<A>): readonly A[] {
+  return a.slice(0, a.length - 1);
+}
 
 /**
  * Apply `fn` to each element in the `NonEmptyArray`. Unlike
  * `Array.prototype.map`, this function preserves the `NonEmptyArray` type,
  * instead of returning an `Array`.
  */
-const map = <A, B>(
+function map<A, B>(
   a: NonEmptyArray<A>,
   fn: (a: A, index?: number, array?: NonEmptyArray<A>) => B
-): NonEmptyArray<B> => a.map(fn as any) as any;
+): NonEmptyArray<B> {
+  return a.map(fn as any) as any;
+}
 
 /** Reverse the order of a `NonEmptyArray`, returning a shallow copy. */
-const reverse = <A>(a: NonEmptyArray<A>): NonEmptyArray<A> => ([...a] as any).reverse();
+function reverse<A>(a: NonEmptyArray<A>): NonEmptyArray<A> {
+  return [...a].reverse() as any;
+}

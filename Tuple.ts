@@ -83,13 +83,19 @@ function tuple<Args extends Tuple<any, any, any>>(...args: Args) {
 const empty: Empty = [] as const;
 
 /** A constructor for the `Single` tuple, which has one element. */
-const single = <A>(a: A): Single<A> => [a];
+function single<A>(a: A): Single<A> {
+  return [a];
+}
 
 /** A constructor for the `Pair` tuple, which has two elements. */
-const pair = <A, B>(a: A, b: B): Pair<A, B> => [a, b];
+function pair<A, B>(a: A, b: B): Pair<A, B> {
+  return [a, b];
+}
 
 /** A constructor for the `Triple` tuple, which has three elements. */
-const triple = <A, B, C>(a: A, b: B, c: C): Triple<A, B, C> => [a, b, c];
+function triple<A, B, C>(a: A, b: B, c: C): Triple<A, B, C> {
+  return [a, b, c];
+}
 
 /** Alias for the `tuple` constructor. */
 const of = tuple;
@@ -166,16 +172,24 @@ function fromArray(a: readonly any[], length?: number) {
 //
 
 /** Get the first element from a 1/2/3-tuple. */
-const first = <A>(t: Single<A> | Pair<A, any> | Triple<A, any, any>): A => t[0];
+function first<A>(t: Single<A> | Pair<A, any> | Triple<A, any, any>): A {
+  return t[0];
+}
 
 /** Get the second element from a 2/3-tuple. */
-const second = <B>(t: Pair<any, B> | Triple<any, B, any>): B => t[1];
+function second<B>(t: Pair<any, B> | Triple<any, B, any>): B {
+  return t[1];
+}
 
 /** Get the third element from a 3-tuple. */
-const third = <C>(t: Triple<any, any, C>): C => t[2];
+function third<C>(t: Triple<any, any, C>): C {
+  return t[2];
+}
 
+/** Get the first element from a 1/2/3-tuple. */
 const head = first;
 
+/** Create a tuple with all the elements of `t` except the first one. */
 function tail(t: Single<any>): Empty;
 function tail<B>(t: Pair<any, B>): Single<B>;
 function tail<B, C>(t: Triple<any, B, C>): Pair<B, C>;
@@ -183,8 +197,12 @@ function tail([_h, ...t]: ReadonlyArray<any>): ReadonlyArray<any> {
   return t;
 }
 
-const last = <A>(t: Single<A> | Pair<any, A> | Triple<any, any, A>): A => t[t.length - 1];
+/** Get the last element from a 1/2/3-tuple. */
+function last<A>(t: Single<A> | Pair<any, A> | Triple<any, any, A>): A {
+  return t[t.length - 1];
+}
 
+/** Create a tuple with all the elements of `t` except the last one. */
 function front(t: Single<any>): Empty;
 function front<A>(t: Pair<A, any>): Single<A>;
 function front<A, B>(t: Triple<A, B, any>): Pair<A, B>;
@@ -248,8 +266,8 @@ function mapThird<A, B, C, R>([a, b, c]: Triple<A, B, C>, fn: (c: C) => R): Trip
 /** Reverse the order of a `Tuple`, returning a shallow copy. */
 function reverse(t: Empty): Empty;
 function reverse<A>(t: Single<A>): Single<A>;
-function reverse<A, B>(t: Pair<A, B>): Pair<A, B>;
-function reverse<A, B, C>(t: Triple<A, B, C>): Triple<A, B, C>;
+function reverse<A, B>(t: Pair<A, B>): Pair<B, A>;
+function reverse<A, B, C>(t: Triple<A, B, C>): Triple<C, B, A>;
 function reverse<Tup extends any[]>(t: Tup) {
   return [...t].reverse() as any;
 }

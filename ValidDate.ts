@@ -48,14 +48,18 @@ function validDate(a: DateString.T | ValidDate | string | number | Date) {
 const of = validDate;
 
 /** Get the current time, which we know is a `ValidDate`. */
-const now = () => new Date() as ValidDate;
+function now() {
+  return new Date() as ValidDate;
+}
 
 //
 // Typeguards
 //
 
 /** Typeguard for `Date` objects that are valid dates. */
-const isValidDate = (d: unknown): d is ValidDate => d instanceof Date && !isNaN(d.getTime());
+function isValidDate(d: unknown): d is ValidDate {
+  return d instanceof Date && !isNaN(d.getTime());
+}
 
 //
 // Conversion
