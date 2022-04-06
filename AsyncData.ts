@@ -1,7 +1,6 @@
 import * as Maybe from "./Maybe";
 import * as Result from "./Result";
 import * as ErrorData from "./ErrorData";
-import { Opaque } from "./Opaque";
 
 export {
   // Types
@@ -61,16 +60,14 @@ type T<D, E extends Error> = AsyncData<D, E>;
  * initialized. Values of this type can be constructed with the `NotAsked`
  * constant.
  */
-type NotAsked = Opaque<symbol, IsNotAsked>;
-enum IsNotAsked {}
+type NotAsked = symbol & { readonly IsNotasked: unique symbol };
 
 /**
  * The `Loading` variant of a `AsyncData` represents data that is being
  * retrieved. Values of this type can be constructed with the `Loading`
  * constant.
  */
-type Loading = Opaque<symbol, IsLoading>;
-enum IsLoading {}
+type Loading = symbol & { readonly IsLoading: unique symbol };
 
 /**
  * The `Success` variant of a `AsyncData` is an alias for retrieved data of
