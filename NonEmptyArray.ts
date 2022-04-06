@@ -17,7 +17,9 @@ export {
   last,
   front,
   map,
-  reverse
+  reverse,
+  concat,
+  sort
 };
 
 //
@@ -109,4 +111,16 @@ function map<A, B>(
 /** Reverse the order of a `NonEmptyArray`, returning a shallow copy. */
 function reverse<A>(a: NonEmptyArray<A>): NonEmptyArray<A> {
   return [...a].reverse() as any;
+}
+
+/** Concat two arrays, one of which must be a `NonEmptyArray`. */
+function concat<A>(a1: NonEmptyArray<A>, a2: ReadonlyArray<A>): NonEmptyArray<A>;
+function concat<A>(a1: ReadonlyArray<A>, a2: NonEmptyArray<A>): NonEmptyArray<A>;
+function concat<A>(a1: ReadonlyArray<A>, a2: ReadonlyArray<A>): NonEmptyArray<A> {
+  return [...a1, ...a2] as any;
+}
+
+/** Sort a `NonEmptyArray`, returning a shallow copy. */
+function sort<A>(a: NonEmptyArray<A>): NonEmptyArray<A> {
+  return [...a].sort() as any;
 }
