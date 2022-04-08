@@ -1,6 +1,6 @@
 import * as Maybe from "./Maybe";
 import * as AsyncData from "./AsyncData";
-import * as ErrorData from "./ErrorData";
+import * as DataError from "./DataError";
 
 export {
   // Types
@@ -55,8 +55,8 @@ type Ok<V> = Exclude<V, Error>;
 /**
  * The `Err` variant of a `Result` is any object which inherits from the default
  * JS `Error` built-in. Values of this type can be created like any normal
- * error object. The provided constructor `Err` creates a vanilla `Error` object,
- * while `ErrData` creates an `ErrorData<D>` object which inherits from `Error`
+ * error object. The provided constructor `err` creates a vanilla `Error` object,
+ * while `errData` creates a `DataError<D>` object which inherits from `Error`
  * but has an additional `data` field containing error data of type `D`.
  */
 type Err<E extends Error> = E;
@@ -98,11 +98,11 @@ function err(message?: string): Err<Error> {
 }
 
 /**
- * A constructor for the `Err` variant of `Result`, creates an `ErrorData`
+ * A constructor for the `Err` variant of `Result`, creates a `DataError`
  * object.
  */
-function errData<D>(errorData: D, message?: string): Err<ErrorData.T<D>> {
-  return ErrorData.of(errorData, message);
+function errData<D>(data: D, message?: string): Err<DataError.T<D>> {
+  return DataError.of(data, message);
 }
 
 /** Alias for the `ok` constructor. */

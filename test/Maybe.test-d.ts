@@ -1,7 +1,7 @@
 import { expectType, expectAssignable, expectNotAssignable, expectError } from "tsd";
 import * as Result from "../Result";
 import * as AsyncData from "../AsyncData";
-import * as ErrorData from "../ErrorData";
+import * as DataError from "../DataError";
 import {
   Maybe,
   Just,
@@ -113,7 +113,7 @@ const testToNullable = () => {
 };
 
 const testToResult = () => {
-  expectType<Result.T<null, ErrorData.T<string>>>(toResult(just(null), Result.errData("nothin")));
+  expectType<Result.T<null, DataError.T<string>>>(toResult(just(null), Result.errData("nothin")));
   expectType<Result.T<number, Error>>(toResult(just(12 as number), Result.err()));
   expectType<Result.T<string, Error>>(toResult(nothing as Maybe<string>, Result.err()));
   expectType<Result.T<never, Error>>(toResult(nothing, Result.err()));

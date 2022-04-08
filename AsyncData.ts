@@ -1,6 +1,6 @@
 import * as Maybe from "./Maybe";
 import * as Result from "./Result";
-import * as ErrorData from "./ErrorData";
+import * as DataError from "./DataError";
 
 export {
   // Types
@@ -81,7 +81,7 @@ type Success<D> = Exclude<D, NotAsked | Loading | Error>;
  * could not be retrieved. It can be any error object which inherits from the
  * default JS `Error` built-in. Values of this type can be created like any
  * normal error object. The provided constructor `Failure` creates a vanilla
- * `Error` object, while `FailureData` creates an `ErrorData<D>` object which
+ * `Error` object, while `FailureData` creates a `DataError<D>` object which
  * inherits from `Error` but has an additional `data` field containing error
  * data of type `D`.
  */
@@ -134,11 +134,11 @@ function failure(message?: string): Failure<Error> {
 }
 
 /**
- * A constructor for the `Failure` variant of `AsyncData`, creates an
- * `ErrorData` object.
+ * A constructor for the `Failure` variant of `AsyncData`, creates a
+ * `DataError` object.
  */
-function failureData<D>(errorData: D, message?: string): Failure<ErrorData.T<D>> {
-  return ErrorData.of(errorData, message);
+function failureData<D>(data: D, message?: string): Failure<DataError.T<D>> {
+  return DataError.of(data, message);
 }
 
 /** Alias for the `success` constructor. */

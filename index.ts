@@ -4,7 +4,7 @@ export * as Result from "./Result";
 export * as AsyncData from "./AsyncData";
 
 /** Error object used to augment Result and AsyncData */
-export * as ErrorData from "./ErrorData";
+export * as DataError from "./DataError";
 
 /** Precise date types */
 export * as ValidDate from "./ValidDate";

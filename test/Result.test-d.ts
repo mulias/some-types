@@ -1,5 +1,5 @@
 import { expectType, expectAssignable, expectNotAssignable, expectError } from "tsd";
-import * as ErrorData from "../ErrorData";
+import * as DataError from "../DataError";
 import * as Maybe from "../Maybe";
 import * as AsyncData from "../AsyncData";
 import {
@@ -25,10 +25,10 @@ import {
 
 const testResult = () => {
   let x: any;
-  expectType<Result<string, ErrorData.T<number>>>(x as string | ErrorData.T<number>);
-  expectType<Result<44, ErrorData.T<"error">>>(x as 44 | ErrorData.T<"error">);
+  expectType<Result<string, DataError.T<number>>>(x as string | DataError.T<number>);
+  expectType<Result<44, DataError.T<"error">>>(x as 44 | DataError.T<"error">);
   expectAssignable<Result<boolean, never>>(x as boolean);
-  expectAssignable<Result<boolean, ErrorData.T<{ foo: 0 }>>>(x as boolean);
+  expectAssignable<Result<boolean, DataError.T<{ foo: 0 }>>>(x as boolean);
   expectAssignable<Result<{ foo: 1 }, Error>>(x as Error);
   expectNotAssignable<Result<number, Error>>(x as string);
 };
@@ -50,22 +50,22 @@ const testErr = () => {
 };
 
 const testErrData = () => {
-  expectType<Err<ErrorData.T<5>>>(errData(5));
-  expectType<Err<ErrorData.T<number>>>(errData<number>(5));
-  expectAssignable<Err<ErrorData.T<number>>>(errData(5));
-  expectType<ErrorData.T<null>>(errData(null));
-  expectType<ErrorData.T<undefined>>(errData(undefined));
-  expectType<ErrorData.T<any>>(errData(0 as any));
-  expectType<ErrorData.T<unknown>>(errData(0 as unknown));
-  expectType<ErrorData.T<never>>(errData(0 as never));
+  expectType<Err<DataError.T<5>>>(errData(5));
+  expectType<Err<DataError.T<number>>>(errData<number>(5));
+  expectAssignable<Err<DataError.T<number>>>(errData(5));
+  expectType<DataError.T<null>>(errData(null));
+  expectType<DataError.T<undefined>>(errData(undefined));
+  expectType<DataError.T<any>>(errData(0 as any));
+  expectType<DataError.T<unknown>>(errData(0 as unknown));
+  expectType<DataError.T<never>>(errData(0 as never));
 };
 
 const testIsOk = () => {
-  const x = errData(1) as Result<string, ErrorData.T<number>>;
+  const x = errData(1) as Result<string, DataError.T<number>>;
   if (isOk(x)) {
     expectType<string>(x);
   } else {
-    expectType<Err<ErrorData.T<number>>>(x);
+    expectType<Err<DataError.T<number>>>(x);
   }
 };
 
@@ -89,24 +89,24 @@ const testMap = () => {
   expectType<Result<number, Error>>(map(0 as Result<number, Error>, fnA));
 
   const fnB = (x: number) => errData("I don't like numbers");
-  expectType<ErrorData.T<string>>(map(0, fnB));
+  expectType<DataError.T<string>>(map(0, fnB));
   expectType<Error>(map(err(), fnB));
-  expectAssignable<ErrorData.T<number | string>>(
-    map(0 as Result<number, ErrorData.T<number>>, fnB)
+  expectAssignable<DataError.T<number | string>>(
+    map(0 as Result<number, DataError.T<number>>, fnB)
   );
 
   const fnC = (x: number) => (x === 72 ? errData("I don't like that number") : x);
-  expectAssignable<Result<number, ErrorData.T<number | string>>>(
-    map(0 as Result<number, ErrorData.T<number>>, fnC)
+  expectAssignable<Result<number, DataError.T<number | string>>>(
+    map(0 as Result<number, DataError.T<number>>, fnC)
   );
 };
 
 const testMapErr = () => {
   const fnA = (e: Error) => errData(e.message);
-  expectType<ErrorData.T<string>>(mapErr(err("foo"), fnA));
-  expectType<Result<string, ErrorData.T<string>>>(mapErr(err("foo") as Result<string, Error>, fnA));
+  expectType<DataError.T<string>>(mapErr(err("foo"), fnA));
+  expectType<Result<string, DataError.T<string>>>(mapErr(err("foo") as Result<string, Error>, fnA));
   expectType<"bar">(mapErr("bar", fnA));
-  expectType<Result<string, ErrorData.T<string>>>(mapErr("bar" as Result<string, Error>, fnA));
+  expectType<Result<string, DataError.T<string>>>(mapErr("bar" as Result<string, Error>, fnA));
 };
 
 const testWithDefault = () => {
@@ -117,13 +117,13 @@ const testWithDefault = () => {
   expectType<number>(withDefault(3 as Result<number, Error>, 0));
   expectType<number | "oops">(withDefault(err() as Result<number, Error>, "oops"));
   // default error type overrides value error type
-  expectType<Result<number, ErrorData.T<true>>>(
-    withDefault(4 as Result<number, ErrorData.T<string>>, errData(true))
+  expectType<Result<number, DataError.T<true>>>(
+    withDefault(4 as Result<number, DataError.T<string>>, errData(true))
   );
-  expectType<Result<string | number, ErrorData.T<boolean>>>(
+  expectType<Result<string | number, DataError.T<boolean>>>(
     withDefault(
-      4 as Result<number, ErrorData.T<string>>,
-      errData(true) as Result<string, ErrorData.T<boolean>>
+      4 as Result<number, DataError.T<string>>,
+      errData(true) as Result<string, DataError.T<boolean>>
     )
   );
 };
@@ -154,9 +154,9 @@ async function testEncasePromise() {
   expectType<Promise<Result<boolean, Error>>>(encasePromise(willReject, handleErr));
   expectType<Result<boolean, Error>>(await encasePromise(willReject, handleErr));
 
-  expectType<Promise<Result<boolean, ErrorData.T<string>>>>(
+  expectType<Promise<Result<boolean, DataError.T<string>>>>(
     encasePromise(willReject, handleErrData)
   );
-  expectType<Result<boolean, ErrorData.T<string>>>(await encasePromise(willReject, handleErrData));
-  expectType<Promise<Result<boolean, ErrorData.T<unknown>>>>(encasePromise(willReject, errData));
+  expectType<Result<boolean, DataError.T<string>>>(await encasePromise(willReject, handleErrData));
+  expectType<Promise<Result<boolean, DataError.T<unknown>>>>(encasePromise(willReject, errData));
 }
