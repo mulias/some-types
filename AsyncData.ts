@@ -225,10 +225,10 @@ function toResult<D, E extends Error>(x: AsyncData<D, E>): Result.T<Maybe.T<D>, 
 //
 
 /** Apply `fn` if `a` is a `Success`. Otherwise return the non-success value. */
-function map<A, B, E extends Error>(a: E, fn: (a: Success<A>) => B): E;
-function map<A, B, E extends Error>(a: NotAsked, fn: (a: Success<A>) => B): NotAsked;
-function map<A, B, E extends Error>(a: Loading, fn: (a: Success<A>) => B): Loading;
-function map<A, B, E extends Error>(a: Success<A>, fn: (a: Success<A>) => B): B;
+function map<E extends Error>(a: E, fn: (a: any) => any): E;
+function map(a: NotAsked, fn: (a: any) => any): NotAsked;
+function map(a: Loading, fn: (a: any) => any): Loading;
+function map<A, B>(a: Success<A>, fn: (a: Success<A>) => B): B;
 function map<A, B, E extends Error>(
   a: AsyncData<Success<A>, E>,
   fn: (a: Success<A>) => Success<B>
