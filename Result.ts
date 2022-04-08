@@ -152,7 +152,7 @@ const fromAsyncData = AsyncData.toResult;
  *     Err<E> -> Nothing
  */
 function toMaybe<V, E extends Error>(x: Result<V, E>): Maybe.T<Ok<V>> {
-  return Maybe.fromPredicate(x, isOk);
+  return isOk(x) ? x : undefined;
 }
 
 /**
@@ -244,7 +244,7 @@ function combine<T extends ReadonlyArray<any>, E extends Error>(
 function combine<A, E extends Error>(xs: ReadonlyArray<Result<A, E>>): Result<A[], E>;
 function combine(xs: ReadonlyArray<Result<unknown, Error>>) {
   const firstErr = xs.find(isErr);
-  return Maybe.isJust(firstErr) ? firstErr : xs.filter(isOk);
+  return firstErr !== undefined ? firstErr : xs.filter(isOk);
 }
 
 /**

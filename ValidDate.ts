@@ -70,7 +70,7 @@ function isValidDate(d: unknown): d is ValidDate {
 function fromDate(d: ValidDate): ValidDate;
 function fromDate(d: Date): Maybe.T<ValidDate>;
 function fromDate(d: Date) {
-  return Maybe.fromPredicate(d, isValidDate);
+  return isValidDate(d) ? d : undefined;
 }
 
 //

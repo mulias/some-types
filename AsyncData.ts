@@ -204,7 +204,7 @@ const fromResult = Result.toAsyncData;
  *     Err<E>           -> Nothing
  */
 function toMaybe<D, E extends Error>(x: AsyncData<D, E>): Maybe.T<Success<D>> {
-  return isSuccess(x) ? x : Maybe.nothing;
+  return isSuccess(x) ? x : undefined;
 }
 
 /**
@@ -217,7 +217,7 @@ function toMaybe<D, E extends Error>(x: AsyncData<D, E>): Maybe.T<Success<D>> {
  *     Failure<E> -> Err<E>
  */
 function toResult<D, E extends Error>(x: AsyncData<D, E>): Result.T<Maybe.T<D>, E> {
-  return isCompleted(x) ? x : Maybe.nothing;
+  return isCompleted(x) ? x : undefined;
 }
 
 //
@@ -309,7 +309,7 @@ function combine<T extends ReadonlyArray<any>, E extends Error>(
 function combine<A, E extends Error>(xs: ReadonlyArray<AsyncData<A, E>>): AsyncData<A[], E>;
 function combine(xs: ReadonlyArray<AsyncData<unknown, Error>>) {
   const firstNonSuccess = xs.find((x) => !isSuccess(x));
-  return Maybe.isNothing(firstNonSuccess) ? xs.filter(isSuccess) : firstNonSuccess;
+  return firstNonSuccess !== undefined ? firstNonSuccess : xs.filter(isSuccess);
 }
 
 /**

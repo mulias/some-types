@@ -331,7 +331,7 @@ function unzip<A, B, C>(zipped: ReadonlyArray<Triple<A, B, C>>): Triple<A[], B[]
 function unzip<Tup extends Single<any> | Pair<any, any> | Triple<any, any, any>>(
   tuples: ReadonlyArray<Tup>
 ) {
-  if (Maybe.isNothing(tuples[0])) {
+  if (tuples[0] === undefined) {
     return [];
   }
 

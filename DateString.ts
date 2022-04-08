@@ -165,7 +165,9 @@ function dateTimeString(
   } else {
     fields = getDateStringFields(new Date(d));
   }
-  return Maybe.fromPredicate(formatDateString(fields), isDateTimeString);
+
+  const formatted = formatDateString(fields);
+  return isDateTimeString(formatted) ? formatted : undefined;
 }
 
 /**
@@ -183,8 +185,15 @@ function dateOnlyString(d: DateString | ValidDate.T | string | number | Date | D
   } else {
     fields = getDateStringFields(new Date(d));
   }
-  const dateOnlyFields = { ...fields, hours: 0, minutes: 0, seconds: 0, milliseconds: 0 };
-  return Maybe.fromPredicate(formatDateString(dateOnlyFields), isDateOnlyString);
+
+  const formatted = formatDateString({
+    ...fields,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    milliseconds: 0
+  });
+  return isDateOnlyString(formatted) ? formatted : undefined;
 }
 
 /**
@@ -205,8 +214,15 @@ function dateMonthString(
     fields = getDateStringFields(new Date(d));
   }
 
-  const monthOnlyFields = { ...fields, date: 1, hours: 0, minutes: 0, seconds: 0, milliseconds: 0 };
-  return Maybe.fromPredicate(formatDateString(monthOnlyFields), isDateMonthString);
+  const formatted = formatDateString({
+    ...fields,
+    date: 1,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    milliseconds: 0
+  });
+  return isDateMonthString(formatted) ? formatted : undefined;
 }
 
 /** Alias for the `dateString` constructor. */
