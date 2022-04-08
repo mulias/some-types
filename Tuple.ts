@@ -274,8 +274,8 @@ function map(t: any, fn: any) {
 function mapFirst<A, R>(t: Single<A>, fn: (a: A) => R): Single<R>;
 function mapFirst<A, B, R>(t: Pair<A, B>, fn: (a: A) => R): Pair<R, B>;
 function mapFirst<A, B, C, R>(t: Triple<A, B, C>, fn: (a: A) => R): Triple<R, B, C>;
-function mapFirst<A, Tup extends Single<A> | Pair<A, any> | Triple<A, any, any>>(
-  [a, ...rest]: Tup,
+function mapFirst<A>(
+  [a, ...rest]: Single<A> | Pair<A, unknown> | Triple<A, unknown, unknown>,
   fn: (a: A) => any
 ) {
   return [fn(a), ...rest] as any;
@@ -287,8 +287,8 @@ function mapFirst<A, Tup extends Single<A> | Pair<A, any> | Triple<A, any, any>>
  */
 function mapSecond<A, B, R>(t: Pair<A, B>, fn: (b: B) => R): Pair<A, R>;
 function mapSecond<A, B, C, R>(t: Triple<A, B, C>, fn: (b: B) => R): Triple<A, R, C>;
-function mapSecond<B, Tup extends Pair<any, B> | Triple<any, B, any>>(
-  [a, b, ...rest]: Tup,
+function mapSecond<B>(
+  [a, b, ...rest]: Pair<unknown, B> | Triple<unknown, B, unknown>,
   fn: (b: B) => any
 ) {
   return [a, fn(b), ...rest] as any;
@@ -307,7 +307,7 @@ function reverse(t: Empty): Empty;
 function reverse<A>(t: Single<A>): Single<A>;
 function reverse<A, B>(t: Pair<A, B>): Pair<B, A>;
 function reverse<A, B, C>(t: Triple<A, B, C>): Triple<C, B, A>;
-function reverse<Tup extends any[]>(t: Tup) {
+function reverse(t: Tuple<unknown, unknown, unknown>) {
   return [...t].reverse() as any;
 }
 
@@ -367,8 +367,12 @@ function unzip<A, B, C>(
   zipped: NonEmptyArray.T<Triple<A, B, C>>
 ): Triple<NonEmptyArray.T<A>, NonEmptyArray.T<B>, NonEmptyArray.T<C>>;
 function unzip<A, B, C>(zipped: ReadonlyArray<Triple<A, B, C>>): Triple<A[], B[], C[]>;
-function unzip<Tup extends Single<any> | Pair<any, any> | Triple<any, any, any>>(
-  tuples: ReadonlyArray<Tup>
+function unzip(
+  tuples:
+    | ReadonlyArray<Empty>
+    | ReadonlyArray<Single<unknown>>
+    | ReadonlyArray<Pair<unknown, unknown>>
+    | ReadonlyArray<Triple<unknown, unknown, unknown>>
 ) {
   if (tuples[0] === undefined) {
     return [];
