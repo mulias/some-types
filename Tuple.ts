@@ -17,12 +17,17 @@ export {
   triple,
   of,
   // Typeguards
+  isTuple,
   isEmpty,
   isSingle,
   isPair,
   isTriple,
   // Conversions
   fromArray,
+  fromEmptyArray,
+  fromSingleArray,
+  fromPairArray,
+  fromTripleArray,
   // Operations
   first,
   second,
@@ -104,16 +109,20 @@ const of = tuple;
 // Typeguards
 //
 
+/** Typeguard for the `Tuple` type. */
+function isTuple<A, B, C>(arr: Tuple<A, B, C>): arr is Tuple<A, B, C>;
+function isTuple<A>(arr: readonly A[]): arr is Tuple<A, A, A>;
+function isTuple(arr: unknown): arr is Tuple<unknown, unknown, unknown>;
+function isTuple(arr: unknown) {
+  return Array.isArray(arr) && arr.length === 0;
+}
+
 /** Typeguard for the `Empty` tuple. */
-function isEmpty(arr: Empty): arr is Empty;
-function isEmpty<A>(arr: readonly A[]): arr is Empty;
-function isEmpty(arr: unknown): arr is Empty;
-function isEmpty(arr: unknown) {
+function isEmpty(arr: unknown): arr is Empty {
   return Array.isArray(arr) && arr.length === 0;
 }
 
 /** Typeguard for the `Single` tuple. */
-function isSingle<Tup extends Single<any>>(arr: Tup): arr is Tup;
 function isSingle<A>(arr: readonly A[]): arr is Single<A>;
 function isSingle(arr: unknown): arr is Single<unknown>;
 function isSingle(arr: unknown) {
@@ -121,7 +130,7 @@ function isSingle(arr: unknown) {
 }
 
 /** Typeguard for the `Pair` tuple. */
-function isPair<P extends Pair<any, any>>(arr: P): arr is P;
+function isPair<Tup extends Pair<any, any>>(arr: Tup): arr is Tup;
 function isPair<A>(arr: readonly A[]): arr is Pair<A, A>;
 function isPair(arr: unknown): arr is Pair<unknown, unknown>;
 function isPair(arr: unknown) {
@@ -142,29 +151,59 @@ function isTriple(arr: unknown) {
 
 /**
  * Return `a` as a `Tuple` if it's an array of length 3 or less, otherwise
- * return `Maybe.Nothing`. If the optional `length` argument is provided then
- * `a` is returned as a tuple of that specific length, or `Maybe.Nothing` if
- * it's any other length.
+ * return `Maybe.Nothing`.
  */
 function fromArray(a: Empty): Empty;
-function fromArray(a: Empty, length: 0): Empty;
-function fromArray(a: readonly any[], length: 0): Maybe.T<Empty>;
 function fromArray<A>(a: Single<A>): Single<A>;
-function fromArray<A>(a: Single<A>, length: 1): Single<A>;
-function fromArray<A>(a: readonly A[], length: 1): Maybe.T<Single<A>>;
 function fromArray<A, B>(a: Pair<A, B>): Pair<A, B>;
-function fromArray<A, B>(a: Pair<A, B>, length: 2): Pair<A, B>;
-function fromArray<A>(a: readonly A[], length: 2): Maybe.T<Pair<A, A>>;
 function fromArray<A, B, C>(a: Triple<A, B, C>): Triple<A, B, C>;
-function fromArray<A, B, C>(a: Triple<A, B, C>, length: 3): Triple<A, B, C>;
-function fromArray<A>(a: readonly A[], length: 3): Maybe.T<Triple<A, A, A>>;
+function fromArray<A, B, C, D>(a: readonly [A, B, C, ...D[]]): Maybe.T<Triple<A, B, C>>;
 function fromArray<A>(a: readonly A[]): Maybe.T<Tuple<A, A, A>>;
-function fromArray(a: readonly any[], length?: number) {
-  if (Maybe.isJust(length)) {
-    return a.length === length ? a : Maybe.nothing;
-  } else {
-    return a.length <= 3 ? a : Maybe.nothing;
-  }
+function fromArray(a: readonly unknown[]) {
+  return a.length <= 3 ? a : undefined;
+}
+
+/**
+ * Return `a` as `Empty` if it's an empty array, otherwise return
+ * `Maybe.Nothing`.
+ */
+function fromEmptyArray(a: Empty): Empty;
+function fromEmptyArray(a: readonly any[]): Maybe.T<Empty>;
+function fromEmptyArray(a: readonly unknown[]) {
+  return a.length === 0 ? a : undefined;
+}
+
+/**
+ * Return `a` as a `Single` if it's an array with one element, otherwise return
+ * `Maybe.Nothing`.
+ */
+function fromSingleArray<A>(a: Single<A>): Single<A>;
+function fromSingleArray<A, B>(a: readonly [A, ...B[]]): Maybe.T<Single<A>>;
+function fromSingleArray<A>(a: readonly A[]): Maybe.T<Single<A>>;
+function fromSingleArray(a: readonly unknown[]) {
+  return a.length === 1 ? a : undefined;
+}
+
+/**
+ * Return `a` as a `Pair` if it's an array with two elements, otherwise return
+ * `Maybe.Nothing`.
+ */
+function fromPairArray<A, B>(a: Pair<A, B>): Pair<A, B>;
+function fromPairArray<A, B, C>(a: readonly [A, B, ...C[]]): Maybe.T<Pair<A, B>>;
+function fromPairArray<A>(a: readonly A[]): Maybe.T<Pair<A, A>>;
+function fromPairArray(a: readonly unknown[]) {
+  return a.length === 2 ? a : undefined;
+}
+
+/**
+ * Return `a` as a `Triple` if it's an array with three elements, otherwise
+ * return `Maybe.Nothing`.
+ */
+function fromTripleArray<A, B, C>(a: Triple<A, B, C>): Triple<A, B, C>;
+function fromTripleArray<A, B, C, D>(a: readonly [A, B, C, ...D[]]): Maybe.T<Triple<A, B, C>>;
+function fromTripleArray<A>(a: readonly A[]): Maybe.T<Triple<A, A, A>>;
+function fromTripleArray(a: readonly unknown[]) {
+  return a.length === 3 ? a : undefined;
 }
 
 //
