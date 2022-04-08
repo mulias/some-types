@@ -253,15 +253,15 @@ function front(t: Single<any> | Pair<any, any> | Triple<any, any, any>) {
  * Apply `fn` to each element in the `Tuple`. Unlike `Array.prototype.map`,
  * this function preserves the tuple length, instead of returning an `Array`.
  */
-function map(t: Empty, fn: (value: never, index?: never, tup?: Empty) => Empty): Empty;
-function map<A, D>(t: Single<A>, fn: (value: A, index?: 1, tup?: Single<A>) => D): Single<D>;
+function map(t: Empty, fn: (value: never, index: never, tup: Empty) => any): Empty;
+function map<A, D>(t: Single<A>, fn: (value: A, index: 0, tup: Single<A>) => D): Single<D>;
 function map<A, B, D>(
   t: Pair<A, B>,
-  fn: (value: A | B, index?: 1 | 2, tup?: Pair<A, B>) => D
+  fn: (value: A | B, index: 0 | 1, tup: Pair<A, B>) => D
 ): Pair<D, D>;
 function map<A, B, C, D>(
   t: Triple<A, B, C>,
-  fn: (value: A | B | C, index?: 1 | 2 | 3, tup?: Triple<A, B, C>) => D
+  fn: (value: A | B | C, index: 0 | 1 | 2, tup: Triple<A, B, C>) => D
 ): Triple<D, D, D>;
 function map(t: any, fn: any) {
   return t.map(fn);
