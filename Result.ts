@@ -29,7 +29,8 @@ export {
   caseOf,
   combine,
   encase,
-  encasePromise
+  encasePromise,
+  assertOk
 };
 
 //
@@ -276,4 +277,18 @@ function encasePromise<V, E extends Error>(
   onReject: (e: unknown) => E
 ): Promise<Result<Ok<V>, Err<E>>> {
   return p.catch((e: unknown) => onReject(e));
+}
+
+/**
+ * Retrieve the non-`Err` value from a `Result`, or throw the `Err` as an
+ * exception.
+ */
+function assertOk(x: Error): void;
+function assertOk<V, E extends Error>(x: Result<Ok<V>, E>): Ok<V>;
+function assertOk(x: unknown) {
+  if (isOk(x)) {
+    return x;
+  } else {
+    throw x;
+  }
 }
