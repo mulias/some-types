@@ -272,6 +272,10 @@ function encase<Args extends Array<any>, R>(fn: (...args: Args) => R): (...args:
  *    fulfilled Promise<D> -> fulfilled Promise<Just<V>>
  *    rejected Promise<D>  -> fulfilled Promise<Nothing>
  */
-function encasePromise<A>(p: Promise<A>): Promise<Maybe<A>> {
-  return p.catch(() => nothing);
+async function encasePromise<A>(p: PromiseLike<A>): Promise<Maybe<A>> {
+  try {
+    return await p;
+  } catch {
+    return nothing;
+  }
 }

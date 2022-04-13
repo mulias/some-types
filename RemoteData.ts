@@ -336,9 +336,13 @@ function encase<Args extends Array<any>, V, E extends Error>(
  *    fulfilled Promise<V> -> fulfilled Promise<Success<V>>
  *    rejected Promise<V>  -> fulfilled Promise<Failure<E>>
  */
-function encasePromise<V, E extends Error>(
-  p: Promise<Success<V>>,
+async function encasePromise<V, E extends Error>(
+  p: PromiseLike<Success<V>>,
   onReject: (e: unknown) => E
 ): Promise<RemoteData<Success<V>, E>> {
-  return p.catch((e: unknown) => onReject(e));
+  try {
+    return await p;
+  } catch(e) {
+    return onReject(e)
+  }
 }
