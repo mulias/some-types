@@ -1,5 +1,5 @@
 import * as Result from "./Result";
-import * as AsyncData from "./AsyncData";
+import * as RemoteData from "./RemoteData";
 
 export {
   // Types
@@ -16,13 +16,13 @@ export {
   isNothing,
   // Conversions
   fromResult,
-  fromAsyncData,
+  fromRemoteData,
   fromNullable,
   fromPredicate,
   fromFalsy,
   toNullable,
   toResult,
-  toAsyncData,
+  toRemoteData,
   // Operations
   map,
   withDefault,
@@ -129,19 +129,19 @@ function isNothing<A>(x: Maybe<A>): x is Nothing {
 const fromResult = Result.toMaybe;
 
 /**
- * Create a `Maybe` from an `AsyncData` by mapping `Success` to
- * `Just` and everything else to `Nothing`.
+ * Create a `Maybe` from a `RemoteData` by mapping `Success` to `Just` and
+ * everything else to `Nothing`.
  *
  *     NotAsked   -> Nothing
  *     Loading    -> Nothing
  *     Success<V> -> Just<V>
  *     Err<E>     -> Nothing
  */
-const fromAsyncData = AsyncData.toMaybe;
+const fromRemoteData = RemoteData.toMaybe;
 
 /**
- * Given a value which might be null, return a `Maybe`. In other words, substitute null
- * with undefined.
+ * Given a value which might be null, return a `Maybe`. In other words,
+ * substitute null with undefined.
  *
  *     null      -> Nothing
  *     undefined -> Nothing
@@ -188,13 +188,13 @@ function toResult<V, E extends Error>(x: Maybe<V>, e: E): Result.T<Just<V>, E> {
 }
 
 /**
- * Create an `AsyncData` from a `Maybe` by returning either a `NotAsked` or `Success`
+ * Create a `RemoteData` from a `Maybe` by returning either a `NotAsked` or `Success`
  *
  *     Just<A> -> Success<A>
  *     Nothing -> NotAsked
  */
-function toAsyncData<V>(x: Maybe<V>): AsyncData.Success<Just<V>> | AsyncData.NotAsked {
-  return isNothing(x) ? AsyncData.notAsked : (x as AsyncData.Success<Just<V>>);
+function toRemoteData<V>(x: Maybe<V>): RemoteData.Success<Just<V>> | RemoteData.NotAsked {
+  return isNothing(x) ? RemoteData.notAsked : (x as RemoteData.Success<Just<V>>);
 }
 
 //

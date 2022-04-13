@@ -1,6 +1,6 @@
 import { expectType, expectAssignable, expectNotAssignable, expectError } from "tsd";
 import * as Result from "../Result";
-import * as AsyncData from "../AsyncData";
+import * as RemoteData from "../RemoteData";
 import * as DataError from "../DataError";
 import {
   Maybe,
@@ -12,13 +12,13 @@ import {
   isJust,
   isNothing,
   fromResult,
-  fromAsyncData,
+  fromRemoteData,
   fromNullable,
   fromPredicate,
   fromFalsy,
   toNullable,
   toResult,
-  toAsyncData,
+  toRemoteData,
   map,
   withDefault,
   unwrap,
@@ -121,14 +121,14 @@ const testToResult = () => {
   expectError(toResult<string, Error>(just(9), Result.err()));
 };
 
-const testToAsyncData = () => {
-  expectType<AsyncData.Success<null> | AsyncData.NotAsked>(toAsyncData(just(null)));
-  expectAssignable<AsyncData.T<null, Error>>(toAsyncData(just(null)));
-  expectType<AsyncData.Success<number> | AsyncData.NotAsked>(toAsyncData(just(12 as number)));
-  expectAssignable<AsyncData.T<number, never>>(toAsyncData(12 as Maybe<number>));
-  expectAssignable<AsyncData.T<string, Error>>(toAsyncData(nothing as Maybe<string>));
-  expectType<AsyncData.NotAsked>(toAsyncData(nothing));
-  expectAssignable<AsyncData.T<string, Error>>(toAsyncData<string>(nothing));
+const testToRemoteData = () => {
+  expectType<RemoteData.Success<null> | RemoteData.NotAsked>(toRemoteData(just(null)));
+  expectAssignable<RemoteData.T<null, Error>>(toRemoteData(just(null)));
+  expectType<RemoteData.Success<number> | RemoteData.NotAsked>(toRemoteData(just(12 as number)));
+  expectAssignable<RemoteData.T<number, never>>(toRemoteData(12 as Maybe<number>));
+  expectAssignable<RemoteData.T<string, Error>>(toRemoteData(nothing as Maybe<string>));
+  expectType<RemoteData.NotAsked>(toRemoteData(nothing));
+  expectAssignable<RemoteData.T<string, Error>>(toRemoteData<string>(nothing));
 };
 
 const testMap = () => {

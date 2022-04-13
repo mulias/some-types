@@ -1,7 +1,7 @@
 import { expectType, expectAssignable, expectNotAssignable, expectError } from "tsd";
 import * as DataError from "../DataError";
 import {
-  AsyncData,
+  RemoteData,
   NotAsked,
   Loading,
   Success,
@@ -29,7 +29,7 @@ import {
   combine,
   encase,
   encasePromise
-} from "../AsyncData";
+} from "../RemoteData";
 
 const testMap = () => {
   expectType<Error>(map(failure("woops"), (x) => x + 1));
@@ -38,18 +38,18 @@ const testMap = () => {
   expectType<NotAsked>(map(notAsked, (x) => x + 1));
   expectType<Loading>(map(loading, (x) => x + 1));
   expectType<number>(map(success(1), (x) => x + 1));
-  expectType<AsyncData<number, DataError.T<string>>>(
-    map(loading as AsyncData<number, DataError.T<string>>, (x) => x + 1)
+  expectType<RemoteData<number, DataError.T<string>>>(
+    map(loading as RemoteData<number, DataError.T<string>>, (x) => x + 1)
   );
-  expectType<AsyncData<string, DataError.T<string>>>(
-    map(loading as AsyncData<number, DataError.T<string>>, String)
+  expectType<RemoteData<string, DataError.T<string>>>(
+    map(loading as RemoteData<number, DataError.T<string>>, String)
   );
-  expectType<AsyncData<never, DataError.T<string> | DataError.T<number>>>(
-    map(loading as AsyncData<string, DataError.T<number>>, failureData)
+  expectType<RemoteData<never, DataError.T<string> | DataError.T<number>>>(
+    map(loading as RemoteData<string, DataError.T<number>>, failureData)
   );
-  expectType<AsyncData<boolean, DataError.T<string> | DataError.T<number>>>(
+  expectType<RemoteData<boolean, DataError.T<string> | DataError.T<number>>>(
     map(
-      loading as AsyncData<number, DataError.T<number>>,
+      loading as RemoteData<number, DataError.T<number>>,
       (x) => x as any as boolean | DataError.T<string>
     )
   );

@@ -1,9 +1,9 @@
 /** Communicating data state */
 export * as Maybe from "./Maybe";
 export * as Result from "./Result";
-export * as AsyncData from "./AsyncData";
+export * as RemoteData from "./RemoteData";
 
-/** Error object used to augment Result and AsyncData */
+/** Error object used to augment Result and RemoteData */
 export * as DataError from "./DataError";
 
 /** Precise date types */

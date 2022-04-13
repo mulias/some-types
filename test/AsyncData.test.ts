@@ -1,7 +1,7 @@
-import { notAsked, loading, success, failure, failureData, of } from "../AsyncData";
+import { notAsked, loading, success, failure, failureData, of } from "../RemoteData";
 
 describe("Constructors", () => {
-  it("should create AsyncData values", () => {
+  it("should create RemoteData values", () => {
     expect(typeof notAsked).toBe("symbol");
     expect(typeof loading).toBe("symbol");
     expect(notAsked).not.toEqual(loading);

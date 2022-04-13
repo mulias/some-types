@@ -1,7 +1,7 @@
 import { expectType, expectAssignable, expectNotAssignable, expectError } from "tsd";
 import * as DataError from "../DataError";
 import * as Maybe from "../Maybe";
-import * as AsyncData from "../AsyncData";
+import * as RemoteData from "../RemoteData";
 import {
   Result,
   Ok,
@@ -12,7 +12,7 @@ import {
   isOk,
   isErr,
   toMaybe,
-  toAsyncData,
+  toRemoteData,
   map,
   mapErr,
   withDefault,
@@ -80,7 +80,7 @@ const testIsErr = () => {
 
 const testToMaybe = () => {};
 
-const testToAsyncData = () => {};
+const testToRemoteData = () => {};
 
 const testMap = () => {
   const fnA = (x: number) => x + 1;

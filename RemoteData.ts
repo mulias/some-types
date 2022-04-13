@@ -4,7 +4,7 @@ import * as DataError from "./DataError";
 
 export {
   // Types
-  AsyncData,
+  RemoteData,
   NotAsked,
   Loading,
   Success,
@@ -43,41 +43,41 @@ export {
 //
 
 /**
- * `AsyncData` models the lifecycle of async requests, where data starts
+ * `RemoteData` models the lifecycle of async requests, where data starts
  * uninitialized, a request is made, and then either a successful or
  * unsuccessful response is received. These four stages correspond to the types
  * `NotAsked`, `Loading`, `Success`, and `Failure`. The `Success` type has data
  * of type `D`, while `Failure` can be any object which inherits from the
  * javascript `Error` object.
  */
-type AsyncData<D, E extends Error> = NotAsked | Loading | D | E;
+type RemoteData<D, E extends Error> = NotAsked | Loading | D | E;
 
-/** Alias for the `AsyncData` type. */
-type T<D, E extends Error> = AsyncData<D, E>;
+/** Alias for the `RemoteData` type. */
+type T<D, E extends Error> = RemoteData<D, E>;
 
 /**
- * The `NotAsked` variant of a `AsyncData` represents data that is not yet
+ * The `NotAsked` variant of a `RemoteData` represents data that is not yet
  * initialized. Values of this type can be constructed with the `NotAsked`
  * constant.
  */
 type NotAsked = symbol & { readonly IsNotasked: unique symbol };
 
 /**
- * The `Loading` variant of a `AsyncData` represents data that is being
+ * The `Loading` variant of a `RemoteData` represents data that is being
  * retrieved. Values of this type can be constructed with the `Loading`
  * constant.
  */
 type Loading = symbol & { readonly IsLoading: unique symbol };
 
 /**
- * The `Success` variant of a `AsyncData` is an alias for retrieved data of
+ * The `Success` variant of a `RemoteData` is an alias for retrieved data of
  * type `D`. The data can be of any concrete type that isn't an object
  * inheriting from `Error`, or the two constants `NotAsked` and `Loading`.
  */
 type Success<D> = Exclude<D, NotAsked | Loading | Error>;
 
 /**
- * The `Failure` variant of a `AsyncData` represents a situation where the data
+ * The `Failure` variant of a `RemoteData` represents a situation where the data
  * could not be retrieved. It can be any error object which inherits from the
  * default JS `Error` built-in. Values of this type can be created like any
  * normal error object. The provided constructor `Failure` creates a vanilla
@@ -87,9 +87,9 @@ type Success<D> = Exclude<D, NotAsked | Loading | Error>;
  */
 type Failure<E extends Error> = E;
 
-/* Create a wrapped type where each member of `T` is an `AsyncData`. */
-type AsyncDataMapped<T extends ReadonlyArray<any>, E extends Error> = {
-  [k in keyof T]: AsyncData<T[k], E>;
+/* Create a wrapped type where each member of `T` is a `RemoteData`. */
+type RemoteDataMapped<T extends ReadonlyArray<any>, E extends Error> = {
+  [k in keyof T]: RemoteData<T[k], E>;
 };
 
 /* The `caseOf` function expects either exhaustive pattern matching, or
@@ -114,19 +114,19 @@ type CaseOfPattern<A, E extends Error, R> =
 // Constructors
 //
 
-/** A constructor for the `NotAsked` variant of `AsyncData`. */
+/** A constructor for the `NotAsked` variant of `RemoteData`. */
 const notAsked: NotAsked = Symbol("NotAsked") as NotAsked;
 
-/** A constructor for the `Loading` variant of `AsyncData`. */
+/** A constructor for the `Loading` variant of `RemoteData`. */
 const loading: Loading = Symbol("Loading") as Loading;
 
-/** A constructor for the `Success` variant of `AsyncData`. */
+/** A constructor for the `Success` variant of `RemoteData`. */
 function success<D>(d: Success<D>): Success<D> {
   return d;
 }
 
 /**
- * A constructor for the `Failure` variant of `AsyncData`, creates a vanilla
+ * A constructor for the `Failure` variant of `RemoteData`, creates a vanilla
  * `Error` object.
  */
 function failure(message?: string): Failure<Error> {
@@ -134,7 +134,7 @@ function failure(message?: string): Failure<Error> {
 }
 
 /**
- * A constructor for the `Failure` variant of `AsyncData`, creates a
+ * A constructor for the `Failure` variant of `RemoteData`, creates a
  * `DataError` object.
  */
 function failureData<D>(data: D, message?: string): Failure<DataError.T<D>> {
@@ -148,28 +148,28 @@ const of = success;
 // Typeguards
 //
 
-/** Typeguard for the `NotAsked` variant of a `AsyncData`. */
+/** Typeguard for the `NotAsked` variant of a `RemoteData`. */
 function isNotAsked(x: unknown): x is NotAsked {
   return x === notAsked;
 }
 
-/** Typeguard for the `Loading` variant of a `AsyncData`. */
+/** Typeguard for the `Loading` variant of a `RemoteData`. */
 function isLoading(x: unknown): x is Loading {
   return x === loading;
 }
 
-/** Typeguard for the `Failure` variant of a `AsyncData`. */
-function isFailure<D, E extends Error>(x: AsyncData<D, E>): x is Failure<E> {
+/** Typeguard for the `Failure` variant of a `RemoteData`. */
+function isFailure<D, E extends Error>(x: RemoteData<D, E>): x is Failure<E> {
   return x instanceof Error;
 }
 
-/** Typeguard for the `Success` variant of a `AsyncData`. */
-function isSuccess<D, E extends Error>(x: AsyncData<D, E>): x is Success<D> {
+/** Typeguard for the `Success` variant of a `RemoteData`. */
+function isSuccess<D, E extends Error>(x: RemoteData<D, E>): x is Success<D> {
   return !isNotAsked(x) && !isLoading(x) && !isFailure(x);
 }
 
-/** Typeguard for the `Success` or `Failure` variants of a `AsyncData`. */
-function isCompleted<D, E extends Error>(x: AsyncData<D, E>): x is Success<D> | Failure<E> {
+/** Typeguard for the `Success` or `Failure` variants of a `RemoteData`. */
+function isCompleted<D, E extends Error>(x: RemoteData<D, E>): x is Success<D> | Failure<E> {
   return !isNotAsked(x) && !isLoading(x);
 }
 
@@ -178,24 +178,24 @@ function isCompleted<D, E extends Error>(x: AsyncData<D, E>): x is Success<D> | 
 //
 
 /**
- * Create an `AsyncData` from a `Maybe` by returning either a `NotAsked` or `Success`
+ * Create a `RemoteData` from a `Maybe` by returning either a `NotAsked` or `Success`
  *
  *     Just<A> -> Success<A>
  *     Nothing -> NotAsked
  */
-const fromMaybe = Maybe.toAsyncData;
+const fromMaybe = Maybe.toRemoteData;
 
 /**
- * Create an `AsyncData` from a `Result`. Since the `Result` type is a subset
- * of `AsyncData` this is a lossless typecast.
+ * Create a `RemoteData` from a `Result`. Since the `Result` type is a subset
+ * of `RemoteData` this is a lossless typecast.
  *
  *     Ok<V>  -> Success<V>
  *     Err<E> -> Failure<E>
  */
-const fromResult = Result.toAsyncData;
+const fromResult = Result.toRemoteData;
 
 /**
- * Create a `Maybe` from an `AsyncData` by mapping `Success` to
+ * Create a `Maybe` from a `RemoteData` by mapping `Success` to
  * `Just` and everything else to `Nothing`.
  *
  *     NotAsked         -> Nothing
@@ -203,12 +203,12 @@ const fromResult = Result.toAsyncData;
  *     Success<V>       -> Just<V>
  *     Err<E>           -> Nothing
  */
-function toMaybe<D, E extends Error>(x: AsyncData<D, E>): Maybe.T<Success<D>> {
+function toMaybe<D, E extends Error>(x: RemoteData<D, E>): Maybe.T<Success<D>> {
   return isSuccess(x) ? x : undefined;
 }
 
 /**
- * Create a `Result` from an `AsyncData`, where the incomplete statuses map to
+ * Create a `Result` from a `RemoteData`, where the incomplete statuses map to
  * `Maybe.Nothing`.
  *
  *     NotAsked   -> Ok<Nothing>
@@ -216,7 +216,7 @@ function toMaybe<D, E extends Error>(x: AsyncData<D, E>): Maybe.T<Success<D>> {
  *     Success<V> -> Ok<V>
  *     Failure<E> -> Err<E>
  */
-function toResult<D, E extends Error>(x: AsyncData<D, E>): Result.T<Maybe.T<D>, E> {
+function toResult<D, E extends Error>(x: RemoteData<D, E>): Result.T<Maybe.T<D>, E> {
   return isCompleted(x) ? x : undefined;
 }
 
@@ -230,14 +230,14 @@ function map(a: NotAsked, fn: (a: any) => any): NotAsked;
 function map(a: Loading, fn: (a: any) => any): Loading;
 function map<A, B>(a: Success<A>, fn: (a: Success<A>) => B): B;
 function map<A, B, E extends Error>(
-  a: AsyncData<Success<A>, E>,
+  a: RemoteData<Success<A>, E>,
   fn: (a: Success<A>) => Success<B>
-): AsyncData<Success<B>, E>;
+): RemoteData<Success<B>, E>;
 function map<A, B, E extends Error>(
-  a: AsyncData<Success<A>, E>,
+  a: RemoteData<Success<A>, E>,
   fn: (a: Success<A>) => B
-): AsyncData<Success<B>, Extract<E | B, Error>>;
-function map<A>(a: AsyncData<A, Error>, fn: (a: A) => any) {
+): RemoteData<Success<B>, Extract<E | B, Error>>;
+function map<A>(a: RemoteData<A, Error>, fn: (a: A) => any) {
   return isSuccess(a) ? fn(a) : a;
 }
 
@@ -247,14 +247,14 @@ function mapFailure<A, B, E extends Error>(a: NotAsked, fn: (a: E) => B): NotAsk
 function mapFailure<A, B, E extends Error>(a: Loading, fn: (a: E) => B): Loading;
 function mapFailure<A, B, E extends Error>(a: E, fn: (e: E) => B): B;
 function mapFailure<A, B, E extends Error>(
-  a: AsyncData<Success<A>, E>,
+  a: RemoteData<Success<A>, E>,
   fn: (e: E) => Success<B>
 ): Success<A | B>;
 function mapFailure<A, B, EA extends Error, EB extends Error>(
-  a: AsyncData<Success<A>, EA>,
-  fn: (e: EA) => AsyncData<Success<B>, EB>
-): AsyncData<Success<A | B>, EB>;
-function mapFailure<A, B, E extends Error>(a: AsyncData<A, E>, fn: (e: E) => B) {
+  a: RemoteData<Success<A>, EA>,
+  fn: (e: EA) => RemoteData<Success<B>, EB>
+): RemoteData<Success<A | B>, EB>;
+function mapFailure<A, B, E extends Error>(a: RemoteData<A, E>, fn: (e: E) => B) {
   return isFailure(a) ? fn(a) : a;
 }
 
@@ -263,7 +263,7 @@ function mapFailure<A, B, E extends Error>(a: AsyncData<A, E>, fn: (e: E) => B) 
  * depending on the data's status.
  */
 function unwrap<A, B, E extends Error>(
-  x: AsyncData<A, E>,
+  x: RemoteData<A, E>,
   notAskedFn: () => B,
   loadingFn: () => B,
   successFn: (a: A) => B,
@@ -284,7 +284,7 @@ function unwrap<A, B, E extends Error>(
  * Simulates an ML style `case x of` pattern match, following the same logic as
  * `unwrap`.
  */
-function caseOf<A, E extends Error, R>(x: AsyncData<A, E>, pattern: CaseOfPattern<A, E, R>): R {
+function caseOf<A, E extends Error, R>(x: RemoteData<A, E>, pattern: CaseOfPattern<A, E, R>): R {
   if (isNotAsked(x) && pattern["NotAsked"]) {
     return pattern["NotAsked"]();
   } else if (isLoading(x) && pattern["Loading"]) {
@@ -304,10 +304,10 @@ function caseOf<A, E extends Error, R>(x: AsyncData<A, E>, pattern: CaseOfPatter
  * return the first non-success value.
  */
 function combine<T extends ReadonlyArray<any>, E extends Error>(
-  xs: AsyncDataMapped<T, E>
-): AsyncData<T, E>;
-function combine<A, E extends Error>(xs: ReadonlyArray<AsyncData<A, E>>): AsyncData<A[], E>;
-function combine(xs: ReadonlyArray<AsyncData<unknown, Error>>) {
+  xs: RemoteDataMapped<T, E>
+): RemoteData<T, E>;
+function combine<A, E extends Error>(xs: ReadonlyArray<RemoteData<A, E>>): RemoteData<A[], E>;
+function combine(xs: ReadonlyArray<RemoteData<unknown, Error>>) {
   const firstNonSuccess = xs.find((x) => !isSuccess(x));
   return firstNonSuccess !== undefined ? firstNonSuccess : xs.filter(isSuccess);
 }
@@ -319,7 +319,7 @@ function combine(xs: ReadonlyArray<AsyncData<unknown, Error>>) {
 function encase<Args extends Array<any>, V, E extends Error>(
   fn: (...args: Args) => V,
   onThrow: (e: unknown) => E
-): (...args: Args) => AsyncData<V, E> {
+): (...args: Args) => RemoteData<V, E> {
   return (...args: Args) => {
     try {
       return fn(...args);
@@ -339,6 +339,6 @@ function encase<Args extends Array<any>, V, E extends Error>(
 function encasePromise<V, E extends Error>(
   p: Promise<Success<V>>,
   onReject: (e: unknown) => E
-): Promise<AsyncData<Success<V>, E>> {
+): Promise<RemoteData<Success<V>, E>> {
   return p.catch((e: unknown) => onReject(e));
 }

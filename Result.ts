@@ -1,5 +1,5 @@
 import * as Maybe from "./Maybe";
-import * as AsyncData from "./AsyncData";
+import * as RemoteData from "./RemoteData";
 import * as DataError from "./DataError";
 
 export {
@@ -18,9 +18,9 @@ export {
   isErr,
   // Conversions
   fromMaybe,
-  fromAsyncData,
+  fromRemoteData,
   toMaybe,
-  toAsyncData,
+  toRemoteData,
   // Operations
   map,
   mapErr,
@@ -136,7 +136,7 @@ function isErr<V, E extends Error>(x: Result<V, E>): x is Err<E> {
 const fromMaybe = Maybe.toResult;
 
 /**
- * Create a `Result` from a `AsyncData`, where the incomplete statuses map to
+ * Create a `Result` from a `RemoteData`, where the incomplete statuses map to
  * `Maybe.Nothing`.
  *
  *     NotAsked   -> Ok<Nothing>
@@ -144,7 +144,7 @@ const fromMaybe = Maybe.toResult;
  *     Success<V> -> Ok<V>
  *     Failure<E> -> Err<E>
  */
-const fromAsyncData = AsyncData.toResult;
+const fromRemoteData = RemoteData.toResult;
 
 /**
  * Create a `Maybe` from a `Result` by replacing an `Err` with `Nothing`.
@@ -157,14 +157,14 @@ function toMaybe<V, E extends Error>(x: Result<V, E>): Maybe.T<Ok<V>> {
 }
 
 /**
- * Create a `AsyncData` from a `Result`. Since the `Result` type is a subset
- * of `AsyncData` this is a lossless typecast.
+ * Create a `RemoteData` from a `Result`. Since the `Result` type is a subset
+ * of `RemoteData` this is a lossless typecast.
  *
  *     Ok<V>  -> Success<V>
  *     Err<E> -> Failure<E>
  */
-function toAsyncData<V, E extends Error>(x: Result<V, E>): AsyncData.T<Ok<V>, Err<E>> {
-  return x as AsyncData.T<Ok<V>, Err<E>>;
+function toRemoteData<V, E extends Error>(x: Result<V, E>): RemoteData.T<Ok<V>, Err<E>> {
+  return x as RemoteData.T<Ok<V>, Err<E>>;
 }
 
 /** Apply `fn` if `a` is an `Ok`. Otherwise return the `Err`. */
