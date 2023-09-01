@@ -1,14 +1,29 @@
 {
   "compilerOptions": {
-    "target": "es2015",
-    "module": "commonjs",
-    "strict": true,
+    "allowUnreachableCode": false,
+    "alwaysStrict": true,
     "declaration": true,
     "esModuleInterop": true,
+    "exactOptionalPropertyTypes": false,
     "forceConsistentCasingInFileNames": true,
+    "module": "commonjs",
     "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitOverride": true,
     "noImplicitReturns": true,
-    "noUncheckedIndexedAccess": true
+    "noImplicitThis": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": true,
+    "outDir": "dist",
+    "strict": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "target": "es2015",
+    "useUnknownInCatchVariables": true
   },
-  "exclude": ["node_modules", "test", "test-d"]
+  "exclude": ["node_modules", "test", "old", "dist"]
 }

@@ -1,0 +1,15 @@
+import { NotAsked } from "./namespace";
+
+export { NotAsked } from "./namespace";
+export {
+  // Constructors
+  value,
+  // Type guards
+  isType,
+  // Conversions
+  coerce,
+  // Operations
+  ifType,
+};
+
+const { value, isType, coerce, ifType } = NotAsked;

@@ -1,4 +1,4 @@
-import { validDate, now, of } from "../ValidDate";
+import { ValidDate, validDate, now } from "../lib/ValidDate";
 
 describe("Constructors", () => {
   it("should create ValidDate values", () => {
@@ -8,7 +8,7 @@ describe("Constructors", () => {
     expect(validDate(dts) instanceof Date).toBe(true);
     expect(validDate(d) instanceof Date).toBe(true);
     expect(now() instanceof Date).toBe(true);
-    expect(of(dts) instanceof Date).toBe(true);
-    expect(of(d) instanceof Date).toBe(true);
+    expect(ValidDate.of(dts) instanceof Date).toBe(true);
+    expect(ValidDate.of(d) instanceof Date).toBe(true);
   });
 });
