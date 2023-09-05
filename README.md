@@ -32,7 +32,7 @@ and an alias that's easier to use with the namespace prefix. For example
 
 ## Provided Modules
 
-### `Option`
+### [`Option`]
 
 An `Option<A>` is a value that may or may not be present. Values of this type are
 either:
@@ -79,7 +79,9 @@ const a = keepPositive(10); // 10
 const b = keepPositive(-5); // undefined
 ```
 
-### `Result`
+[`Option`]: https://github.com/mulias/some-types/blob/main/lib/Option/namespace.ts
+
+### [`Result`]
 
 A `Result<V, E>` is the result of a computation that might fail. Values of this type
 are either:
@@ -126,9 +128,10 @@ submit([1, 3, 7, 9, 11]) // "Thanks for these great numbers! Their sum is 31."
 submit([1, 3, 7, 12, 55, -1]) // "Error: Invalid number 12, must be odd."
 ```
 
+[`Result`]: https://github.com/mulias/some-types/blob/main/lib/Result/namespace.ts
 [discriminated union]: https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions
 
-### `RemoteData`
+### [`RemoteData`]
 
 `RemoteData<D, E>` models the lifecycle of async requests, where data starts
 uninitialized, a request is made, and then either a successful or
@@ -194,10 +197,11 @@ function displayDogImage(dogImageRequest: DogRequest): string {
 }
 ```
 
+[`RemoteData`]: https://github.com/mulias/some-types/blob/main/lib/RemoteData/namespace.ts
 [symbols]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol
 [api]: https://dog.ceo/dog-api/documentation/random
 
-### `DataError`
+### [`DataError`]
 
 A `DataError<D>` is an instance of the `DataError` class which inherits
 from `Error` but additionally has a parametrized `data` field which can
@@ -207,12 +211,16 @@ store a value of type `D`. When thrown `DataError` has the same behavior as
 The `Result` and `RemoteData` modules may use `DataError` to track arbitrary
 data on `Result.Err` or `RemoteData.Failure`.
 
-### `NonEmptyArray`
+[`DataError`]: https://github.com/mulias/some-types/blob/main/lib/DataError/namespace.ts
+
+### [`NonEmptyArray`]
 
 A `NonEmptyArray<A>` is an immutable array where the elements have type `A` and
 the array contains at least one element.
 
-### `Tuple`
+[`NonEmptyArray`]: https://github.com/mulias/some-types/blob/main/lib/NonEmptyArray/namespace.ts
+
+### [`Tuple`]
 
 A `Tuple<A, B, C>` is an immutable array with a fixed length. For simplicity we
 provide utilities for tuples of length 0, 1, 2, and 3, although TypeScript
@@ -235,12 +243,16 @@ const firstNumber : number = pairs[0][0]; // 1
 const firstString : string = pairs[0][1]; // "a"
 ```
 
-### `ReadonlyDate`
+[`Tuple`]: https://github.com/mulias/some-types/blob/main/lib/Tuple/namespace.ts
+
+### [`ReadonlyDate`](https://github.com/mulias/some-types/blob/main/lib/ReadonlyDate/namespace.ts)
 
 Similar to `ReadonlyArray`, `ReadonlyDate` is a `Date` object where all mutable
 methods have been removed from the type declaration.
 
-### `ValidDate`
+[`ReadonlyDate`]: https://github.com/mulias/some-types/blob/main/lib/ReadonlyDate/namespace.ts
+
+### [`ValidDate`]
 
 A `ValidDate` is a `Date` object which we know is not invalid.
 
@@ -255,7 +267,9 @@ an `Array` is required, `ReadonlyDate` can't be used when a `Date` is
 required. To get around this limitation the `ValidDate` must be explicitly
 cast to a `Date`, breaking the read-only guarantee.
 
-### `Timestamp`
+[`ValidDate`]: https://github.com/mulias/some-types/blob/main/lib/ValidDate/namespace.ts
+
+### [`Timestamp`]
 
 A `Timestamp` is a number encoding of a `Date`, measured as the time
 in milliseconds that has elapsed since the UNIX epoch.
@@ -271,9 +285,8 @@ a drop-in replacement for `Date`s.
 import { isMonday } from "date-fns";
 import { Timestamp } from "some-types";
 
-const year = 2023;
 const months = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((monthIndex) =>
-  Timestamp.of({ year, monthIndex, day: 1 }),
+  Timestamp.of({ year: 2023, monthIndex, day: 1 }),
 );
 
 const monthsStartingOnMonday : Timestamp[] = months.filter(isMonday);
@@ -282,7 +295,9 @@ monthsStartingOnMonday.map((t) => Timestamp.toDate(t).toUTCString());
 // ["Mon, 01 May 2023 05:00:00 GMT"]
 ```
 
-### `DateString`
+[`Timestamp`]: https://github.com/mulias/some-types/blob/main/lib/Timestamp/namespace.ts
+
+### [`DateString`]
 
 A `DateString` is a string encoding of a `Date`, guaranteed to parse to a valid
 Date object. Internally `DateString`s use ISO 8601 format, which is commonly used to
@@ -294,7 +309,9 @@ comparison. Many date utility libraries will accept strings instead of
 `Date`s, but libraries such as `date-fns` are less permissive and require
 strings to first be explicitly parsed to dates.
 
-### `Branded`
+[`DateString`]: https://github.com/mulias/some-types/blob/main/lib/DateString/namespace.ts
+
+### [`Branded`]
 
 `Branded<Base, Brand>` creates a new branded type, meaning a type that enhances a
 `Base` type with additional compile-time meaning. Branded types can still be used
@@ -306,6 +323,8 @@ In this example we create a branded type for strings that are UUIDs, and a
 higher-order branded type for anything that's cool.
 
 ```
+import { Branded } from "some-types"
+
 declare const UUIDBrand: unique symbol;
 type UUID = Branded<string, typeof UUIDBrand>;
 
@@ -334,6 +353,8 @@ requireUUID(coolNum);
 requireCool(uuid);
 requireCoolUUID(coolNum);
 ```
+
+[`Branded`]: https://github.com/mulias/some-types/blob/main/lib/Branded/namespace.ts
 
 ## Prior Art
 
