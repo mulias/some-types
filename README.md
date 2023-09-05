@@ -1,7 +1,7 @@
 # Some Types
 
-Have some types! They're home grown, organic, GMO-free, and rich in
-antioxidants. Types for a true TypeScript gourmand.
+Have some types! They're home grown, organic, rich in antioxidants, and packed
+with flavor. Types for a true TypeScript gourmand.
 
 This library features a handful of useful types that leverage advanced
 TypeScript features while still fitting in seamlessly with your existing code.
