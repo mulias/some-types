@@ -1,3 +1,4 @@
+export { Branded } from "./Branded/namespace";
 export { DataError } from "./DataError/namespace";
 export { DateString } from "./DateString/namespace";
 export { Option } from "./Option/namespace";

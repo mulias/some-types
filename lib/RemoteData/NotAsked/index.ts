@@ -1,7 +1,6 @@
-import { NotAsked } from "./namespace";
-
-export { NotAsked } from "./namespace";
 export {
+  // Namespace and Type
+  NotAsked,
   // Constructors
   value,
   // Type guards
@@ -12,4 +11,5 @@ export {
   ifType,
 };
 
+import { NotAsked } from "./namespace";
 const { value, isType, coerce, ifType } = NotAsked;

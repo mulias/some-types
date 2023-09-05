@@ -25,9 +25,3 @@ export type ErrorElements<T extends ReadonlyArray<any>> =
 
 /* Construct a type with the properties of T except for those in type K. */
 export type OmitStrict<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
-
-declare const TypeBrand: unique symbol;
-
-export type Branded<Base, Brand extends symbol> = Base & {
-  [K in Brand]: typeof TypeBrand;
-};

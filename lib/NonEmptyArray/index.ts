@@ -1,8 +1,6 @@
-import { NonEmptyArray } from "./namespace";
-
-// Namespace and Type
-export { NonEmptyArray } from "./namespace";
 export {
+  // Namespace and Type
+  NonEmptyArray,
   // Constructors
   nonEmptyArray,
   of,
@@ -24,6 +22,7 @@ export {
   sort,
 };
 
+import { NonEmptyArray } from "./namespace";
 const {
   nonEmptyArray,
   of,

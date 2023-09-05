@@ -1,4 +1,4 @@
-import { OmitStrict } from "../type_util";
+import { OmitStrict } from "../util/type";
 
 /**
  *

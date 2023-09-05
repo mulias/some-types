@@ -1,10 +1,8 @@
-import { Option } from "./namespace";
-
-// Namespaces and Types
-export { Option } from "./namespace";
-export { Some } from "./Some/namespace";
-export { None } from "./None/namespace";
 export {
+  // Namespaces and Types
+  Option,
+  Some,
+  None,
   // Constructors
   some,
   of,
@@ -27,12 +25,15 @@ export {
   ifSome,
   ifNone,
   orDefault,
-  caseOf,
+  match,
   consolidate,
   encase,
   encasePromise,
 };
 
+import { Option } from "./namespace";
+import { Some } from "./Some/namespace";
+import { None } from "./None/namespace";
 const {
   some,
   none,
@@ -52,7 +53,7 @@ const {
   ifSome,
   ifNone,
   orDefault,
-  caseOf,
+  match,
   consolidate,
   encase,
   encasePromise,

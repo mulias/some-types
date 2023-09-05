@@ -1,3 +1,4 @@
+import { Branded } from "../Branded/namespace";
 import { DateString } from "../DateString/namespace";
 import { Option } from "../Option/namespace";
 import { ValidDate } from "../ValidDate/namespace";
@@ -8,8 +9,7 @@ import {
   getLocalDateFields,
   getUTCDateFields,
   newDate,
-} from "../date_util";
-import { Branded } from "../type_util";
+} from "../util/date";
 
 /**
  *

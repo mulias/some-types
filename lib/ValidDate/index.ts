@@ -1,8 +1,6 @@
-import { ValidDate } from "./namespace";
-
-// Namespace and Type
-export { ValidDate } from "./namespace";
 export {
+  // Namespace and Type
+  ValidDate,
   // Constructors
   validDate,
   of,
@@ -20,6 +18,7 @@ export {
   map,
 };
 
+import { ValidDate } from "./namespace";
 const {
   validDate,
   of,

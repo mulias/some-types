@@ -1,12 +1,10 @@
-import { RemoteData } from "./namespace";
-
-// Namespaces and Types
-export { RemoteData } from "./namespace";
-export { NotAsked } from "./NotAsked/namespace";
-export { Loading } from "./Loading/namespace";
-export { Success } from "./Success/namespace";
-export { Failure } from "./Failure/namespace";
 export {
+  // Namespaces and Types
+  RemoteData,
+  NotAsked,
+  Loading,
+  Success,
+  Failure,
   // Constructors
   notAsked,
   loading,
@@ -36,7 +34,7 @@ export {
   ifFailure,
   orDefault,
   orThrow,
-  caseOf,
+  match,
   consolidate,
   encase,
   encaseWithData,
@@ -44,6 +42,11 @@ export {
   encasePromiseWithData,
 };
 
+import { RemoteData } from "./namespace";
+import { NotAsked } from "./NotAsked/namespace";
+import { Loading } from "./Loading/namespace";
+import { Success } from "./Success/namespace";
+import { Failure } from "./Failure/namespace";
 const {
   notAsked,
   loading,
@@ -70,7 +73,7 @@ const {
   ifFailure,
   orDefault,
   orThrow,
-  caseOf,
+  match,
   consolidate,
   encase,
   encaseWithData,

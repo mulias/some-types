@@ -1,7 +1,6 @@
-import { Err } from "./namespace";
-
-export { Err } from "./namespace";
 export {
+  // Namespace and Type
+  Err,
   // Constructors
   of,
   withData,
@@ -13,4 +12,5 @@ export {
   ifType,
 };
 
+import { Err } from "./namespace";
 const { of, withData, isType, coerce, ifType } = Err;

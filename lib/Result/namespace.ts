@@ -3,7 +3,7 @@ import { Err, Err as ErrImpl } from "./Err/namespace";
 import { Option } from "../Option/namespace";
 import { Ok, Ok as OkImpl } from "./Ok/namespace";
 import { RemoteData } from "../RemoteData/namespace";
-import { IsAnyOrUnknown, ErrorElements } from "../type_util";
+import { IsAnyOrUnknown, ErrorElements } from "../util/type";
 
 /**
  *
@@ -86,10 +86,10 @@ export namespace Result {
     ? T
     : Result<OkMapped<T>, ErrorElements<T>>;
 
-  /* The `caseOf` function expects either exhaustive pattern matching, or
+  /* The `match` function expects either exhaustive pattern matching, or
    * non-exhaustive with a `default` case.
    */
-  type CaseOfPattern<A, B> =
+  type MatchPattern<A, B> =
     | {
       Ok: (a: Ok<A>) => B;
       Err: (e: Err<A>) => B;
@@ -249,7 +249,7 @@ export namespace Result {
    * `pattern` object either needs to be exhastive or needs to have a `default`
    * branch.
    */
-  export function caseOf<A, B>(x: A, pattern: CaseOfPattern<A, B>): B {
+  export function match<A, B>(x: A, pattern: MatchPattern<A, B>): B {
     if (isOk(x) && pattern["Ok"]) {
       return pattern["Ok"](x);
     } else if (isErr(x) && pattern["Err"]) {

@@ -14,7 +14,7 @@ import {
   ifOk,
   ifErr,
   orDefault,
-  caseOf,
+  match,
   consolidate,
   encase,
   encasePromise,
@@ -210,7 +210,7 @@ const testWithDefault = () => {
   );
 };
 
-const testCaseOf = () => { };
+const testMatch = () => { };
 
 const testConsolidate = () => {
   const w = [0] as number[];

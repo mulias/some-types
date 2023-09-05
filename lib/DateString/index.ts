@@ -1,8 +1,6 @@
-import { DateString } from "./namespace";
-
-// Namespace and Type
-export { DateString } from "./namespace";
 export {
+  // Namespace and Type
+  DateString,
   // Constructors
   dateString,
   parse,
@@ -23,6 +21,7 @@ export {
   map,
 };
 
+import { DateString } from "./namespace";
 const {
   dateString,
   parse,

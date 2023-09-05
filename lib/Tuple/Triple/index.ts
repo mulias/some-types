@@ -1,8 +1,6 @@
-import { Triple } from "./namespace";
-
-// Namespaces and Types
-export { Triple } from "./namespace";
 export {
+  // Namespace and Type
+  Triple,
   // Constructors
   of,
   // Typeguards
@@ -12,4 +10,5 @@ export {
   coerce,
 };
 
+import { Triple } from "./namespace";
 const { of, isType, fromArray, coerce } = Triple;

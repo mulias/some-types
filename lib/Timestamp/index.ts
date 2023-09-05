@@ -1,8 +1,6 @@
-import { Timestamp } from "./namespace";
-
-// Namespace and Type
-export { Timestamp } from "./namespace";
 export {
+  // Namespace and Type
+  Timestamp,
   // Constructors
   timestamp,
   parse,
@@ -23,6 +21,7 @@ export {
   map,
 };
 
+import { Timestamp } from "./namespace";
 const {
   timestamp,
   parse,

@@ -1,10 +1,8 @@
-import { Result } from "./namespace";
-
-// Namespaces and Types
-export { Result } from "./namespace";
-export { Ok } from "./Ok/namespace";
-export { Err } from "./Err/namespace";
 export {
+  // Namespaces and Types
+  Result,
+  Ok,
+  Err,
   // Constructors
   ok,
   of,
@@ -25,7 +23,7 @@ export {
   ifErr,
   orDefault,
   orThrow,
-  caseOf,
+  match,
   consolidate,
   encase,
   encaseWithData,
@@ -33,6 +31,9 @@ export {
   encasePromiseWithData,
 };
 
+import { Result } from "./namespace";
+import { Ok } from "./Ok/namespace";
+import { Err } from "./Err/namespace";
 const {
   ok,
   err,
@@ -50,7 +51,7 @@ const {
   ifErr,
   orDefault,
   orThrow,
-  caseOf,
+  match,
   consolidate,
   encase,
   encaseWithData,

@@ -1,8 +1,6 @@
-import { Empty } from "./namespace";
-
-// Namespaces and Types
-export { Empty } from "./namespace";
 export {
+  // Namespace and Type
+  Empty,
   // Constructors
   value,
   // Typeguards
@@ -12,4 +10,5 @@ export {
   coerce,
 };
 
+import { Empty } from "./namespace";
 const { value, isType, fromArray, coerce } = Empty;

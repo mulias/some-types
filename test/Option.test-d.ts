@@ -27,7 +27,7 @@ import {
   ifSome,
   ifNone,
   orDefault,
-  caseOf,
+  match,
   consolidate,
   encase,
   encasePromise,
@@ -188,14 +188,14 @@ const testWithDefault = () => {
   expectType<number | undefined>(orDefault(4 as number | undefined, undefined));
 };
 
-const testCaseOf = () => {
-  const a = caseOf(55 as Option<number>, {
+const testMatch = () => {
+  const a = match(55 as Option<number>, {
     Some: (x) => x * 12,
     None: () => 0,
   });
   expectType<number>(a);
 
-  const b = caseOf(some(4), {
+  const b = match(some(4), {
     Some: (x) => (x === 0 ? none : String(x)),
     None: () => none,
   });

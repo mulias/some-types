@@ -1,8 +1,6 @@
-import { Pair } from "./namespace";
-
-// Namespaces and Types
-export { Pair } from "./namespace";
 export {
+  // Namespace and Type
+  Pair,
   // Constructors
   of,
   // Typeguards
@@ -12,4 +10,5 @@ export {
   coerce,
 };
 
+import { Pair } from "./namespace";
 const { of, isType, fromArray, coerce } = Pair;

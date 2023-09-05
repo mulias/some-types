@@ -1,7 +1,6 @@
-import { Ok } from "./namespace";
-
-export { Ok } from "./namespace";
 export {
+  // Namespace and Type
+  Ok,
   // Constructors
   of,
   // Typeguards
@@ -12,4 +11,5 @@ export {
   ifType,
 };
 
+import { Ok } from "./namespace";
 const { of, isType, coerce, ifType } = Ok;

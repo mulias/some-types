@@ -4,7 +4,7 @@ import { NonEmptyArray } from "../NonEmptyArray/namespace";
 import { Pair, Pair as PairImpl } from "./Pair/namespace";
 import { Single, Single as SingleImpl } from "./Single/namespace";
 import { Triple, Triple as TripleImpl } from "./Triple/namespace";
-import { IsNever } from "../type_util";
+import { IsNever } from "../util/type";
 
 /**
  *

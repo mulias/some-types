@@ -1,8 +1,6 @@
-import { Single } from "./namespace";
-
-// Namespaces and Types
-export { Single } from "./namespace";
 export {
+  // Namespace and Type
+  Single,
   // Constructors
   of,
   // Typeguards
@@ -12,4 +10,5 @@ export {
   coerce,
 };
 
+import { Single } from "./namespace";
 const { of, isType, fromArray, coerce } = Single;

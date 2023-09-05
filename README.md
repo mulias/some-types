@@ -185,7 +185,7 @@ When we render our UI we can base our logic off of the current value of
 
 ```
 function displayDogImage(dogImageRequest: DogRequest): string {
-  return RemoteData.caseOf(dogImageRequest, {
+  return RemoteData.match(dogImageRequest, {
     NotAsked: () => "Request a dog!",
     Loading: () => "Loading!",
     Success: (url) => `Here's your dog! ${url}`,
@@ -294,6 +294,47 @@ comparison. Many date utility libraries will accept strings instead of
 `Date`s, but libraries such as `date-fns` are less permissive and require
 strings to first be explicitly parsed to dates.
 
+### `Branded`
+
+`Branded<Base, Brand>` creates a new branded type, meaning a type that enhances a
+`Base` type with additional compile-time meaning. Branded types can still be used
+in place of their base type, but the base type can't be used when the branded
+type is required. The provided `Brand` should be a unique symbol which is not
+used anywhere else.
+
+In this example we create a branded type for strings that are UUIDs, and a
+higher-order branded type for anything that's cool.
+
+```
+declare const UUIDBrand: unique symbol;
+type UUID = Branded<string, typeof UUIDBrand>;
+
+declare const CoolBrand: unique symbol;
+type Cool<T> = Branded<T, typeof CoolBrand>;
+
+// Functions that require certain branded parameters
+const requireUUID = (uuid: UUID) => uuid;
+const requireCool = <T extends Cool<unknown>>(val: T) => val;
+const requireCoolUUID = (uuid: Cool<UUID>) => uuid;
+
+// Values manually cast to branded types
+const uuid = "3da74402-afe5-48aa-93e4-3399a2d8c0e2" as UUID;
+const coolUuid = "6778379b-3b2d-4ffe-98f5-ef805ee26997" as Cool<UUID>;
+const coolNum = 1729 as Cool<number>;
+
+// All of these will compile
+requireUUID(uuid);
+requireCool(coolUuid);
+requireCool(coolNum);
+requireCoolUUID(coolUuid);
+
+// All of these will fail to compile
+requireUUID("foo");
+requireUUID(coolNum);
+requireCool(uuid);
+requireCoolUUID(coolNum);
+```
+
 ## Prior Art
 
 A number of libraries, guides, and blog posts shaped the design of this library.
@@ -306,6 +347,8 @@ Here's a non-exhaustive list.
 - https://gigobyte.github.io/purify/
 
 - https://mobily.github.io/ts-belt/
+
+- https://github.com/seancroach/ts-opaque
 
 - https://github.com/gcanti/fp-ts
 

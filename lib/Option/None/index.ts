@@ -1,7 +1,6 @@
-import { None } from "./namespace";
-
-export { None } from "./namespace";
 export {
+  // Namespace and Type
+  None,
   // Constructors
   value,
   // Typeguards
@@ -12,4 +11,5 @@ export {
   ifType,
 };
 
+import { None } from "./namespace";
 const { value, isType, coerce, ifType } = None;

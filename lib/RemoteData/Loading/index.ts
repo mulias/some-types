@@ -1,7 +1,6 @@
-import { Loading } from "./namespace";
-
-export { Loading } from "./namespace";
 export {
+  // Namespace and Type
+  Loading,
   // Constructors
   value,
   // Type guards
@@ -12,4 +11,5 @@ export {
   ifType,
 };
 
+import { Loading } from "./namespace";
 const { value, isType, coerce, ifType } = Loading;

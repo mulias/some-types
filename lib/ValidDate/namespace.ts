@@ -1,7 +1,7 @@
+import { Branded } from "../Branded/namespace";
 import { Option } from "../Option/namespace";
 import { ReadonlyDate } from "../ReadonlyDate/namespace";
-import { NewDateArgs, newDate } from "../date_util";
-import { Branded } from "../type_util";
+import { NewDateArgs, newDate } from "../util/date";
 
 /**
  *

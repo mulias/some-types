@@ -1,8 +1,6 @@
-import { ReadonlyDate } from "./namespace";
-
-// Namespace and Type
-export { ReadonlyDate } from "./namespace";
 export {
+  // Namespace and Type
+  ReadonlyDate,
   // Constructors
   readonlyDate,
   of,
@@ -13,4 +11,5 @@ export {
   asDate,
 };
 
+import { ReadonlyDate } from "./namespace";
 const { readonlyDate, of, now, fromDate, toDate, asDate } = ReadonlyDate;

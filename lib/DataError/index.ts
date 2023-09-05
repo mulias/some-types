@@ -1,8 +1,6 @@
-import { DataError } from "./namespace";
-
-// Namespace and Type
-export { DataError } from "./namespace";
 export {
+  // Namespace and Type
+  DataError,
   // Constructors
   dataError,
   of,
@@ -15,15 +13,5 @@ export {
   map,
 };
 
-const {
-  // Constructors
-  dataError,
-  of,
-  // Typeguards
-  isDataError,
-  isType,
-  // Conversions
-  fromError,
-  // Operations
-  map,
-} = DataError;
+import { DataError } from "./namespace";
+const { dataError, of, isDataError, isType, fromError, map } = DataError;

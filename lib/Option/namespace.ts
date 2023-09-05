@@ -1,6 +1,6 @@
 import { RemoteData } from "../RemoteData/namespace";
 import { Result } from "../Result/namespace";
-import { Equals, IsAnyOrUnknown } from "../type_util";
+import { Equals, IsAnyOrUnknown } from "../util/type";
 import { Some, Some as SomeImpl } from "./Some/namespace";
 import { None, None as NoneImpl } from "./None/namespace";
 
@@ -75,10 +75,10 @@ export namespace Option {
     ? T
     : Option<SomeMapped<T>>;
 
-  /* The `caseOf` function expects either exhaustive pattern matching, or
+  /* The `match` function expects either exhaustive pattern matching, or
    * non-exhaustive with a `default` case.
    */
-  type CaseOfPattern<A, B> =
+  type MatchPattern<A, B> =
     | {
       Some: (x: Some<A>) => B;
       None: () => B;
@@ -256,7 +256,7 @@ export namespace Option {
    * `pattern` object either needs to be exhastive or needs to have a `default`
    * branch.
    */
-  export function caseOf<A, B>(x: Option<A>, pattern: CaseOfPattern<A, B>): B {
+  export function match<A, B>(x: Option<A>, pattern: MatchPattern<A, B>): B {
     if (isSome(x) && pattern["Some"]) {
       return pattern["Some"](x);
     } else if (isNone(x) && pattern["None"]) {

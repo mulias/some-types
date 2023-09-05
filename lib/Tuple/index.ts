@@ -1,12 +1,10 @@
-import { Tuple } from "./namespace";
-
-// Namespaces and Types
-export { Tuple } from "./namespace";
-export { Empty } from "./Empty/namespace";
-export { Single } from "./Single/namespace";
-export { Pair } from "./Pair/namespace";
-export { Triple } from "./Triple/namespace";
 export {
+  // Namespaces and Types
+  Tuple,
+  Empty,
+  Single,
+  Pair,
+  Triple,
   // Constructors
   tuple,
   empty,
@@ -49,6 +47,11 @@ export {
   unzip,
 };
 
+import { Tuple } from "./namespace";
+import { Empty } from "./Empty/namespace";
+import { Single } from "./Single/namespace";
+import { Pair } from "./Pair/namespace";
+import { Triple } from "./Triple/namespace";
 const {
   tuple,
   empty,

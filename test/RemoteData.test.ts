@@ -77,7 +77,7 @@ describe("README example", () => {
   }
 
   function displayDogImage(dogImage: DogRequest): string {
-    return RemoteData.caseOf(dogImage, {
+    return RemoteData.match(dogImage, {
       NotAsked: () => "Request a dog!",
       Loading: () => "Loading!",
       Success: (url) => `Here's your dog! ${url}`,

@@ -1,3 +1,4 @@
+import { Branded } from "../Branded/namespace";
 import { Option } from "../Option/namespace";
 import { Timestamp } from "../Timestamp/namespace";
 import { ValidDate } from "../ValidDate/namespace";
@@ -8,8 +9,7 @@ import {
   getLocalDateFields,
   getUTCDateFields,
   newDate,
-} from "../date_util";
-import { Branded } from "../type_util";
+} from "../util/date";
 
 /**
  *
@@ -104,7 +104,7 @@ export namespace DateString {
 
   /** Get the current time as a `DateString`. */
   export function now(): DateString {
-    return dateString(ValidDate.now());
+    return dateString(Date.now());
   }
 
   //

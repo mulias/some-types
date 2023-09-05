@@ -9,7 +9,7 @@ import {
   IsAnyOrUnknown,
   NonAnyOrUnknownElements,
   ErrorElements,
-} from "../type_util";
+} from "../util/type";
 
 /**
  *
@@ -93,10 +93,10 @@ export namespace RemoteData {
     ? T
     : RemoteData<SuccessMapped<T>, ErrorElements<T>>;
 
-  /* The `caseOf` function expects either exhaustive pattern matching, or
+  /* The `match` function expects either exhaustive pattern matching, or
    * non-exhaustive with a `default` case.
    */
-  type CaseOfPattern<A, B> =
+  type MatchPattern<A, B> =
     | {
       NotAsked: () => B;
       Loading: () => B;
@@ -292,7 +292,7 @@ export namespace RemoteData {
    * `pattern` object either needs to be exhastive or needs to have a `default`
    * branch.
    */
-  export function caseOf<A, B>(x: A, pattern: CaseOfPattern<A, B>): B {
+  export function match<A, B>(x: A, pattern: MatchPattern<A, B>): B {
     if (isNotAsked(x) && pattern["NotAsked"]) {
       return pattern["NotAsked"]();
     } else if (isLoading(x) && pattern["Loading"]) {
